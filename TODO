@@ -1,9 +1,6 @@
 Two matrices : current and new (swap)
+debug memoryCheck
 
-Add class Matrix
-General Makefile
-
-Import Mersenne Twister library
 
 
 MPI
