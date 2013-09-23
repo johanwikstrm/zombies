@@ -122,7 +122,6 @@ int main(int argc, char const *argv[])
 {
     Dmatrix matrix = Dmatrix(HEIGHT,WIDTH);
     Dmatrix matrix2 = Dmatrix(HEIGHT,WIDTH);
-    Dmatrix temp;
     randomizer = new MTRand(time(0));
     //init(matrix,distr,twister);
     init(matrix);
@@ -130,8 +129,6 @@ int main(int argc, char const *argv[])
     for (int i = 0; i < ITERATIONS; i++) {
         move(matrix,matrix2);
         printStats(matrix2);
-        temp = matrix;
-        matrix2 = temp;
     }
 
     return 0;
