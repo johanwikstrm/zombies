@@ -1,8 +1,28 @@
-main : main.cpp
-	g++ -g main.cpp -o main
+SRC_TESTS = $(wildcard unitTest_*.cpp)
+## All the executable for the tests
+TESTS = $(SRC_TESTS:.cpp=)
 
+OBJETS = Darray.o Dmatrix.o
+
+CXX = g++
+CXXFLAGS = -Wall -g -pedantic 
+
+all : $(TESTS) main
+
+unitTest_% : $(OBJETS) unitTest_%.o
+	$(CXX) $(CXXFLAGS) -o $@ $^
+
+main : $(OBJETS) main.o
+	$(CXX) $(CXXFLAGS) -o $@ $^
+
+check :
+	make
+	./unitTests.sh
+
+checkMemory :
+	make
+	./checkMemory.sh
 
 clean :
 	rm -f main
-
-##	g++ -g -std=c++11 main.cpp -o main
+	rm -f *.o
