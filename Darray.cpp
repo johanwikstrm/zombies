@@ -3,6 +3,7 @@ using namespace std;
 #include <fstream>
 #include <ctime>
 #include <cassert>
+#include <string.h>
 
 #include "Darray.h"
 
@@ -79,6 +80,26 @@ int& Darray::operator()(uint32_t i)
     return array[i];
 }
 
+Darray& Darray::operator=(const Darray& P)
+{
+    if (size == 0 && P.size == 0) {
+        return *this;
+    }
+
+    if (size != P.size) {
+        if (size != 0) {
+            delete [] array;
+        }
+        size = P.size;
+        array = new int[size];
+    } 
+
+    memcpy(array, P.array, size*sizeof(int));
+    return *this;
+}
+
+
+
 bool Darray::operator==(const Darray& P) const
 {
     // Egalité de la size des deux vecteurs
@@ -93,6 +114,15 @@ bool Darray::operator==(const Darray& P) const
     }
     return false;
 }
+
+// The two arrays must have the same length
+void Darray::swap(Darray& P) 
+{
+    int* tmp = P.array;
+    P.array = array;
+    array = tmp;
+}
+
 ostream& operator<< (ostream& out, const Darray& P) 
 {
     for(uint32_t i = 0; i < P.getSize(); i++) {

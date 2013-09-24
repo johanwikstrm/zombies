@@ -76,6 +76,8 @@ class Darray
          */
         int& operator()(uint32_t i) ;
 
+        Darray& operator=(const Darray& P);
+
         /**
          * @brief       Teste l egalite du vecteur avec un autre
          *
@@ -84,6 +86,8 @@ class Darray
          * @return      true si et seulement si les vecteurs sont egaux
          */
         bool operator==(const Darray& P) const;
+
+        void swap(Darray& P);
 
 };
 

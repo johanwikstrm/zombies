@@ -3,6 +3,7 @@ using namespace std;
 #include <cmath>
 #include <fstream>
 #include <stdlib.h>
+#include <string.h>
 #include "Dmatrix.h"
 
 
@@ -11,7 +12,7 @@ Dmatrix::Dmatrix(uint32_t h, uint32_t w, int init):Darray(h*w, init)
 {
     height = h;
     width = w;
-    counts = (uint32_t*)calloc(4, sizeof(uint32_t));
+    counts = (uint32_t*)calloc(numCellKinds, sizeof(uint32_t));
     counts[init] = h*w;
 }
 
@@ -22,14 +23,22 @@ Dmatrix::Dmatrix(const Dmatrix& P):Darray(P)
 {
     width = P.width;
     height = P.height;
-    counts = (uint32_t*)calloc(4, sizeof(uint32_t));
-    for (int i = 0; i <3; i++) {
+    counts = (uint32_t*)calloc(numCellKinds, sizeof(uint32_t));
+    for (int i = 0; i < numCellKinds; i++) {
         counts[i] = P.counts[i];
     }
 }
 
+Dmatrix::Dmatrix():Darray()
+{
+    width = 0;
+    height = 0;
+    counts = (uint32_t*)calloc(numCellKinds, sizeof(uint32_t));
+}
+
 Dmatrix::~Dmatrix()
 {
+    free(counts);
 }
 
 
@@ -102,8 +111,27 @@ bool Dmatrix::operator==(const Dmatrix& M)
                 }
             } 
         }
+        // Do not need to check the equality of the values in counts
         return true;
     } else {
         return false;
     }
 }
+
+Dmatrix& Dmatrix::operator=(const Dmatrix& P)
+{
+    Darray::operator=(P);
+    width = P.width;
+    height = P.height;
+    memcpy(counts, P.counts, numCellKinds*sizeof(int));
+    return *this;
+}
+
+void Dmatrix::swap(Dmatrix& M)
+{
+    assert(M.width == this->width);
+    assert(M.height == this->height);
+    Darray::swap(M);
+    std::swap(this->counts, M.counts); 
+}
+
