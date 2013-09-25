@@ -9,6 +9,8 @@
 #include <stdint.h>
 #include "Darray.h"
 
+#define numCellKinds 4
+
 class Dmatrix : public Darray
 {
 
@@ -29,7 +31,6 @@ class Dmatrix : public Darray
          *                              the matrix is initialize 
          *                              By default, init = 0
          */
-        
         Dmatrix(uint32_t height, uint32_t width, int init = 0);
 
         /**
@@ -38,6 +39,8 @@ class Dmatrix : public Darray
          * @param       M       la matrice a copier
          */
         Dmatrix(const Dmatrix& M);
+
+        Dmatrix();        
 
         /**
          * @brief       Destructor
@@ -69,17 +72,7 @@ class Dmatrix : public Darray
          * @return      element (i,j) de la matrice
          */
         int operator()(uint32_t i, uint32_t j) const;
-
-        /**
-         * @brief       Accesseur a un element de la matrice (en lecture et en ecriture) 
-         *             
-         * @param       i       ligne de la matrice a laquelle on accede
-         *                      (les lignes de la matrice etant numerotes de 1 a nb_lignes)
-         * @param       j       colonne de la matrice a laquelle on accede
-         *                      (les colonnes de la matrice etant numerotes de 1 a nb_colonnes)
-         *
-         * @return      une reference sur le element (i,j) de la matrice
-         */
+        
         int& operator()(uint32_t i, uint32_t j);
 
         /**
@@ -91,6 +84,16 @@ class Dmatrix : public Darray
          *              false sinon
          */
         bool operator==(const Dmatrix& M);
+
+        Dmatrix& operator=(const Dmatrix& M);
+
+        void swap(Dmatrix& P);
+
+        Darray extractColumn(uint32_t col);
+        
+        Darray extractRow(uint32_t r);
+
+
 
 };
 #endif
