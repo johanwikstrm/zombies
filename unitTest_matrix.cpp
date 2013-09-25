@@ -15,6 +15,7 @@ int main ()
     assert(size0.getCount(1) == 0);
     assert(size0.getCount(2) == 0);
     assert(size0.getCount(3) == 0);
+    
     // Constructor with parameters
     // Without init value
     Dmatrix matrix_0 = Dmatrix(2, 2);
@@ -24,6 +25,7 @@ int main ()
     assert(matrix_0.getCount(1) == 0);
     assert(matrix_0.getCount(2) == 0);
     assert(matrix_0.getCount(3) == 0);
+    
     // With init value
     Dmatrix matrix_1 = Dmatrix(4, 4, 1);
     assert(matrix_1.getWidth() == 4);
@@ -72,6 +74,7 @@ int main ()
     for (int i = 0; i < 4; i++) {
         assert(matrix_2.getCount(i) == matrix_3.getCount(i));
     }
+    
     size0 = matrix_3;
     assert(size0 == matrix_3);
     for (int i = 0; i < 4; i++) {

@@ -94,6 +94,5 @@ class Dmatrix : public Darray
         Darray extractRow(uint32_t r);
 
 
-
 };
 #endif

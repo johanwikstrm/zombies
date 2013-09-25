@@ -134,7 +134,6 @@ void Dmatrix::swap(Dmatrix& M)
     std::swap(this->counts, M.counts); 
 }
 
-
 Darray Dmatrix::extractColumn(uint32_t col) {
     Dmatrix M = *this;
     Darray column = Darray(height);
