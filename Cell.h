@@ -9,7 +9,7 @@ public:
 	Cell(int kind);
 	~Cell();
 	int kind();
-	void setKind(int);
+	//void setKind(int);
 	bool moveFlag();
 	void setMoveFlag(bool);
 private:

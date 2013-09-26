@@ -3,7 +3,10 @@
 #include "mtrand.h"
 #include "constants.h"
 #include "Dmatrix.h"
-
+typedef struct Coord
+{
+	int x,y;
+} Coord;
 
 class Model
 {
@@ -21,11 +24,11 @@ private:
 	int width, height;
 	double naturalBirthProb, naturalDeathRisk, initialPopDensity, brainEatingProb, infectedToZombieProb;
 	double zombieDecompositionRisk,humanMoveProb,zombieMoveProb;
-	void move(int x,int y);
-	void moveHuman(int x,int y);
-	void moveInfected(int x,int y);
-	void moveZombie(int x,int y);
-	void getSquareToMoveTo(int fromX,int fromY,int *toX, int *toY);
+	void move(int x,int y, bool hasMoved);
+	Coord moveHuman(int x,int y);
+	Coord moveInfected(int x,int y);
+	Coord moveZombie(int x,int y);
+	Coord getSquareToMoveTo(int fromX,int fromY);
 
 	bool timeToDie();
 	bool timeToDecompose();
@@ -33,6 +36,7 @@ private:
 	bool timeToBecomeZombie();
 	bool timeToMoveHuman();
 	bool timeToMoveZombie();
+	bool timeToEatBrain();
 	void init();
 };
 

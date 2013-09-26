@@ -51,6 +51,10 @@ Darray::~Darray()
     if (size == 0) {
         return;
     }
+    /*for (int i = 0; i < size; i++)
+    {
+        delete array[i];
+    }*/
     delete [] array;
 }
 

@@ -52,6 +52,7 @@ Dmatrix::Dmatrix():Darray()
 
 Dmatrix::~Dmatrix()
 {
+    //delete dummy;
     free(counts);
 }
 
@@ -107,7 +108,14 @@ void Dmatrix::set(uint32_t i, uint32_t j, Cell* newValue)
     Dmatrix M = *this;
     Cell* previousValue = M(i, j);
     counts[kind(previousValue)] --;
-    array[i*height+j]=newValue;
+    delete previousValue;
+    if (kind(newValue) == EMPTY)
+    {
+        array[i*height+j] = NULL;    
+    }else  
+    {
+        array[i*height+j]=newValue;
+    }
     counts[kind(newValue)] ++;
 }
 
@@ -129,7 +137,7 @@ Cell*& Dmatrix::operator()(uint32_t i, uint32_t j)
     if (c== EMPTY){
         return dummy;
     }else {
-        return c;
+        return Darray::operator()(i*height + j);
     }
 }
 
