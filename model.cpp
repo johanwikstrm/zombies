@@ -4,7 +4,7 @@
 using namespace std;
 
 Model::Model(int width,int height,double naturalBirthProb, double naturalDeathRisk, double initialPopDensity, double
-		brainEatingProb,double infectedToZombieProb){
+		brainEatingProb,double infectedToZombieProb,double zombieDecompositionRisk, double humanMoveProb, double zombieMoveProb){
 	this->width = width;
 	this->height = height;
 	this->naturalBirthProb = naturalBirthProb;
@@ -12,9 +12,12 @@ Model::Model(int width,int height,double naturalBirthProb, double naturalDeathRi
 	this->initialPopDensity = initialPopDensity;
 	this->brainEatingProb = brainEatingProb;
 	this ->infectedToZombieProb = infectedToZombieProb;
+	this->zombieDecompositionRisk = zombieDecompositionRisk;
+	this->humanMoveProb = humanMoveProb;
+	this->zombieMoveProb = zombieMoveProb;
 
 	matrix = Dmatrix(height,width);
-  	swap = Dmatrix(height,width);
+  	tempMatrix = Dmatrix(height,width);
     randomizer = new MTRand(time(0));
     init();
 }
@@ -30,31 +33,39 @@ void Model::init(){
             //if (distr(twister) < initialPopDensity)
             if ((*randomizer)() < initialPopDensity)
             {
-                this->matrix.set(x,y,HUMAN);
-            }	
+                matrix.set(x,y,new Cell(HUMAN));
+            }
         }
     }
-    for (int i = 0; i < 2; i++)
-    {
-    	int x = (int)((*randomizer)()*width);
-    	int y = (int)((*randomizer)()*height);
-    	this->matrix.set(x,y,ZOMBIE);
-    }
-    
+    int x = (int)((*randomizer)()*width);
+   	int y = (int)((*randomizer)()*height);
+   	matrix.set(x,y,new Cell(ZOMBIE));
+   	matrix.set((x+1)%width,y,new Cell(ZOMBIE));
 }
 
 bool Model::timeToDie(){
     return (*randomizer)() < naturalDeathRisk;
 }
 
+bool Model::timeToDecompose(){
+	return (*randomizer)() < zombieDecompositionRisk;
+}
+
 // weighs the result on the number of people in the matrix and 
 // the number of empty spaces
 bool Model::timeToBeBorn(){
-    return (*randomizer)() < naturalBirthProb*matrix.getCount(HUMAN)/matrix.getCount(NOTHING);
+    return (*randomizer)() < naturalBirthProb*matrix.getCount(HUMAN)/matrix.getCount(EMPTY);
 }
 
 bool Model::timeToBecomeZombie(){
     return (*randomizer)() < infectedToZombieProb;
+}
+
+bool Model::timeToMoveHuman(){
+	return (*randomizer)() < humanMoveProb;
+}
+bool Model::timeToMoveZombie(){
+	return (*randomizer)() < zombieMoveProb;	
 }
 
 int Model::getCount(int kind){
@@ -62,80 +73,103 @@ int Model::getCount(int kind){
 }
 
 void Model::printStats(){
-    cout << Model::matrix.getCount(HUMAN)<< "\t"<<Model::matrix.getCount(INFECTED) << "\t"<<Model::matrix.getCount(ZOMBIE)<< "\t"<<Model::matrix.getCount(NOTHING)<<"\n";
+    cout << Model::matrix.getCount(HUMAN)<< "\t"<<Model::matrix.getCount(INFECTED) << "\t"<<Model::matrix.getCount(ZOMBIE)<< "\t"<<Model::matrix.getCount(EMPTY)<<"\n";
 }
 
 void Model::moveZombie(int x,int y){
-
+	if (timeToDecompose())
+	{
+		//tempMatrix.set(x,y,EMPTY);
+	}else if(timeToMoveZombie()){
+		int x2,y2;
+		getSquareToMoveTo(x,y,&x2,&y2);
+	}else{
+		//tempMatrix.set(x,y,ZOMBIE);
+	}
 }
 
 void Model::moveInfected(int x,int y){
     if (this->timeToBecomeZombie())
     {
-     	  	
+    	//tempMatrix.set(x,y,ZOMBIE);
+    	moveZombie(x,y);
+    }else{
+    	moveHuman(x,y);
     }
+}
+
+void Model::getSquareToMoveTo(int fromX,int fromY,int *toX, int *toY){
+	double r = (*randomizer)();
+	*toX = fromX;
+	*toY = fromY;
+	if (r < 0.25) // left
+	{
+		*toX = (fromX-1+width)%width;
+	}else if (r < 0.5) // right
+	{
+		*toX = (fromX+1)%width;
+	}else if (r < 0.75) // up
+	{
+		*toY = ((fromY-1+height)%height);
+	}else// down
+	{
+		*toY = ((fromY+1)%height);
+	}
 }
 
 void Model::moveHuman(int x,int y){
 	if (this->timeToDie())
 	{
-		swap.set(x,y,NOTHING);
+		//tempMatrix.set(x,y,EMPTY);
 	}else{
-		double r = (*randomizer)();
 		int x2,y2;
-		x2 = x;
-		y2 = y;
-		if (r < 0.2) // left
-		{
-			x2 = (x-1+width)%width;
-		}else if (r < 0.4) // right
-		{
-			x2 = (x+1)%width;
-		}else if (r < 0.6) // up
-		{
-			y2 = ((y-1+height)%height);
-		}else if (r < 0.8) //down
-		{
-			y2 = ((y+1)%height);
-		}
-		if (matrix(x2,y2) == ZOMBIE) // zombie encounter!!
+		getSquareToMoveTo(x,y,&x2,&y2);
+		if (matrix(x2,y2)->kind() != EMPTY) // zombie encounter!!
 		{
 			if ((*(this->randomizer))() < brainEatingProb)
 			{
-				swap.set(x,y,INFECTED);
+				//tempMatrix.set(x,y,INFECTED);
 			}
-		}else if(matrix(x2,y2) == NOTHING)
+		}else if(matrix(x2,y2) == EMPTY)
 		{
-			swap.set(x,y,NOTHING);
-			swap.set(x2,y2,HUMAN);
-		}// else do nothing
+			//tempMatrix.set(x,y,EMPTY);
+			//tempMatrix.set(x2,y2,HUMAN);
+		}else{
+			//tempMatrix.set(x,y,HUMAN);
+		}
 	}
 }
 
 void Model::move(int x,int y){
-	switch(matrix(x,y)){
+	switch(matrix(x,y)->kind()){
         case HUMAN:
             moveHuman(x,y);
         break;
-        case NOTHING:
+        case EMPTY:
             if(timeToBeBorn()){
-                swap.set(x,y,HUMAN);
+                //tempMatrix.set(x,y,HUMAN);
             }
         break;   
         case INFECTED:
             moveInfected(x,y);
+        break;
         case ZOMBIE:
         	moveZombie(x,y);
         break;
     }
-    matrix.swap(swap);
+    
 }
 
-void Model::moveAll(){
-    for (int y = 0; y < height; y++)
-    {
-        for (int x = 0; x < width;x++){
-            
-        }
-    }
+void Model::moveAll(int iterations){
+	for (int i = 0; i < iterations; i++)
+	{
+		for (int y = 0; y < height; y++)
+	    {
+	        for (int x = 0; x < width;x++){
+	            move(x,y);
+	        }
+	    }
+		matrix.swap(tempMatrix);    
+	}
+    
 }

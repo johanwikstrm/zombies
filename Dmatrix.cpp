@@ -2,18 +2,31 @@ using namespace std;
 #include <cassert>
 #include <cmath>
 #include <fstream>
+#include <iostream>
 #include <stdlib.h>
 #include <string.h>
 #include "Dmatrix.h"
+#include "constants.h"
 
 
 // constructeur avec paramètres
-Dmatrix::Dmatrix(uint32_t h, uint32_t w, int init):Darray(h*w, init)
+// Intializing all cells to empty by default
+Dmatrix::Dmatrix(uint32_t h, uint32_t w):Darray(h*w , EMPTY)
 {
     height = h;
     width = w;
+    dummy = new Cell(EMPTY); // is used as a replacer for ALL empty cells
     counts = (uint32_t*)calloc(numCellKinds, sizeof(uint32_t));
-    counts[init] = h*w;
+    counts[EMPTY] = h*w;
+}
+
+int Dmatrix::kind(Cell* ptr){
+    if (ptr == 0)
+    {
+        return EMPTY;
+    }else{
+        return ptr->kind();
+    }
 }
 
 // constructeur par copie
@@ -23,6 +36,7 @@ Dmatrix::Dmatrix(const Dmatrix& P):Darray(P)
 {
     width = P.width;
     height = P.height;
+    dummy = new Cell(EMPTY);
     counts = (uint32_t*)calloc(numCellKinds, sizeof(uint32_t));
     for (int i = 0; i < numCellKinds; i++) {
         counts[i] = P.counts[i];
@@ -66,35 +80,56 @@ void Dmatrix::print() const
     // Création d'un alias sur this
     Dmatrix M = *this;
     // Affichage de M
-    cout <<"Matrix : \n";
     for (uint32_t i = 0; i < height; i++) {
         for (uint32_t j = 0; j < width; j++) {
-            cout <<M(i, j) <<" ";
+            char kind = 'E';
+            switch(M(i, j)->kind()){
+                case ZOMBIE:
+                kind = 'Z';
+                break;
+                case HUMAN:
+                kind = 'H';
+                break;
+                case INFECTED:
+                kind = 'I';
+                break;
+            }
+            cout << kind <<" ";
         }
         cout <<"\n";
     }
 }
 
 
-void Dmatrix::set(uint32_t i, uint32_t j, int newValue) 
+void Dmatrix::set(uint32_t i, uint32_t j, Cell* newValue) 
 {
     Dmatrix M = *this;
-    int previousValue = M(i, j);
-    counts[previousValue] --;
-    M(i,j) = newValue;    
-    counts[newValue] ++;
+    Cell* previousValue = M(i, j);
+    counts[kind(previousValue)] --;
+    array[i*height+j]=newValue;
+    counts[kind(newValue)] ++;
 }
 
-int Dmatrix::operator()(uint32_t i, uint32_t j) const
+Cell* Dmatrix::operator()(uint32_t i, uint32_t j) const
 {
     assert(i>=0 && i<height && j>=0 && j<width);
-    return Darray::operator()(i*height + j);
+    Cell * c = Darray::operator()(i*height + j);
+    if (c== EMPTY){
+        return dummy;
+    }else {
+        return c;
+    }
 }
 
-int& Dmatrix::operator()(uint32_t i, uint32_t j) 
+Cell*& Dmatrix::operator()(uint32_t i, uint32_t j) 
 {
     assert(i>=0 && i<height && j>=0 && j<width);
-    return Darray::operator()(i*height + j);
+    Cell * c = Darray::operator()(i*height + j);
+    if (c== EMPTY){
+        return dummy;
+    }else {
+        return c;
+    }
 }
 
 bool Dmatrix::operator==(const Dmatrix& M)
@@ -106,7 +141,8 @@ bool Dmatrix::operator==(const Dmatrix& M)
         // Vérifie l'égalite des valeurs
         for (uint32_t i = 0; i < height; i++) {
             for (uint32_t j = 0; j < width; j++){
-                if (M(i, j) != N(i, j)) {
+                // TODO: deep equals
+                if (M(i, j)->kind() != N(i, j)->kind()) {
                     return false;
                 }
             } 

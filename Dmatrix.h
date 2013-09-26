@@ -19,10 +19,12 @@ class Dmatrix : public Darray
         uint32_t height;            /**< number of rows */
         uint32_t width;             /**< number of columns */
         uint32_t *counts;
-        int& operator()(uint32_t i, uint32_t j);
+        Cell* dummy;
+        
+    int kind(Cell* ptr);
 
     public :
-
+        Cell*& operator()(uint32_t i, uint32_t j);
         /**
          * @brief       Constructor with parameters       
          *
@@ -32,7 +34,7 @@ class Dmatrix : public Darray
          *                              the matrix is initialize 
          *                              By default, init = 0
          */
-        Dmatrix(uint32_t height, uint32_t width, int init = 0);
+        Dmatrix(uint32_t height, uint32_t width);
 
         /**
          * @brief       Constructeur par copie 
@@ -60,7 +62,7 @@ class Dmatrix : public Darray
          */
         void print() const;
 
-        void set(uint32_t i, uint32_t j, int newValue);
+        void set(uint32_t i, uint32_t j, Cell* newValue);
 
         /**
          * @brief       Accesseur a un element de la matrice (en lecture uniquement) 
@@ -72,7 +74,7 @@ class Dmatrix : public Darray
          *
          * @return      element (i,j) de la matrice
          */
-        int operator()(uint32_t i, uint32_t j) const;
+        Cell* operator()(uint32_t i, uint32_t j) const;
 
         /**
          * @brief       Teste l egalite de deux matrices

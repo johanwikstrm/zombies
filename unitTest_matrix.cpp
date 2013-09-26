@@ -20,28 +20,32 @@ int main ()
     assert(matrix_0.getHeight() == 2);
     assert(matrix_0.getCount(0) == 4);
     assert(matrix_0.getCount(1) == 0);
-    // With init value
-    Dmatrix matrix_1 = Dmatrix(4, 4, 1);
-    assert(matrix_1.getWidth() == 4);
-    assert(matrix_1.getHeight() == 4);
-    assert(matrix_1.getCount(1) == 16);
-    assert(matrix_1.getCount(0) == 0);
-
+    
     // Test set (and count update)
-    matrix_1.set(0, 0, 0);
+    Dmatrix matrix_1 = Dmatrix(4, 4);
+    for (int i = 0; i < 4; i++)
+    {
+        for (int j = 0; j < 4; j++)
+        {
+            matrix_1.set(i,j,new Cell(1));
+        }
+    }
+    matrix_1.set(1,1,new Cell(0));
+
     assert(matrix_1.getCount(1) == 15);
     assert(matrix_1.getCount(0) == 1);
-    matrix_1.set(1, 1, 1);
+    matrix_1.set(1, 1, new Cell(0));
     assert(matrix_1.getCount(1) == 15);
     assert(matrix_1.getCount(0) == 1);
-    matrix_1.set(2, 2, 3);
+    matrix_1.set(2, 2, new Cell(3));
     assert(matrix_1.getCount(1) == 14);
     assert(matrix_1.getCount(0) == 1);
     assert(matrix_1.getCount(3) == 1);
 
     // Test swap
-    Dmatrix matrix_2 = Dmatrix(4,4,2);
-    Dmatrix matrix_3 = Dmatrix(4,4,3);
+    Dmatrix matrix_2 = Dmatrix(4,4);
+    Dmatrix matrix_3 = Dmatrix(4,4);
+    matrix_2.set(1,1,new Cell(2));
     Dmatrix oldMatrix_2 = matrix_2;
     Dmatrix oldMatrix_3 = matrix_3;
     matrix_2.swap(matrix_3);
