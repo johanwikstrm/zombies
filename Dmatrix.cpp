@@ -80,6 +80,7 @@ void Dmatrix::print() const
     // Création d'un alias sur this
     Dmatrix M = *this;
     // Affichage de M
+    cout <<"Matrix : \n";
     for (uint32_t i = 0; i < height; i++) {
         for (uint32_t j = 0; j < width; j++) {
             char kind = 'E';
@@ -171,3 +172,20 @@ void Dmatrix::swap(Dmatrix& M)
     std::swap(this->counts, M.counts); 
 }
 
+Darray Dmatrix::extractColumn(uint32_t col) {
+    Dmatrix M = *this;
+    Darray column = Darray(height);
+    for (uint32_t i = 0; i < width; i++) {
+        column(i) = M(i, col); 
+    }
+    return column;
+} 
+
+Darray Dmatrix::extractRow(uint32_t r) {
+    Dmatrix M = *this;
+    Darray row = Darray(width);
+    for (uint32_t j = 0; j < height; j++) {
+        row(j) = M(r, j); 
+    }
+    return row;
+} 

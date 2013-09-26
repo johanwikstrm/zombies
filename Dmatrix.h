@@ -90,6 +90,10 @@ class Dmatrix : public Darray
 
         void swap(Dmatrix& P);
 
+        Darray extractColumn(uint32_t col);
+        
+        Darray extractRow(uint32_t r);
+
 
 };
 #endif

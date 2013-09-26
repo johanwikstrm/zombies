@@ -13,6 +13,8 @@ int main ()
     assert(size0.getCount(0) == 0);
     assert(size0.getCount(1) == 0);
     assert(size0.getCount(2) == 0);
+    assert(size0.getCount(3) == 0);
+    
     // Constructor with parameters
     // Without init value
     Dmatrix matrix_0 = Dmatrix(2, 2);
@@ -20,6 +22,8 @@ int main ()
     assert(matrix_0.getHeight() == 2);
     assert(matrix_0.getCount(0) == 4);
     assert(matrix_0.getCount(1) == 0);
+    assert(matrix_0.getCount(2) == 0);
+    assert(matrix_0.getCount(3) == 0);
     
     // Test set (and count update)
     Dmatrix matrix_1 = Dmatrix(4, 4);
@@ -32,15 +36,22 @@ int main ()
     }
     matrix_1.set(1,1,new Cell(0));
 
+    // Test set (and count update)
+    matrix_1.set(0, 0, 0);
+    assert(matrix_1(0,0) == 0);
     assert(matrix_1.getCount(1) == 15);
     assert(matrix_1.getCount(0) == 1);
     matrix_1.set(1, 1, new Cell(0));
     assert(matrix_1.getCount(1) == 15);
     assert(matrix_1.getCount(0) == 1);
-    matrix_1.set(2, 2, new Cell(3));
+    assert(matrix_1.getCount(2) == 0);
+    assert(matrix_1.getCount(3) == 0);
+    matrix_1.set(1, 1, new Cell(2));
+    assert(matrix_1(1,1) == 2);
     assert(matrix_1.getCount(1) == 14);
     assert(matrix_1.getCount(0) == 1);
-    assert(matrix_1.getCount(3) == 1);
+    assert(matrix_1.getCount(2) == 1);
+    assert(matrix_1.getCount(3) == 0);
 
     // Test swap
     Dmatrix matrix_2 = Dmatrix(4,4);
@@ -69,4 +80,21 @@ int main ()
         assert(size0.getCount(i) == matrix_3.getCount(i));
     }
 
+    // Extract colum
+    for (int i = 0; i < 4; i++) {
+        matrix_2.set(i, 0, i);
+    }
+    Darray column0 = matrix_2.extractColumn(0);
+    for (int i = 0; i < 4; i++) {
+        assert(column0(i) == i);
+    }
+
+    // Extract row
+    for (int j = 0; j < 4; j++) {
+        matrix_2.set(0, j, j);
+    }
+    Darray row0 = matrix_2.extractRow(0);
+    for (int j = 0; j < 4; j++) {
+        assert(row0(j) == j);
+    }
 }
