@@ -84,7 +84,7 @@ void Dmatrix::print() const
     cout <<"Matrix : \n";
     for (uint32_t i = 0; i < height; i++) {
         for (uint32_t j = 0; j < width; j++) {
-            char kind = 'E';
+            char kind = 'X';
             switch(M(i, j)->kind()){
                 case ZOMBIE:
                 kind = 'Z';
@@ -94,6 +94,9 @@ void Dmatrix::print() const
                 break;
                 case INFECTED:
                 kind = 'I';
+                break;
+                case EMPTY:
+                kind = 'E';
                 break;
             }
             cout << kind <<" ";

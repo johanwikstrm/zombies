@@ -15,6 +15,7 @@ public:
 		brainEatingProb,double infectedToZombieProb,double zombieDecompositionRisk, double humanMoveProb, double zombieMoveProb);
 	~Model();
 	void moveAll(int iterations=1);
+	void print();
 	void printStats();
 	int getCount(int kind);
 private:

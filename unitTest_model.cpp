@@ -36,4 +36,15 @@ int main ()
     m4.moveAll(5);
     assert(m4.getCount(INFECTED) > 0);
     assert(m4.getCount(ZOMBIE) > 2);
+
+    Model m5 = Model(10,10,0,0,0,0,0,0,0,1); // just two zombies
+    assert(m5.getCount(ZOMBIE)==2);
+    m5.moveAll(1);
+    m5.print();
+    assert(m5.getCount(ZOMBIE)==2);
+    
+
+
+
+
 }

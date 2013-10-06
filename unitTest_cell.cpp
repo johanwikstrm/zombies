@@ -7,11 +7,13 @@ using namespace std;
 int main(int argc, char const *argv[])
 {
 	Cell c = Cell(ZOMBIE);
-	c.setKind(EMPTY);
-	assert(c.kind()==EMPTY);
+	Cell *c2;
+	c2 = c.Spawn(EMPTY);
+	assert(c2->kind()==EMPTY);
 	assert(c.moveFlag() == false);
 	c.setMoveFlag(true);
 	assert(c.moveFlag()==true);
 	
+	delete c2;
 	return 0;
 }

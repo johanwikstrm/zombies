@@ -79,6 +79,12 @@ void Model::printStats(){
     cout << Model::matrix.getCount(HUMAN)<< "\t"<<Model::matrix.getCount(INFECTED) << "\t"<<Model::matrix.getCount(ZOMBIE)<< "\t"<<Model::matrix.getCount(EMPTY)<<"\n";
 }
 
+void Model::print(){
+    cout << "Stats:\nHuman   Infctd  Zombie  Empty\n";
+    printStats();
+    matrix.print();
+}
+
 Coord Model::moveZombie(int x,int y){
     Coord crd;
     crd.x = x;
@@ -93,8 +99,12 @@ Coord Model::moveZombie(int x,int y){
         	matrix.set(crd2.x,crd2.y,new Cell(INFECTED));
         }else if(matrix(crd2.x,crd2.y)->kind() == EMPTY){
         	Cell * zombie = matrix(x,y);
-        	matrix.set(x,y,EMPTY);
-        	matrix.set(crd2.x,crd2.y,zombie);
+        	matrix.print();
+            matrix.set(x,y,EMPTY);
+            cout << "Moving zombie " << zombie <<" kind: "<< zombie->kind()<< "from" <<crd.x<<","<<crd.y
+                <<" to " << crd2.x<<" , "<<crd2.y<<endl;
+         	matrix.set(crd2.x,crd2.y,zombie);
+            matrix.print();
         	crd = crd2;
         }
     }
@@ -147,8 +157,7 @@ Coord Model::moveHuman(int x,int y){
         Coord crd2 = getSquareToMoveTo(x,y);
         if (matrix(crd2.x,crd2.y)->kind() == ZOMBIE && timeToEatBrain()) // zombie encounter!!
         {// brain eaten, infected, doesn't move;
-    		// TODO: add human-INFECTED copy
-            matrix.set(x,y,new Cell(INFECTED));
+            matrix.set(x,y,matrix(x,y)->Spawn(INFECTED));
         }else if(matrix(crd2.x,crd2.y)->kind() == EMPTY){
         	Cell * human = matrix(x,y);
         	matrix.set(x,y,EMPTY);

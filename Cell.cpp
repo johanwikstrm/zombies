@@ -1,4 +1,7 @@
+#include <iostream>
 #include "Cell.h"
+
+using namespace std;
 
 Cell::Cell(int kind){
 	k = kind;
@@ -7,13 +10,17 @@ Cell::Cell(int kind){
 
 Cell * Cell::Spawn(int newKind){
 	// TODO: copy any important variables
-	c = new Cell(newKind);
+	Cell *c = new Cell(newKind);
 	c->mFlag = mFlag;
 	return c;
 }
 
 Cell::~Cell(){
 	
+}
+
+Cell::Cell(const Cell& M){
+	cout << "COPY CONSTRUCTOR CALLED!!!!\n";
 }
 
 int Cell::kind(){
