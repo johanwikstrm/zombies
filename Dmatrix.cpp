@@ -216,8 +216,8 @@ void Dmatrix::swap(Dmatrix& M)
 Darray Dmatrix::extractColumn(uint32_t col) {
     Dmatrix M = *this;
     Darray column = Darray(height);
-    for (uint32_t y = 0; y < width; y++) {
-        column(y) = M(col,y); 
+    for (uint32_t y = 0; y < height; y++) {
+        column(y) = new Cell(*M(col,y)); 
     }
     return column;
 } 

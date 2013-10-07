@@ -87,16 +87,14 @@ Darray& Darray::operator=(const Darray& P)
     if (size == 0 && P.size == 0) {
         return *this;
     }
-    if (size != P.size) {
-        if (size != 0) {
-            for (uint32_t i = 0; i < size; i++) {
-                delete array[i];
-            }
-            delete [] array;
+    if (size != 0) {
+        for (uint32_t i = 0; i < size; i++) {
+            delete array[i];
         }
-        size = P.size;
-        array = new Cell*[size];
-    } 
+        delete [] array;
+    }
+    size = P.size;
+    array = new Cell*[size];
     for (uint32_t i = 0; i < size; i++) {
         array[i] = new Cell(*P.array[i]);
     }
