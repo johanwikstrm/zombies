@@ -7,8 +7,8 @@ class Cell
 {
 public:
 	Cell(int kind);
+        Cell(const Cell& c);
 	~Cell();
-	Cell(const Cell& M);
 	int kind();
 	void setKind(int);
 	bool moveFlag();

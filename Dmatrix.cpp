@@ -18,7 +18,10 @@ Dmatrix::Dmatrix(uint32_t h, uint32_t w):Darray(h*w , EMPTY)
     height = h;
     width = w;
   //  dummy = new Cell(EMPTY); // is used as a replacer for ALL empty cells
-    counts = (uint32_t*)calloc(numCellKinds, sizeof(uint32_t));
+    counts = new uint32_t[numCellKinds];
+    for (uint32_t i = 0; i < numCellKinds; i++) {
+        counts[i] = 0;
+    }
     counts[EMPTY] = h*w;
 }
 
@@ -44,7 +47,7 @@ Dmatrix::Dmatrix(const Dmatrix& P):Darray(P)
     width = P.width;
     height = P.height;
     //dummy = new Cell(EMPTY);
-    counts = (uint32_t*)calloc(numCellKinds, sizeof(uint32_t));
+    counts = new uint32_t[numCellKinds];
     for (int i = 0; i < numCellKinds; i++) {
         counts[i] = P.counts[i];
     }
@@ -55,14 +58,17 @@ Dmatrix::Dmatrix():Darray()
     //cout <<"Dmatrix constructor" <<endl;
     width = 0;
     height = 0;
-    counts = (uint32_t*)calloc(numCellKinds, sizeof(uint32_t));
+    counts = new uint32_t[numCellKinds];
+    for (uint32_t i = 0; i < numCellKinds; i++) {
+        counts[i] = 0;
+    }
 }
 
 Dmatrix::~Dmatrix()
 {
     //cout <<"Dmatrix destructor" <<endl;
     //delete dummy;
-    free(counts);
+    delete[] counts;
 }
 
 
@@ -117,12 +123,11 @@ void Dmatrix::print() const
 
 void Dmatrix::set(uint32_t x, uint32_t y, int k) 
 {
-    Dmatrix M = *this;
-    Cell* previousValue = M(x, y);
-    counts[kind(previousValue)] --;
-    //delete array[y*width+x];
+    int previousKind = kind(array[y*width + x]);
+    counts[previousKind] --;
+    delete array[y*width+x];
     array[y*width + x] = NULL;
-    array[y*width+x] = new Cell(k);
+    array[y*width + x] = new Cell(k);
     counts[k]++;
 }
 

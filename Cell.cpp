@@ -8,6 +8,11 @@ Cell::Cell(int kind){
 	mFlag = false;
 }
 
+Cell::Cell(const Cell& c){
+    k = c.k;
+    mFlag = c.mFlag;
+}
+
 Cell * Cell::Spawn(int newKind){
 	// TODO: copy any important variables
 	Cell* c = new Cell(newKind);
@@ -17,10 +22,6 @@ Cell * Cell::Spawn(int newKind){
 
 Cell::~Cell(){
 	
-}
-
-Cell::Cell(const Cell& M){
-	cout << "COPY CONSTRUCTOR CALLED!!!!\n";
 }
 
 int Cell::kind(){

@@ -28,8 +28,6 @@ int main ()
     
     // Test set (and count update)
     Dmatrix matrix_1 = Dmatrix(4, 4);
-    matrix_1.set(0,0,2);
-    /**
     for (int i = 0; i < 4; i++)
     {
         for (int j = 0; j < 4; j++)
@@ -71,6 +69,7 @@ int main ()
 
     // Test overloading of =
     matrix_2 = matrix_3;
+    /**
     assert(matrix_2 == matrix_3);
     for (int i = 0; i < 4; i++) {
         assert(matrix_2.getCount(i) == matrix_3.getCount(i));
