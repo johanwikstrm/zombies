@@ -6,14 +6,15 @@
  * @author
  */
 
+#include "Cell.h"
 #include <stdint.h>
 #include <iostream>
 
 class Darray
 {
     protected :
-        uint32_t size;        /**< the array size */
-        int *array;           /**< the array containing the data */
+    uint32_t size;        /**< the array size */
+    Cell **array;           /**< the array containing the data */
 
     public :
 
@@ -30,7 +31,7 @@ class Darray
          *                      a utiliser pour initialiser les elements du vecteur
          *                      (par defaut init=0)
          */
-        explicit Darray(uint32_t s, int init = 0);
+        explicit Darray(uint32_t s,int kind = 0);
 
         /**
          * @brief       Constructeur par copie 
@@ -64,7 +65,7 @@ class Darray
          *
          * @return      le ieme element du vecteur      
          */
-        int operator()(uint32_t i) const;
+       Cell* operator()(uint32_t i) const;
 
         /**
          * @brief       Accesseur au vecteur : (en lecture et en ecriture))
@@ -74,7 +75,7 @@ class Darray
          *              
          * @return      une reference sur le ieme element du vecteur          
          */
-        int& operator()(uint32_t i) ;
+        Cell*& operator()(uint32_t i) ;
 
         Darray& operator=(const Darray& P);
 

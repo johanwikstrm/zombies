@@ -14,7 +14,7 @@ Darray::Darray()
 }
 
 // constructeur avec paramètres
-Darray::Darray(uint32_t s, int init)
+Darray::Darray(uint32_t s, int kind)
 {
     // initilisation de la size du tableau
     size = s;
@@ -23,10 +23,10 @@ Darray::Darray(uint32_t s, int init)
         return;
     }
     // allocation de la mémoire pour le tableau
-    array = new int[size];
+    array = new Cell*[size];
     // initilisation des valeurs du tableau
     for (uint32_t i = 0; i < size; i++) {
-        array[i] = init;
+        array[i] = new Cell(kind);
     }
 }
 
@@ -39,7 +39,7 @@ Darray::Darray(const Darray& P)
         return;
     }
     // allocation de la mémoire pour le tableau
-    array = new int[size];
+    array = new Cell*[size];
     // copie des valeurs dans le nouveau tableau
     for (uint32_t i = 0; i < size; i++) {
         array[i] = P.array[i];
@@ -51,8 +51,13 @@ Darray::~Darray()
     if (size == 0) {
         return;
     }
+    for (uint32_t i = 0; i < size; i++)
+    {
+        delete array[i];
+    }
     delete [] array;
 }
+
 
 uint32_t Darray::getSize() const 
 {
@@ -68,13 +73,13 @@ void Darray::print() const
     cout <<"\n";
 }
 
-int Darray::operator()(uint32_t i) const
+Cell* Darray::operator()(uint32_t i) const
 {
     assert(i >= 0 && i < size);
     return array[i];
 }
 
-int& Darray::operator()(uint32_t i) 
+Cell*& Darray::operator()(uint32_t i) 
 {
     assert(i >= 0 && i < size);
     return array[i];
@@ -91,10 +96,10 @@ Darray& Darray::operator=(const Darray& P)
             delete [] array;
         }
         size = P.size;
-        array = new int[size];
+        array = new Cell*[size];
     } 
 
-    memcpy(array, P.array, size*sizeof(int));
+    memcpy(array, P.array, size*sizeof(Cell*));
     return *this;
 }
 
@@ -118,7 +123,7 @@ bool Darray::operator==(const Darray& P) const
 // The two arrays must have the same length
 void Darray::swap(Darray& P) 
 {
-    int* tmp = P.array;
+    Cell** tmp = P.array;
     P.array = array;
     array = tmp;
 }
@@ -131,7 +136,7 @@ ostream& operator<< (ostream& out, const Darray& P)
     out<< endl;
     return out;
 }
-
+/*
 istream& operator>> (istream& in, Darray& P)
 {
     // si le fichier contient trop de données, on arrête les affectations une fois que le arrayleau est rempli
@@ -145,3 +150,4 @@ istream& operator>> (istream& in, Darray& P)
     }
     return in;
 }
+*/

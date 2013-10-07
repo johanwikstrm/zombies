@@ -2,18 +2,38 @@ using namespace std;
 #include <cassert>
 #include <cmath>
 #include <fstream>
+#include <iostream>
 #include <stdlib.h>
 #include <string.h>
 #include "Dmatrix.h"
+#include "constants.h"
 
 
 // constructeur avec paramètres
-Dmatrix::Dmatrix(uint32_t h, uint32_t w, int init):Darray(h*w, init)
+// Intializing all cells to empty by default
+//Dmatrix::Dmatrix(uint32_t h, uint32_t w):Darray(h*w , NULL)
+Dmatrix::Dmatrix(uint32_t h, uint32_t w):Darray(h*w , EMPTY)
 {
+    cout <<"Dmatrix constructor" <<endl;
+
     height = h;
     width = w;
+  //  dummy = new Cell(EMPTY); // is used as a replacer for ALL empty cells
     counts = (uint32_t*)calloc(numCellKinds, sizeof(uint32_t));
-    counts[init] = h*w;
+    counts[EMPTY] = h*w;
+}
+
+int Dmatrix::kind(Cell* ptr){
+    /**
+    if (ptr == 0)
+    {
+        return EMPTY;
+    }else{
+        return ptr->kind();
+    }
+    **/
+
+    return ptr->kind();
 }
 
 // constructeur par copie
@@ -21,8 +41,10 @@ Dmatrix::Dmatrix(uint32_t h, uint32_t w, int init):Darray(h*w, init)
 // mais si le vecteur P n'est pas propriétaire de ses données, le vecteur créé ne le sera pas non plus
 Dmatrix::Dmatrix(const Dmatrix& P):Darray(P)
 {
+    cout <<"Dmatrix constructor" <<endl;
     width = P.width;
     height = P.height;
+    //dummy = new Cell(EMPTY);
     counts = (uint32_t*)calloc(numCellKinds, sizeof(uint32_t));
     for (int i = 0; i < numCellKinds; i++) {
         counts[i] = P.counts[i];
@@ -31,6 +53,7 @@ Dmatrix::Dmatrix(const Dmatrix& P):Darray(P)
 
 Dmatrix::Dmatrix():Darray()
 {
+    cout <<"Dmatrix constructor" <<endl;
     width = 0;
     height = 0;
     counts = (uint32_t*)calloc(numCellKinds, sizeof(uint32_t));
@@ -38,6 +61,8 @@ Dmatrix::Dmatrix():Darray()
 
 Dmatrix::~Dmatrix()
 {
+    cout <<"Dmatrix destructor" <<endl;
+    //delete dummy;
     free(counts);
 }
 
@@ -67,33 +92,84 @@ void Dmatrix::print() const
     Dmatrix M = *this;
     // Affichage de M
     cout <<"Matrix : \n";
-    for (uint32_t i = 0; i < height; i++) {
-        for (uint32_t j = 0; j < width; j++) {
-            cout <<M(i, j) <<" ";
+    for (uint32_t y = 0; y < height; y++) {
+        for (uint32_t x = 0; x < width; x++) {
+            char kind = 'X';
+            switch(M(x, y)->kind()){
+                case ZOMBIE:
+                kind = 'Z';
+                break;
+                case HUMAN:
+                kind = 'H';
+                break;
+                case INFECTED:
+                kind = 'I';
+                break;
+                case EMPTY:
+                kind = 'E';
+                break;
+            }
+            cout << kind <<" ";
         }
         cout <<"\n";
     }
 }
 
 
-void Dmatrix::set(uint32_t i, uint32_t j, int newValue) 
+void Dmatrix::set(uint32_t x, uint32_t y, int k) 
 {
-    int previousValue = array[i*height+j]; 
-    counts[previousValue] --;
-    array[i*height+j] = newValue;   
-    counts[newValue] ++;
+    Dmatrix M = *this;
+    Cell* previousValue = M(x, y);
+    counts[kind(previousValue)] --;
+    //delete array[y*width+x];
+    array[y*width + x] = NULL;
+    array[y*width+x] = new Cell(k);
+    counts[k]++;
 }
 
-int Dmatrix::operator()(uint32_t i, uint32_t j) const
+void Dmatrix::move(uint32_t oldX, uint32_t oldY, uint32_t newX, uint32_t newY)
 {
-    assert(i>=0 && i<height && j>=0 && j<width);
-    return Darray::operator()(i*height + j);
+    Dmatrix M = *this;
+    Cell* person = M(oldX, oldY);
+    Cell* destination = M(newX, newY);
+    // Make sure we move a person (human or zombie)
+    assert(kind(person) == HUMAN || kind(person) == ZOMBIE);
+    // Make sure the square the person is trying to move to is empty
+    assert(kind(destination) == EMPTY);
+    // The move
+    Cell* tmp = person;
+    person = destination;
+    destination = tmp;
 }
 
-int& Dmatrix::operator()(uint32_t i, uint32_t j) 
+
+
+Cell* Dmatrix::operator()(uint32_t x, uint32_t y) const
 {
-    assert(i>=0 && i<height && j>=0 && j<width);
-    return Darray::operator()(i*height + j);
+    assert(y>=0 && y<height && x>=0 && x<width);
+    Cell* c = Darray::operator()(y*width + x);
+    /**
+    if (c == NULL){
+        return dummy;
+    }else {
+        return c;
+    }
+    */
+    return c;
+}
+
+Cell*& Dmatrix::operator()(uint32_t x, uint32_t y) 
+{
+    assert(y>=0 && y<height && x>=0 && x<width);
+    /**
+    Cell* c = Darray::operator()(y*width + x);
+    if (c == NULL){
+        return dummy;
+    }else {
+        return Darray::operator()(y*width + x);
+    }
+    **/
+    return Darray::operator()(y*width + x);
 }
 
 bool Dmatrix::operator==(const Dmatrix& M)
@@ -105,8 +181,9 @@ bool Dmatrix::operator==(const Dmatrix& M)
         // Vérifie l'égalite des valeurs
         for (uint32_t i = 0; i < height; i++) {
             for (uint32_t j = 0; j < width; j++){
-                if (M(i, j) != N(i, j)) {
-                    return false;
+                // TODO: deep equals
+                if (M(i, j)->kind() != N(i, j)->kind()) {
+                    return false;  
                 }
             } 
         }
@@ -137,8 +214,8 @@ void Dmatrix::swap(Dmatrix& M)
 Darray Dmatrix::extractColumn(uint32_t col) {
     Dmatrix M = *this;
     Darray column = Darray(height);
-    for (uint32_t i = 0; i < width; i++) {
-        column(i) = M(i, col); 
+    for (uint32_t y = 0; y < width; y++) {
+        column(y) = M(col,y); 
     }
     return column;
 } 
@@ -146,8 +223,8 @@ Darray Dmatrix::extractColumn(uint32_t col) {
 Darray Dmatrix::extractRow(uint32_t r) {
     Dmatrix M = *this;
     Darray row = Darray(width);
-    for (uint32_t j = 0; j < height; j++) {
-        row(j) = M(r, j); 
+    for (uint32_t x = 0; x < height; x++) {
+        row(x) = M(x,r); 
     }
     return row;
 } 
