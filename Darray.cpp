@@ -14,7 +14,7 @@ Darray::Darray()
 }
 
 // constructeur avec paramètres
-Darray::Darray(uint32_t s, Cell* init)
+Darray::Darray(uint32_t s, int kind)
 {
     // initilisation de la size du tableau
     size = s;
@@ -26,7 +26,7 @@ Darray::Darray(uint32_t s, Cell* init)
     array = new Cell*[size];
     // initilisation des valeurs du tableau
     for (uint32_t i = 0; i < size; i++) {
-        array[i] = init;
+        array[i] = new Cell(kind);
     }
 }
 
@@ -51,12 +51,15 @@ Darray::~Darray()
     if (size == 0) {
         return;
     }
-    /*for (int i = 0; i < size; i++)
+    /**
+    for (uint32_t i = 0; i < size; i++)
     {
         delete array[i];
-    }*/
+    }
     delete [] array;
+    */
 }
+
 
 uint32_t Darray::getSize() const 
 {

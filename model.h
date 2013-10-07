@@ -8,6 +8,8 @@ typedef struct Coord
 	int x,y;
 } Coord;
 
+
+
 class Model
 {
 public:
@@ -18,9 +20,10 @@ public:
 	void print();
 	void printStats();
 	int getCount(int kind);
+	// Used for testing
+	Cell * at(int x, int y);
 private:
 	Dmatrix matrix;
-	Dmatrix tempMatrix;
 	MTRand *randomizer;
 	int width, height;
 	double naturalBirthProb, naturalDeathRisk, initialPopDensity, brainEatingProb, infectedToZombieProb;

@@ -31,7 +31,7 @@ class Darray
          *                      a utiliser pour initialiser les elements du vecteur
          *                      (par defaut init=0)
          */
-        explicit Darray(uint32_t s,Cell* init = 0);
+        explicit Darray(uint32_t s,int kind = 0);
 
         /**
          * @brief       Constructeur par copie 

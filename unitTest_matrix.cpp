@@ -36,7 +36,7 @@ int main ()
     }
 
     // Test set (and count update)
-    matrix_1.set(0, 0, NULL);
+    matrix_1.set(0, 0, new Cell(0));
     assert(matrix_1(0,0)->kind() == 0);
     assert(matrix_1.getCount(1) == 15);
     assert(matrix_1.getCount(0) == 1);
@@ -81,7 +81,7 @@ int main ()
 
     // Extract colum
     for (int i = 0; i < 4; i++) {
-        matrix_2.set(i, 0, new Cell(i));
+        matrix_2.set(0,i, new Cell(i));
     }
     Darray column0 = matrix_2.extractColumn(0);
     for (int i = 0; i < 4; i++) {
@@ -90,7 +90,7 @@ int main ()
 
     // Extract row
     for (int j = 0; j < 4; j++) {
-        matrix_2.set(0, j, new Cell(j));
+        matrix_2.set(j,0, new Cell(j));
     }
     Darray row0 = matrix_2.extractRow(0);
     for (int j = 0; j < 4; j++) {
