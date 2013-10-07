@@ -14,8 +14,7 @@ using namespace std;
 //Dmatrix::Dmatrix(uint32_t h, uint32_t w):Darray(h*w , NULL)
 Dmatrix::Dmatrix(uint32_t h, uint32_t w):Darray(h*w , EMPTY)
 {
-    cout <<"Dmatrix constructor" <<endl;
-
+    //cout <<"Dmatrix constructor" <<endl;
     height = h;
     width = w;
   //  dummy = new Cell(EMPTY); // is used as a replacer for ALL empty cells
@@ -41,7 +40,7 @@ int Dmatrix::kind(Cell* ptr){
 // mais si le vecteur P n'est pas propriétaire de ses données, le vecteur créé ne le sera pas non plus
 Dmatrix::Dmatrix(const Dmatrix& P):Darray(P)
 {
-    cout <<"Dmatrix constructor" <<endl;
+    //cout <<"Dmatrix constructor" <<endl;
     width = P.width;
     height = P.height;
     //dummy = new Cell(EMPTY);
@@ -53,7 +52,7 @@ Dmatrix::Dmatrix(const Dmatrix& P):Darray(P)
 
 Dmatrix::Dmatrix():Darray()
 {
-    cout <<"Dmatrix constructor" <<endl;
+    //cout <<"Dmatrix constructor" <<endl;
     width = 0;
     height = 0;
     counts = (uint32_t*)calloc(numCellKinds, sizeof(uint32_t));
@@ -61,7 +60,7 @@ Dmatrix::Dmatrix():Darray()
 
 Dmatrix::~Dmatrix()
 {
-    cout <<"Dmatrix destructor" <<endl;
+    //cout <<"Dmatrix destructor" <<endl;
     //delete dummy;
     free(counts);
 }
@@ -141,8 +140,6 @@ void Dmatrix::move(uint32_t oldX, uint32_t oldY, uint32_t newX, uint32_t newY)
     person = destination;
     destination = tmp;
 }
-
-
 
 Cell* Dmatrix::operator()(uint32_t x, uint32_t y) const
 {

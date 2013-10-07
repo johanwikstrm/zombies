@@ -4,6 +4,21 @@
 
 using namespace std;
 
+int manhattanDist(Coord c1,Coord c2,int width, int height){
+    int dx,dy;
+    dx = c1.x-c2.x;
+    dy = c1.y-c2.y;
+    if (dx < 0)
+        dx *= -1;
+    if (dy < 0)
+        dy *= -1;
+    if (dx > width / 2)
+        dx -= width/2;
+    if (dy > height/2)
+        dy -= height/2;
+    return dx+dy;
+}
+
 Model::Model(int width,int height,double naturalBirthProb, double naturalDeathRisk, double initialPopDensity, double
         brainEatingProb,double infectedToZombieProb,double zombieDecompositionRisk, double humanMoveProb, double zombieMoveProb){
     this->width = width;
@@ -38,8 +53,6 @@ void Model::init(){
     }
     int x = (int)((*randomizer)()*width);
     int y = (int)((*randomizer)()*height);
-    Cell zombie1 = Cell(ZOMBIE);
-    Cell zombie2 = Cell(ZOMBIE);
     matrix.set(x, y, ZOMBIE);
     matrix.set((x+2)%width, y, ZOMBIE);
 }
@@ -226,4 +239,8 @@ void Model::moveAll(int iterations){
             }
         }
     }
+}
+
+Cell * Model::at(int x, int y){
+    return matrix(x,y);
 }

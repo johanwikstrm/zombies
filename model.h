@@ -3,6 +3,7 @@
 #include "mtrand.h"
 #include "constants.h"
 #include "Dmatrix.h"
+
 typedef struct Coord
 {
 	int x,y;
@@ -18,6 +19,8 @@ public:
 	void print();
 	void printStats();
 	int getCount(int kind);
+	// Used for testing
+	Cell * at(int x, int y);
 private:
 	Dmatrix matrix;
 	MTRand *randomizer;

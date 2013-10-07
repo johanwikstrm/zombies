@@ -51,11 +51,13 @@ Darray::~Darray()
     if (size == 0) {
         return;
     }
+    /**
     for (uint32_t i = 0; i < size; i++)
     {
         delete array[i];
     }
     delete [] array;
+    */
 }
 
 
