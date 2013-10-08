@@ -80,6 +80,7 @@ int main ()
         assert(size0.getCount(i) == matrix_3.getCount(i));
     }
 
+    /**
     // Extract column
     for (int i = 0; i < 4; i++) {
         matrix_2.set(0,i, i);
@@ -97,4 +98,6 @@ int main ()
     for (int j = 0; j < 4; j++) {
         assert(row0(j)->kind() == j);
     }
+*/
+
 }
