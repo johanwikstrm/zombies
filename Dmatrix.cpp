@@ -246,7 +246,7 @@ Darray* Dmatrix::extractColumn(uint32_t col) {
 
 Darray* Dmatrix::extractRow(uint32_t r) {
     //Dmatrix M = *this;
-    Darray *row = new Darray(width);
+    Darray* row = new Darray(width);
     for (uint32_t x = 0; x < width; x++) {
         (*row)(x) = new Cell(*(*this)(x,r)); 
     }

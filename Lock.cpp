@@ -5,7 +5,7 @@ using namespace std;
 Lock::Lock(uint32_t height) {
     this->height = height;
     locks = new bool[height];
-    for (int i = 0; i < height; i++) locks[i] = false;
+    for (uint32_t i = 0; i < height; i++) locks[i] = false;
 }
 
 Lock::~Lock() {
