@@ -80,14 +80,13 @@ int main ()
         assert(size0.getCount(i) == matrix_3.getCount(i));
     }
 
-    /**
     // Extract column
     for (int i = 0; i < 4; i++) {
-        matrix_2.set(0,i, i);
+        matrix_2.set(0, i, i);
     }
     Darray column0 = matrix_2.extractColumn(0);
     for (int i = 0; i < 4; i++) {
-        assert(column0(i)->kind() == i);
+        //assert(column0(i)->kind() == i);
     }
 
     // Extract row
@@ -96,8 +95,7 @@ int main ()
     }
     Darray row0 = matrix_2.extractRow(0);
     for (int j = 0; j < 4; j++) {
-        assert(row0(j)->kind() == j);
+        //assert(row0(j)->kind() == j);
     }
-*/
 
 }
