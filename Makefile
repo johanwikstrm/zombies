@@ -6,7 +6,7 @@ OBJETS = Darray.o Dmatrix.o mtrand.o model.o Cell.o Buffer.o Coord.o mpiutils.o
 
 CXX = mpiCC 
 #g++
-CXXFLAGS = -Wall -g -pedantic 
+CXXFLAGS = -Wall -g -pedantic -fopenmp
 
 all : $(TESTS) main
 
