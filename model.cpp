@@ -1,8 +1,28 @@
 #include "model.h"
 #include <iostream>
+#include <omp.h>
 #include <assert.h>
 
 using namespace std;
+
+void lock(int i, bool *locks) {
+    for (bool locked = false; locked == false; /*NOP*/) {
+#pragma omp critical (LockRegion)
+        {
+            locked = !locks[i-1] && !locks[i] && !locks[i+1];
+            if (locked) {
+                locks[i-1] = true; locks[i] = true; locks[i+1] = true;
+            }
+        }
+    }
+}
+
+void unlock(int i, bool *locks) {
+#pragma omp critical (LockRegion)
+    {
+        locks[i-1] = false; locks[i] = false; locks[i+1] = false;
+    }
+}
 
 Model::Model(int width,int height,double naturalBirthProb, double naturalDeathRisk, double initialPopDensity, double
         brainEatingProb,double infectedToZombieProb,double zombieDecompositionRisk, double humanMoveProb, double zombieMoveProb){
@@ -187,15 +207,40 @@ void Model::move(int x,int y, bool hasMoved){
 
 void Model::moveAll(int iterations){
     for (int i = 0; i < iterations; i++){
-        // TODO: really bad assuming that all Cells have moveFlag set to false in beginning
+        // TODO : init flags
+        // really bad assuming that all Cells have moveFlag set to false in beginning
         bool hasMoved = (i % 2) == 1;
         for (int y = 0; y < height; y++){
             for (int x = 0; x < width; x++){
                 move(x, y, hasMoved);
             }
         }
+        print(); 
     }
 }
+
+void Model::moveAll_omp(int iterations){
+    // if locks[y] == TRUE, then the column y is currently used by one of the threads 
+    bool *locks = new bool[height];
+    double startTime = omp_get_wtime();
+    for (int i = 0; i < iterations; i++){
+        // TODO : init flags
+        // really bad assuming that all Cells have moveFlag set to false in beginning
+        bool hasMoved = (i % 2) == 1;
+#pragma omp parallel for shared(locks)
+        for (int y = 0; y < height; y++){
+            // Lock the 3 columns
+            lock(y, locks);
+            for (int x = 0; x < width; x++){
+                move(x, y, hasMoved);
+            }
+            unlock(y, locks);
+        }
+    }
+    cout <<omp_get_max_threads() <<"\t" <<omp_get_wtime()-startTime <<endl;
+}
+
+
 
 Cell * Model::at(int x, int y){
     return matrix(x,y);
