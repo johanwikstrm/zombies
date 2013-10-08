@@ -62,7 +62,9 @@ class Dmatrix : public Darray
          */
         void print() const;
 
-        void set(uint32_t x, uint32_t y, Cell* newValue);
+        void set(uint32_t x, uint32_t y, int k);
+
+        void move(uint32_t oldX, uint32_t oldY, uint32_t newX, uint32_t newY);
 
         /**
          * @brief       Accesseur a un element de la matrice (en lecture uniquement) 

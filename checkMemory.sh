@@ -12,8 +12,10 @@ do
     echo $name " "
     valgrind --leak-check=full --log-file=log_valgrind ./"$name"
     grep "no leaks are possible" log_valgrind > log_valgrind_out
-    if test -z log_valgrind_out
-    then 
+    if test -s "log_valgrind_out"
+    then
+        echo "OK"
+    else 
         echo "Memory leak"
         rm -f log_valgrind
         rm -f log_valgrind_out

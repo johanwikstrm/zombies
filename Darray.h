@@ -14,7 +14,7 @@ class Darray
 {
     protected :
     uint32_t size;        /**< the array size */
-    Cell **array;           /**< the array containing the data */
+    Cell** array;           /**< the array containing the data */
 
     public :
 

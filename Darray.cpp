@@ -30,19 +30,16 @@ Darray::Darray(uint32_t s, int kind)
     }
 }
 
-// constructeur par copie
+
 Darray::Darray(const Darray& P)
 {
-    // initilisation de la size du tableau
     size = P.size;
     if (size == 0) {
         return;
     }
-    // allocation de la mémoire pour le tableau
     array = new Cell*[size];
-    // copie des valeurs dans le nouveau tableau
     for (uint32_t i = 0; i < size; i++) {
-        array[i] = P.array[i];
+        array[i] = new Cell(*P.array[i]);
     }
 }
 
@@ -51,13 +48,11 @@ Darray::~Darray()
     if (size == 0) {
         return;
     }
-    /**
     for (uint32_t i = 0; i < size; i++)
     {
         delete array[i];
     }
     delete [] array;
-    */
 }
 
 
@@ -92,16 +87,17 @@ Darray& Darray::operator=(const Darray& P)
     if (size == 0 && P.size == 0) {
         return *this;
     }
-
-    if (size != P.size) {
-        if (size != 0) {
-            delete [] array;
+    if (size != 0) {
+        for (uint32_t i = 0; i < size; i++) {
+            delete array[i];
         }
-        size = P.size;
-        array = new Cell*[size];
-    } 
-
-    memcpy(array, P.array, size*sizeof(Cell*));
+        delete [] array;
+    }
+    size = P.size;
+    array = new Cell*[size];
+    for (uint32_t i = 0; i < size; i++) {
+        array[i] = new Cell(*P.array[i]);
+    }
     return *this;
 }
 

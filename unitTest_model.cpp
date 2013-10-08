@@ -4,8 +4,6 @@
 
 using namespace std;
 
-
-
 int main ()
 {
   //Model(int width,int height,double naturalBirthProb, double naturalDeathRisk, double initialPopDensity, double
@@ -72,6 +70,4 @@ int main ()
 
     
     assert(m5.getCount(ZOMBIE)==2);
-
-
 }
