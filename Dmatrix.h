@@ -8,6 +8,7 @@
 
 #include <stdint.h>
 #include "Darray.h"
+#include "Coord.h"
 
 #define numCellKinds 4
 
@@ -24,7 +25,7 @@ class Dmatrix : public Darray
     int kind(Cell* ptr);
 
     public :
-        Cell*& operator()(uint32_t x, uint32_t y);
+        
         /**
          * @brief       Constructor with parameters       
          *
@@ -66,6 +67,8 @@ class Dmatrix : public Darray
 
         void move(uint32_t oldX, uint32_t oldY, uint32_t newX, uint32_t newY);
 
+        void getInfected(uint32_t x, uint32_t y);
+
         /**
          * @brief       Accesseur a un element de la matrice (en lecture uniquement) 
          *             
@@ -78,6 +81,12 @@ class Dmatrix : public Darray
          */
         Cell* operator()(uint32_t x, uint32_t y) const;
 
+        Cell*& operator()(uint32_t x, uint32_t y);
+        
+        Cell* operator()(Coord c) const;
+
+        Cell*& operator()(Coord c);
+        
         /**
          * @brief       Teste l egalite de deux matrices
          *

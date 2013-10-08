@@ -124,7 +124,7 @@ void Dmatrix::print() const
 void Dmatrix::set(uint32_t x, uint32_t y, int k) 
 {
     int previousKind = kind(array[y*width + x]);
-    counts[previousKind] --;
+    counts[previousKind]--;
     delete array[y*width+x];
     array[y*width + x] = NULL;
     array[y*width + x] = new Cell(k);
@@ -146,8 +146,16 @@ void Dmatrix::move(uint32_t oldX, uint32_t oldY, uint32_t newX, uint32_t newY)
     destination = tmp;
 }
 
-Cell* Dmatrix::operator()(uint32_t x, uint32_t y) const
-{
+void Dmatrix::getInfected(uint32_t x, uint32_t y) {
+    Cell* person = this->operator()(x, y);
+    assert(kind(person) == HUMAN || kind(person) == INFECTED);
+    this->operator()(x, y)->setKind(INFECTED);
+    counts[HUMAN]--;
+    counts[INFECTED]++; 
+}
+
+
+Cell* Dmatrix::operator()(uint32_t x, uint32_t y) const {
     assert(y>=0 && y<height && x>=0 && x<width);
     Cell* c = Darray::operator()(y*width + x);
     /**
@@ -159,6 +167,14 @@ Cell* Dmatrix::operator()(uint32_t x, uint32_t y) const
     */
     return c;
 }
+
+Cell* Dmatrix::operator()(Coord c) const {
+    assert(c.getY()>=0 && c.getY()<height && c.getX()>=0 && c.getX()<width);
+    Cell* cell = Dmatrix::operator()(c.getX(), c.getY());
+    return cell;
+}
+
+
 
 Cell*& Dmatrix::operator()(uint32_t x, uint32_t y) 
 {
@@ -172,6 +188,12 @@ Cell*& Dmatrix::operator()(uint32_t x, uint32_t y)
     }
     **/
     return Darray::operator()(y*width + x);
+}
+
+Cell*& Dmatrix::operator()(Coord c) 
+{
+    assert(c.getY()>=0 && c.getY()<height && c.getX()>=0 && c.getX()<width);
+    return Dmatrix::operator()(c.getX(), c.getY());
 }
 
 bool Dmatrix::operator==(const Dmatrix& M)

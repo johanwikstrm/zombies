@@ -3,11 +3,9 @@
 #include "mtrand.h"
 #include "constants.h"
 #include "Dmatrix.h"
+#include "Coord.h"
 
-typedef struct Coord
-{
-	int x,y;
-} Coord;
+
 
 class Model
 {

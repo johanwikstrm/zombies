@@ -4,21 +4,6 @@
 
 using namespace std;
 
-int manhattanDist(Coord c1,Coord c2,int width, int height){
-    int dx,dy;
-    dx = c1.x-c2.x;
-    dy = c1.y-c2.y;
-    if (dx < 0)
-        dx *= -1;
-    if (dy < 0)
-        dy *= -1;
-    if (dx > width / 2)
-        dx -= width/2;
-    if (dy > height/2)
-        dy -= height/2;
-    return dx+dy;
-}
-
 Model::Model(int width,int height,double naturalBirthProb, double naturalDeathRisk, double initialPopDensity, double
         brainEatingProb,double infectedToZombieProb,double zombieDecompositionRisk, double humanMoveProb, double zombieMoveProb){
     this->width = width;
@@ -101,28 +86,26 @@ void Model::print(){
 }
 
 Coord Model::moveZombie(int x,int y){
-    Coord crd;
-    crd.x = x;
-    crd.y = y;
-    if (timeToDecompose())
-    {
-        matrix.set(x,y,EMPTY);
-    }else if(timeToMoveZombie()){
+    Coord crd = Coord(x, y);
+    
+    if (timeToDecompose()) {
+        matrix.set(x, y, EMPTY);
+
+    }else if(timeToMoveZombie()) {
         Coord crd2 = getSquareToMoveTo(x,y);
-        if (matrix(crd2.x,crd2.y)->kind() == HUMAN && timeToEatBrain())
-        {// mmmm brains....
-            matrix.set(crd2.x,crd2.y,INFECTED);
-        }else if(matrix(crd2.x,crd2.y)->kind() == EMPTY){
-            matrix.move(x, y, crd2.x, crd2.y);
-            /**
-            Cell * zombie = matrix(x,y);
-            matrix.set(x,y, EMPTY);
-            cout << "Moving zombie " << zombie <<" kind: "<< zombie->kind()<< "from" <<crd.x<<","<<crd.y
-                <<" to " << crd2.x<<" , "<<crd2.y<<endl;
-            matrix.set(crd2.x,crd2.y,zombie);
-            matrix.print();
-            crd = crd2;
-            */
+        int destKind = matrix(crd2)->kind();
+        switch(destKind){
+            case HUMAN :
+            case INFECTED :
+                if (timeToEatBrain()) {
+                    // mmmm brains....
+                    matrix.getInfected(crd2.getX(), crd2.getY()); 
+                }
+                break;
+            case EMPTY :
+                matrix.move(x, y, crd2.getX(), crd2.getY());
+                crd = crd2;
+                break;
         }
     }
     return crd;
@@ -130,111 +113,84 @@ Coord Model::moveZombie(int x,int y){
 
 Coord Model::moveInfected(int x,int y){
     Coord crd;
-    // TODO update moveFlag
-    if (this->timeToBecomeZombie())
-    {
-        // TODO: Cell infected-zombie copy
-        matrix.set(x,y,ZOMBIE);
-        crd = moveZombie(x,y);
-    }else{
-        crd = moveHuman(x,y);
+    if (timeToBecomeZombie()) {
+        matrix.set(x, y, ZOMBIE);
+        crd = moveZombie(x, y);
+    } else {
+        crd = moveHuman(x, y);
     }
     return crd;
 }
 
 Coord Model::getSquareToMoveTo(int fromX,int fromY){
     double r = (*randomizer)();
-    Coord crd;
-    crd.x = fromX;
-    crd.y = fromY;
+    Coord crd = Coord(fromX, fromY);
     if (r < 0.25) // left
     {
-        crd.x = (fromX-1+width)%width;
+        crd.setX((fromX-1+width)%width);
     }else if (r < 0.5) // right
     {
-        crd.x = (fromX+1)%width;
+        crd.setX((fromX+1)%width);
     }else if (r < 0.75) // up
     {
-        crd.y = ((fromY-1+height)%height);
+        crd.setY((fromY-1+height)%height);
     }else// down
     {
-        crd.y = ((fromY+1)%height);
+        crd.setY((fromY+1)%height);
     }
     return crd;
 }
 
 Coord Model::moveHuman(int x,int y){
-    Coord crd;
-    crd.x = x;
-    crd.y = y;
-    if (this->timeToDie())
-    {	
-        matrix.set(x,y,EMPTY);
-    }else if(timeToMoveHuman()){
+    Coord crd = Coord(x, y);
+    if (timeToDie()) {	
+        matrix.set(x, y, EMPTY);
+    } else if(timeToMoveHuman()) {
         Coord crd2 = getSquareToMoveTo(x,y);
-        if (matrix(crd2.x,crd2.y)->kind() == ZOMBIE && timeToEatBrain()) // zombie encounter!!
-        {// brain eaten, infected, doesn't move;
-            // TODO : update moveFalg or no ???
-            matrix(x, y)->setKind(INFECTED);
-            //matrix.set(x,y,matrix(x,y)->Spawn(INFECTED));
-        }else if(matrix(crd2.x,crd2.y)->kind() == EMPTY){
-            matrix.move(x, y, crd2.x, crd2.y);
-            /**
-            Cell * human = matrix(x,y);
-            matrix.set(x,y,EMPTY);
-            matrix.set(crd2.x,crd2.y,human);
+        if (matrix(crd2)->kind() == ZOMBIE && timeToEatBrain()){ // zombie encounter!!
+        // brain eaten, infected, doesn't move;
+            matrix.getInfected(x, y); 
+        }else if(matrix(crd2)->kind() == EMPTY){
+            matrix.move(x, y, crd2.getX(), crd2.getY());
             crd = crd2;
-            **/
         }
     }
     return crd;
 }
 
 void Model::move(int x,int y, bool hasMoved){
-    // TODO check hasMoved
-    int kind = matrix(x,y)->kind();
-    assert(kind >= 0 && kind < NKINDS);
-    if (kind == EMPTY)
-    {
-        if(timeToBeBorn()){
-            /**
-            Cell *newBorn = new Cell(HUMAN);
-            newBorn->setMoveFlag(!hasMoved);
-            matrix.set(x,y,newBorn);
-            */
-            matrix.set(x,y,HUMAN);
-            matrix(x,y)->setMoveFlag(!hasMoved);
-        }
-    }else if(matrix(x,y)->moveFlag() == hasMoved)
-    {
-        Coord crd;
+    if (matrix(x,y)->moveFlag() == hasMoved) {
+        int kind = matrix(x,y)->kind();
+        Coord crd = Coord(x, y);
         switch(kind){
-            case HUMAN:
+            case EMPTY :
+                if(timeToBeBorn()){
+                    matrix.set(x, y, HUMAN);
+                }
+                break;
+            case HUMAN :
                 crd = moveHuman(x, y);
                 break;
-            case INFECTED:
+            case INFECTED :
                 crd = moveInfected(x, y);
                 break;
-            case ZOMBIE:
+            case ZOMBIE :
                 crd = moveZombie(x, y);
                 break;
         }
-        assert(crd.x >= 0 && crd.x < width && crd.y >= 0 && crd.y < height);
-        if (matrix(crd.x,crd.y)->kind() != EMPTY) // Might have died/decomposed
-        {
-            matrix(crd.x,crd.y)->setMoveFlag(!hasMoved);	
-        }
+        // The square (x, y) has been considered 
+        matrix(x,y)->setMoveFlag(!hasMoved);
+        // If the person in (x,y) has moved, updata the move Flag of the destination
+        matrix(crd.getX(), crd.getY())->setMoveFlag(!hasMoved);
     }
 }
 
 void Model::moveAll(int iterations){
-    for (int i = 0; i < iterations; i++)
-    {
+    for (int i = 0; i < iterations; i++){
         // TODO: really bad assuming that all Cells have moveFlag set to false in beginning
         bool hasMoved = (i % 2) == 1;
-        for (int y = 0; y < height; y++)
-        {
-            for (int x = 0; x < width;x++){
+        for (int y = 0; y < height; y++){
+            for (int x = 0; x < width; x++){
                 move(x, y, hasMoved);
             }
         }
