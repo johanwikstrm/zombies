@@ -8,4 +8,6 @@
 #define INFECTED 2
 #define ZOMBIE 3
 
+typedef int error;
+
 #endif
