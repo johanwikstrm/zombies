@@ -101,9 +101,13 @@ class Dmatrix : public Darray
 
         void swap(Dmatrix& P);
 
-        Darray extractColumn(uint32_t col);
+        Darray* extractColumn(uint32_t col);
         
-        Darray extractRow(uint32_t r);
+        Darray* extractRow(uint32_t r);
+
+        Darray** toSend();
+
+        void insert(Darray*[4]);
 
 
 };

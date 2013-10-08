@@ -235,20 +235,34 @@ void Dmatrix::swap(Dmatrix& M)
     std::swap(this->counts, M.counts); 
 }
 
-Darray Dmatrix::extractColumn(uint32_t col) {
-    Dmatrix M = *this;
-    Darray column = Darray(height);
+Darray* Dmatrix::extractColumn(uint32_t col) {
+    //Dmatrix M = *this;
+    Darray* column = new Darray(height);
     for (uint32_t y = 0; y < height; y++) {
-        column(y) = new Cell(*M(col,y)); 
+        (*column)(y) = new Cell(*(*this)(col,y)); 
     }
     return column;
 } 
 
-Darray Dmatrix::extractRow(uint32_t r) {
-    Dmatrix M = *this;
-    Darray row = Darray(width);
+Darray* Dmatrix::extractRow(uint32_t r) {
+    //Dmatrix M = *this;
+    Darray *row = new Darray(width);
     for (uint32_t x = 0; x < width; x++) {
-        row(x) = new Cell(*M(x,r)); 
+        (*row)(x) = new Cell(*(*this)(x,r)); 
     }
     return row;
 } 
+
+Darray** Dmatrix::toSend(){
+    assert(width >=4 && height >= 4);// assuming a'matrix that is at least 4x4
+    Darray **toRet = (Darray**)calloc(4,sizeof(Darray*));
+    toRet[UP] = extractRow(1);
+    toRet[DOWN] = extractRow(height-2);
+    toRet[LEFT] = extractColumn(1);
+    toRet[RIGHT] = extractColumn(width-2);
+    return toRet;
+}
+
+void Dmatrix::insert(Darray** toInsert){
+
+}
