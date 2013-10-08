@@ -2,7 +2,7 @@ SRC_TESTS = $(wildcard unitTest_*.cpp)
 ## All the executable for the tests
 TESTS = $(SRC_TESTS:.cpp=)
 
-OBJETS = Darray.o Dmatrix.o mtrand.o model.o Cell.o Buffer.o Coord.o
+OBJETS = Darray.o Dmatrix.o mtrand.o model.o Cell.o Buffer.o Coord.o mpiutils.o
 
 CXX = mpiCC 
 #g++
