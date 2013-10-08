@@ -3,10 +3,7 @@
 #include "mtrand.h"
 #include "constants.h"
 #include "Dmatrix.h"
-typedef struct Coord
-{
-	int x,y;
-} Coord;
+#include "Coord.h"
 
 
 
