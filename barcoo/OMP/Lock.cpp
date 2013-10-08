@@ -3,8 +3,8 @@
 #include <omp.h>
 using namespace std;
 
-#define STEPS	100
-#define SIZE	1000
+#define STEPS	10
+#define SIZE	100
 #define MOVE	0.4
 
 bool **CreateMesh(int I, int J) {

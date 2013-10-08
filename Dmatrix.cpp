@@ -136,8 +136,8 @@ void Dmatrix::move(uint32_t oldX, uint32_t oldY, uint32_t newX, uint32_t newY)
     Dmatrix M = *this;
     Cell* person = M(oldX, oldY);
     Cell* destination = M(newX, newY);
-    // Make sure we move a person (human or zombie)
-    assert(kind(person) == HUMAN || kind(person) == ZOMBIE);
+    // Make sure we move a person (human, infected or zombie, i.e not empty)
+    assert(kind(person) != EMPTY);
     // Make sure the square the person is trying to move to is empty
     assert(kind(destination) == EMPTY);
     // The move
