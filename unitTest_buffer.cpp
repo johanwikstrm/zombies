@@ -40,11 +40,11 @@ int main(int argc, char *argv[])
     err = MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     assert(err == MPI_SUCCESS);
     if (rank == 0){
-        err = sendToNeighbour(1,&from,&request,dtype);
+        err = sendToNeighbour(1,&from,&request,dtype,123);
     	//err = MPI_Isend(from.rawData(), from.count(), dtype, 1, MPI_TAG ,MPI_COMM_WORLD, &request);
     	assert(err == MPI_SUCCESS);	
     }else if (rank == 1){
-		err = recvFromNeighbour(0,&to,dtype);
+		err = recvFromNeighbour(0,&to,dtype,123);
         //err = MPI_Recv(to.rawData(), to.count(), dtype, 0, MPI_TAG,MPI_COMM_WORLD, &status);
 		assert(err == MPI_SUCCESS);
 		assert((*to.toDarray())(0)->kind() == ZOMBIE);
@@ -64,19 +64,41 @@ int main(int argc, char *argv[])
     myMatr.set(2,3,ZOMBIE);
     myMatr.print();
     int nbours[4];
+    MPI_Request reqs[4];
 
-    //TODO get rank, get neighbpurs try send 4 and recv 4
-    
+    neighbours(x(rank),y(rank),PROC_WIDTH,PROC_HEIGHT,nbours);
+
     //neighbours(nbours);
     Darray **toSend = myMatr.toSend();
     assert(toSend[UP]->getSize() == 4);
+    assert((*(toSend[UP]))(1)->kind() == HUMAN);
+    assert((*(toSend[UP]))(0)->kind() == EMPTY);
+    assert((*(toSend[DOWN]))(2)->kind() == ZOMBIE);
     assert(toSend[LEFT]->getSize() == 5);
     Buffer** bufs = (Buffer**)calloc(4,sizeof(Buffer*));
+    Buffer** bufs2 = (Buffer**)calloc(4,sizeof(Buffer*));
     for (int i = 0; i < 4; i++){
         bufs[i] = new Buffer(*(toSend[i]));
+        bufs2[i] = new Buffer(toSend[i]->getSize());
     }
     assert(bufs[DOWN]->count() == 4);
-    //error sendToAllNeighbours(bufs,int nbours[4],MPI_Request reqs[4])
+    assert(bufs[LEFT]->count() == 5);
+    assert(bufs2[LEFT]->count() == 5);
+    err = sendToAllNeighbours(nbours,bufs,reqs,dtype);
+    assert(err == MPI_SUCCESS);
+    err = recvFromAllNeighbours(nbours,bufs2,dtype);
+    assert(err == MPI_SUCCESS);
+    assert((*(bufs2[DOWN]->toDarray()))(1)->kind() == HUMAN);
+    assert((*(bufs2[DOWN]->toDarray()))(0)->kind() == EMPTY);
+    assert((*(bufs2[UP]->toDarray()))(1)->kind() == EMPTY);
+    assert((*(bufs2[UP]->toDarray()))(2)->kind() == ZOMBIE);
+    assert((*(bufs2[LEFT]->toDarray()))(1)->kind() == EMPTY);
+    assert((*(bufs2[LEFT]->toDarray()))(3)->kind() == ZOMBIE);
+    assert((*(bufs2[RIGHT]->toDarray()))(2)->kind() == EMPTY);
+    assert((*(bufs2[RIGHT]->toDarray()))(1)->kind() == HUMAN);
+
+
+
 
 
     err = MPI_Finalize();
