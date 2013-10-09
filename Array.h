@@ -3,7 +3,7 @@
 
 /**
  * @file Array.h
- * @author
+ * @author Johan Wikstrom and Anael Bonneton
  */
 
 #include "Cell.h"
@@ -12,9 +12,10 @@
 
 class Array
 {
+
     protected :
-    uint32_t size;        /**< the array size */
-    Cell** array;           /**< the array containing the data */
+        uint32_t size;          /**< the array size */
+        Cell** array;           /**< the array containing the data */
 
     public :
 
@@ -24,19 +25,18 @@ class Array
         Array();
 
         /**
-         * @brief       Constructeur avec parametres
+         * @brief       Constructor with parameters
          *
-         * @param       t       la taille du vecteur a creer 
-         * @param       init    argument optionnel qui specifie la valeur 
-         *                      a utiliser pour initialiser les elements du vecteur
-         *                      (par defaut init=0)
+         * @param       s       size of the array 
+         * @param       kind    kind of the initial cells (HUMAN, INFECTED, ZOMBIE, or EMPTY)
+         *                      by default EMPTY 
          */
-        explicit Array(uint32_t s,int kind = 0);
+        explicit Array(uint32_t s, int kind = 0);
 
         /**
-         * @brief       Constructeur par copie 
-         *              Le vecteur cree sera proprietaire de ses donnees si et seulement si le vecteur P l est
-         * @param       P       le vecteur a copier
+         * @brief       Copy constructor
+         *
+         * @param       P   the array to copy
          */
         Array(const Array& P);
 
@@ -46,76 +46,55 @@ class Array
         ~Array();
 
         /**
-         * @brief       Accesseur de la taille du vecteur
-         *
-         * @return      taille du vecteur
+         * @return      the array size 
          */
         uint32_t getSize() const;
 
         /**
-         * @brief       Affiche les elements du vecteur
+         * @brief       print the array elements 
          */
         void print() const;
 
         /**
-         * @brief       Accesseur au vecteur (en lecture uniquement) 
+         * @brief       Overloading the () operator to access the elements of the array (read only) 
          *             
-         * @param       i       indice du vecteur auquel on accede
-         *                      (les indices du vecteur etant numerotes de 1 a taille)
+         * @param       i       the index of the element
          *
-         * @return      le ieme element du vecteur      
+         * @return      array[i]     
          */
-       Cell* operator()(uint32_t i) const;
+        Cell* operator()(uint32_t i) const;
 
         /**
-         * @brief       Accesseur au vecteur : (en lecture et en ecriture))
+         * @brief       Overloading the () operator to access the elements of the array (read and write) 
          *
-         * @param       i       indice du vecteur auquel on accede
-         *                      (les indices du vecteur etant numerotes de 1 a taille)
-         *              
-         * @return      une reference sur le ieme element du vecteur          
+         * @param       i       the index of the element
+         *
+         * @return      array[i]     
          */
         Cell*& operator()(uint32_t i) ;
 
+        /**
+         * @brief       Overloading the = operator (assignment) 
+         */
         Array& operator=(const Array& P);
 
         /**
-         * @brief       Teste l egalite du vecteur avec un autre
+         * @brief       Overloading the == operator (equality)
          *
-         * @param       P       vecteur de comparaison
+         * @param       P       the array to compare to
          *
-         * @return      true si et seulement si les vecteurs sont egaux
+         * @return      true iff the arrays are equal
          */
         bool operator==(const Array& P) const;
 
+        /**
+         * @brief       Swap the array with the array in argument
+         *
+         * @param       the array for the swaping
+         *
+         */
         void swap(Array& P);
 
 };
-
-/**
- * @brief       Surcharge de l operateur de flux <<
- *
- * @param       out
- * @param       P
- *
- * @return           
- */
-std::ostream& operator<<(std::ostream& out, const Array& P);
-
-/**
- * @brief       Surcharge de l operateur de flux >>
- *              Si le fichier contient plus de donnees que la taille du vecteur
- *              seules les taille premieres valeurs du fichier seront affectees 
- *              le vecteur
- *              Si le fichier contient moins de donnees que la taille du vecteur
- *              on affecte simplement les donnees du fichier (les autres valeurs 
- *              du vecteur resteront inchangees)
- *
- * @param       in
- * @param       P
- *
- * @return      
- */
-std::istream& operator>>(std::istream& in, Array& P);
 
 #endif

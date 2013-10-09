@@ -38,7 +38,7 @@ int main ()
 
     // Test set (and count update)
     matrix_1.set(0, 0, 0);
-    assert(matrix_1(0,0)->kind() == 0);
+    assert(matrix_1(0,0)->getKind() == 0);
     assert(matrix_1.getCount(1) == 15);
     assert(matrix_1.getCount(0) == 1);
     matrix_1.set(1, 1, 0);
@@ -47,7 +47,7 @@ int main ()
     assert(matrix_1.getCount(2) == 0);
     assert(matrix_1.getCount(3) == 0);
     matrix_1.set(1, 1, 2);
-    assert(matrix_1(1,1)->kind() == 2);
+    assert(matrix_1(1,1)->getKind() == 2);
     assert(matrix_1.getCount(1) == 14);
     assert(matrix_1.getCount(0) == 1);
     assert(matrix_1.getCount(2) == 1);
@@ -86,7 +86,7 @@ int main ()
     }
     Array* column0 = matrix_2.extractColumn(0);
     for (int i = 0; i < 4; i++) {
-        assert((*column0)(i)->kind() == i);
+        assert((*column0)(i)->getKind() == i);
     }
 
     // Extract row
@@ -95,7 +95,7 @@ int main ()
     }
     Array* row0 = matrix_2.extractRow(0);
     for (int j = 0; j < 4; j++) {
-        assert((*row0)(j)->kind() == j);
+        assert((*row0)(j)->getKind() == j);
     }
 
 }

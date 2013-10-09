@@ -95,7 +95,7 @@ Coord Model::moveZombie(int x,int y){
 
     }else if(timeToMoveZombie()) {
         Coord crd2 = getSquareToMoveTo(x,y);
-        int destKind = matrix(crd2)->kind();
+        int destKind = matrix(crd2)->getKind();
         switch(destKind){
             case HUMAN :
             case INFECTED :
@@ -149,10 +149,10 @@ Coord Model::moveHuman(int x,int y){
         matrix.set(x, y, EMPTY);
     } else if(timeToMoveHuman()) {
         Coord crd2 = getSquareToMoveTo(x,y);
-        if (matrix(crd2)->kind() == ZOMBIE && timeToEatBrain()){ // zombie encounter!!
+        if (matrix(crd2)->getKind() == ZOMBIE && timeToEatBrain()){ // zombie encounter!!
         // brain eaten, infected, doesn't move;
             matrix.getInfected(x, y); 
-        }else if(matrix(crd2)->kind() == EMPTY){
+        }else if(matrix(crd2)->getKind() == EMPTY){
             matrix.move(x, y, crd2.getX(), crd2.getY());
             crd = crd2;
         }
@@ -161,8 +161,8 @@ Coord Model::moveHuman(int x,int y){
 }
 
 void Model::move(int x,int y, bool hasMoved){
-    if (matrix(x,y)->moveFlag() == hasMoved) {
-        int kind = matrix(x,y)->kind();
+    if (matrix(x,y)->getMoveFlag() == hasMoved) {
+        int kind = matrix(x,y)->getKind();
         Coord crd = Coord(x, y);
         switch(kind){
             case EMPTY :

@@ -43,7 +43,7 @@ int main ()
     zx = zy = zx2 = zy2 = -1;
     for (int y = 0; y < 10; y++){
         for (int x = 0; x < 15; x++){
-            if (m5.at(x,y)->kind() == ZOMBIE){ // finding pos of both zombies
+            if (m5.at(x,y)->getKind() == ZOMBIE){ // finding pos of both zombies
                 if (zx != -1){
                     zx = x;
                     zy = y;
@@ -55,12 +55,12 @@ int main ()
         }    
     }
     m5.moveAll(1);
-    bool currentMoveFlag = m5.at(0,0)->moveFlag();
+    bool currentMoveFlag = m5.at(0,0)->getMoveFlag();
     // checking that our zombies are within range
     for (int y = 0; y < 10; y++){
         for (int x = 0; x < 15; x++){
-            assert(m5.at(x,y)->moveFlag() == currentMoveFlag);
-            if (m5.at(x,y)->kind()==ZOMBIE){
+            assert(m5.at(x,y)->getMoveFlag() == currentMoveFlag);
+            if (m5.at(x,y)->getKind()==ZOMBIE){
 
             }
         }

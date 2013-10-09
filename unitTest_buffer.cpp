@@ -17,8 +17,8 @@ int main(int argc, char *argv[])
     d(55) = new Cell(HUMAN);
     Buffer buf2 = Buffer(d);
     assert(buf2.count() == 100);
-    assert((*buf2.toArray())(55)->kind() == HUMAN);
-    assert((*buf2.toArray())(54)->kind() == EMPTY);
+    assert((*buf2.toArray())(55)->getKind() == HUMAN);
+    assert((*buf2.toArray())(54)->getKind() == EMPTY);
 
     Array d2 = Array(2);
     d2(0) = new Cell(ZOMBIE);
@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
     Buffer to = Buffer(d2.getSize());
     assert(from.count() == 2);
     assert(to.count() == 2);
-    assert((*from.toArray())(0)->kind() == ZOMBIE);
+    assert((*from.toArray())(0)->getKind() == ZOMBIE);
     error err = MPI_Init(&argc, &argv);
     assert(err == MPI_SUCCESS);
     
@@ -47,8 +47,8 @@ int main(int argc, char *argv[])
 		err = recvFromNeighbour(0,&to,dtype,123);
         //err = MPI_Recv(to.rawData(), to.count(), dtype, 0, MPI_TAG,MPI_COMM_WORLD, &status);
 		assert(err == MPI_SUCCESS);
-		assert((*to.toArray())(0)->kind() == ZOMBIE);
-		assert((*to.toArray())(1)->kind() == EMPTY);
+		assert((*to.toArray())(0)->getKind() == ZOMBIE);
+		assert((*to.toArray())(1)->getKind() == EMPTY);
     }
 
     /* this is what all matrices should do
@@ -71,9 +71,9 @@ int main(int argc, char *argv[])
     //neighbours(nbours);
     Array **toSend = myMatr.toSend();
     assert(toSend[UP]->getSize() == 4);
-    assert((*(toSend[UP]))(1)->kind() == HUMAN);
-    assert((*(toSend[UP]))(0)->kind() == EMPTY);
-    assert((*(toSend[DOWN]))(2)->kind() == ZOMBIE);
+    assert((*(toSend[UP]))(1)->getKind() == HUMAN);
+    assert((*(toSend[UP]))(0)->getKind() == EMPTY);
+    assert((*(toSend[DOWN]))(2)->getKind() == ZOMBIE);
     assert(toSend[LEFT]->getSize() == 5);
     Buffer** bufs = (Buffer**)calloc(4,sizeof(Buffer*));
     Buffer** bufs2 = (Buffer**)calloc(4,sizeof(Buffer*));
@@ -88,14 +88,14 @@ int main(int argc, char *argv[])
     assert(err == MPI_SUCCESS);
     err = recvFromAllNeighbours(nbours,bufs2,dtype);
     assert(err == MPI_SUCCESS);
-    assert((*(bufs2[DOWN]->toArray()))(1)->kind() == HUMAN);
-    assert((*(bufs2[DOWN]->toArray()))(0)->kind() == EMPTY);
-    assert((*(bufs2[UP]->toArray()))(1)->kind() == EMPTY);
-    assert((*(bufs2[UP]->toArray()))(2)->kind() == ZOMBIE);
-    assert((*(bufs2[LEFT]->toArray()))(1)->kind() == EMPTY);
-    assert((*(bufs2[LEFT]->toArray()))(3)->kind() == ZOMBIE);
-    assert((*(bufs2[RIGHT]->toArray()))(2)->kind() == EMPTY);
-    assert((*(bufs2[RIGHT]->toArray()))(1)->kind() == HUMAN);
+    assert((*(bufs2[DOWN]->toArray()))(1)->getKind() == HUMAN);
+    assert((*(bufs2[DOWN]->toArray()))(0)->getKind() == EMPTY);
+    assert((*(bufs2[UP]->toArray()))(1)->getKind() == EMPTY);
+    assert((*(bufs2[UP]->toArray()))(2)->getKind() == ZOMBIE);
+    assert((*(bufs2[LEFT]->toArray()))(1)->getKind() == EMPTY);
+    assert((*(bufs2[LEFT]->toArray()))(3)->getKind() == ZOMBIE);
+    assert((*(bufs2[RIGHT]->toArray()))(2)->getKind() == EMPTY);
+    assert((*(bufs2[RIGHT]->toArray()))(1)->getKind() == HUMAN);
 
 
 

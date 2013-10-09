@@ -35,7 +35,7 @@ int Matrix::kind(Cell* ptr){
     }
     **/
 
-    return ptr->kind();
+    return ptr->getKind();
 }
 
 // constructeur par copie
@@ -86,7 +86,7 @@ uint32_t Matrix::getWidth() const
     return width;
 }
 
-uint32_t Matrix::getCount(int kind) const
+uint32_t Matrix::getCount(uint32_t kind) const
 {
     return counts[kind];
 }
@@ -100,7 +100,7 @@ void Matrix::print() const
     for (uint32_t y = 0; y < height; y++) {
         for (uint32_t x = 0; x < width; x++) {
             char kind = 'X';
-            switch(M(x, y)->kind()){
+            switch(M(x, y)->getKind()){
                 case ZOMBIE:
                 kind = 'Z';
                 break;
@@ -206,7 +206,7 @@ bool Matrix::operator==(const Matrix& M)
         for (uint32_t i = 0; i < height; i++) {
             for (uint32_t j = 0; j < width; j++){
                 // TODO: deep equals
-                if (M(i, j)->kind() != N(i, j)->kind()) {
+                if (M(i, j)->getKind() != N(i, j)->getKind()) {
                     return false;  
                 }
             } 
