@@ -10,7 +10,7 @@ Buffer::Buffer(uint32_t count){
 Buffer::Buffer(Array& array){
 	cellCount = array.getSize();
 	cells = (Cell*)calloc(cellCount,sizeof(Cell));
-	for (int i = 0; i < cellCount; i++){
+	for (uint32_t i = 0; i < cellCount; i++){
 		memcpy(cells+i,array(i),sizeof(Cell));
 	}
 }
