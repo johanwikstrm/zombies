@@ -62,14 +62,13 @@ int main(int argc, char *argv[])
     Dmatrix myMatr = Dmatrix(5,4);
     myMatr.set(1,1,HUMAN);
     myMatr.set(2,3,ZOMBIE);
-    myMatr.print();
     int nbours[4];
     MPI_Request reqs[4];
 
     neighbours(x(rank),y(rank),PROC_WIDTH,PROC_HEIGHT,nbours);
 
     //neighbours(nbours);
-    Darray **toSend = myMatr.toSend();
+    Darray **toSend = myMatr.toSend(1);
     assert(toSend[UP]->getSize() == 4);
     assert((*(toSend[UP]))(1)->kind() == HUMAN);
     assert((*(toSend[UP]))(0)->kind() == EMPTY);
@@ -97,7 +96,26 @@ int main(int argc, char *argv[])
     assert((*(bufs2[RIGHT]->toDarray()))(2)->kind() == EMPTY);
     assert((*(bufs2[RIGHT]->toDarray()))(1)->kind() == HUMAN);
 
-
+    // Full test with matrix
+    Dmatrix matrix = Dmatrix(6,7);
+    matrix.set(0,2,ZOMBIE);
+    matrix.set(1,1,HUMAN);
+    matrix.set(4,4,INFECTED);
+    /*
+        E E E E E E E       E E E E I E E
+        E H E E E E E       E H E E E E H
+        Z E E E E E E       Z E E E E Z E
+        E E E E E E E  ->   E E E E E E E
+        E E E E I E E       E E E E I E E
+        E E E E E E E       E H E E E E E
+    */
+    assert(matrix.getCount(ZOMBIE) == 1);
+    assert(matrix.getCount(HUMAN) == 1);
+    assert(matrix.getCount(INFECTED) == 1);
+    swapAll(nbours,matrix);
+    assert(matrix.getCount(ZOMBIE) == 2);
+    assert(matrix.getCount(HUMAN) == 3);
+    assert(matrix.getCount(INFECTED) == 2);
 
 
 

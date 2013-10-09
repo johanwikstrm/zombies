@@ -16,7 +16,7 @@ public:
 	Darray * toDarray();
 	int count();
 	// NOTE: uncommitted datatype
-	error datatype(MPI_Datatype *type);
+	static error datatype(MPI_Datatype *type);
 private:
 	Cell* cells;
 	int cellCount;

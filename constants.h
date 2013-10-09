@@ -1,8 +1,10 @@
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
 
-#define PROC_WIDTH 4
-#define PROC_HEIGHT 1
+// NOTE: for the MPI stuff to work PROC_WIDTH*PROC_HEIGHT 
+// must be equal to the number of MPI processes
+#define PROC_WIDTH 1
+#define PROC_HEIGHT 4
 
 #define NKINDS 4
 
@@ -10,6 +12,8 @@
 #define HUMAN 1
 #define INFECTED 2
 #define ZOMBIE 3
+
+char * kindstr(int kind);
 
 typedef int error;
 

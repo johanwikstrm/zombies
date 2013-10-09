@@ -251,18 +251,81 @@ Darray* Dmatrix::extractRow(uint32_t r) {
         (*row)(x) = new Cell(*(*this)(x,r)); 
     }
     return row;
-} 
+}
 
-Darray** Dmatrix::toSend(){
-    assert(width >=4 && height >= 4);// assuming a'matrix that is at least 4x4
+// Returns the number of collisions
+int Dmatrix::insertColumnWithCollisions(Darray * toInsert,uint32_t col){
+    assert(toInsert->getSize() == height);
+    int collisions = 0;
+    for (uint32_t y = 0; y < height; y++) {
+        int oldKind = (*this)(col,y)->kind();
+        int newKind = (*toInsert)(y)->kind();
+        if (oldKind != EMPTY && newKind != EMPTY){
+            /*cout << "Collision inserting " << kindstr((*toInsert)(y)->kind())
+                << " into cell with " << kindstr((*this)(col,y)->kind()) << " in it at "
+                << col<<","<<y<<endl;*/
+            collisions++;
+        }else if (oldKind == EMPTY){
+            this->set(col,y,(*toInsert)(y)->kind());    
+        }    
+    }
+    return collisions;  
+}
+
+// Returns the number of collisions
+int Dmatrix::insertRowWithCollisions(Darray * toInsert,uint32_t row){
+    assert(toInsert->getSize() == width);
+    int collisions = 0;
+    for (uint32_t x = 0; x < width; x++) {
+        int oldKind = (*this)(x,row)->kind();
+        int newKind = (*toInsert)(x)->kind();
+        if (oldKind != EMPTY && newKind != EMPTY){
+            /*cout << "Collision inserting " << kindstr((*toInsert)(x)->kind())
+                << " into cell with " << kindstr((*this)(x,row)->kind()) << " in it at "
+                << x<<","<<row<<endl;*/
+            collisions++;
+        }else if (oldKind == EMPTY){
+            this->set(x,row,(*toInsert)(x)->kind());    
+        }    
+    }
+    return collisions;  
+}
+
+/*  
+    offset=0   offset=1
+    X X X X X  E X E X E 
+    X E E E X  X X X X X
+    X E E E X  X X X X X
+    X X X X X  E X E X E
+*/
+Darray** Dmatrix::toSend(int offset){
+    assert(width >=4 && height >= 4);// assuming a matrix that is at least 4x4
+    assert(offset == 1 || offset == 0);
     Darray **toRet = (Darray**)calloc(4,sizeof(Darray*));
-    toRet[UP] = extractRow(1);
-    toRet[DOWN] = extractRow(height-2);
-    toRet[LEFT] = extractColumn(1);
-    toRet[RIGHT] = extractColumn(width-2);
+    toRet[UP] = extractRow(offset);
+    toRet[DOWN] = extractRow(height-1-offset);
+    toRet[LEFT] = extractColumn(offset);
+    toRet[RIGHT] = extractColumn(width-1-offset);
     return toRet;
 }
 
-void Dmatrix::insert(Darray** toInsert){
-
+/*  offset=0   offset=1
+    X X X X X  E X E X E 
+    X E E E X  X X X X X
+    X E E E X  X X X X X
+    X X X X X  E X E X E
+*/
+int Dmatrix::insertWithCollisions(Darray** toInsert, int offset){
+    assert(offset == 1 || offset == 0);
+    assert(width >=4 && height >= 4);// assuming a matrix that is at least 4x4
+    assert(toInsert[UP]->getSize() == width);
+    assert(toInsert[DOWN]->getSize() == width);
+    assert(toInsert[LEFT]->getSize() == height);
+    assert(toInsert[RIGHT]->getSize() == height);
+    int collisions =0;
+    collisions += insertRowWithCollisions(toInsert[UP] , offset);
+    collisions += insertRowWithCollisions(toInsert[DOWN] , height-1-offset);
+    collisions += insertColumnWithCollisions(toInsert[LEFT] , offset);
+    collisions += insertColumnWithCollisions(toInsert[RIGHT] , width-1-offset);
+    return collisions;
 }

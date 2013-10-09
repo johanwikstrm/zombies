@@ -102,12 +102,16 @@ class Dmatrix : public Darray
         void swap(Dmatrix& P);
 
         Darray* extractColumn(uint32_t col);
+
+        int insertColumnWithCollisions(Darray * toInsert,uint32_t col);
+
+        int insertRowWithCollisions(Darray * toInsert,uint32_t row);
         
         Darray* extractRow(uint32_t r);
 
-        Darray** toSend();
+        Darray** toSend(int offset);
 
-        void insert(Darray*[4]);
+        int insertWithCollisions(Darray** toInsert, int offset);
 
 
 };

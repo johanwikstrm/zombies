@@ -197,7 +197,7 @@ void Model::moveAll(int iterations){
                 move(x, y, hasMoved);
             }
         }
-        print(); 
+        //print(); 
     }
 }
 
@@ -217,7 +217,7 @@ void Model::moveAll_omp(int iterations){
             }
             locks.unlock(y);
         }
-        print(); 
+        //print(); 
     }
     cout <<omp_get_max_threads() <<"\t" <<omp_get_wtime()-startTime <<endl;
 }

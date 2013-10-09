@@ -2,6 +2,7 @@ using namespace std;
 #include <iostream>
 #include <cassert>
 #include "Dmatrix.h"
+#include "constants.h"
 
 int main ()
 {
@@ -97,5 +98,50 @@ int main ()
     for (int j = 0; j < 4; j++) {
         assert((*row0)(j)->kind() == j);
     }
-
+    // testing insertion of columns
+    Dmatrix matrix_4 = Dmatrix(4,5);
+    matrix_4.set(1,2,INFECTED);
+/*  
+    E E E E E 
+    E E E E E 
+    E I E E E 
+    E E E E E 
+*/
+    // no collision
+    Darray * insCol = new Darray(4);
+    (*insCol)(1) = new Cell(ZOMBIE);
+    assert(matrix_4.insertColumnWithCollisions(insCol,1) == 0);
+/*  
+    E E E E E 
+    E Z E E E 
+    E I E E E 
+    E E E E E 
+*/
+    assert(matrix_4(1,1)->kind() == ZOMBIE);
+    assert(matrix_4(1,2)->kind() == INFECTED);
+    (*insCol)(1) = new Cell(HUMAN);
+    assert(matrix_4.insertColumnWithCollisions(insCol,1) == 1);
+/*  
+    E E E E E 
+    E ? E E E 
+    E I E E E 
+    E E E E E 
+*/
+    insCol = new Darray(5);
+    (*insCol)(1) = new Cell(INFECTED);
+    assert(matrix_4.insertRowWithCollisions(insCol,3) == 0);
+/*  
+    E E E E E 
+    E ? E E E 
+    E I E E E 
+    E I E E E 
+*/
+    assert(matrix_4(1,3)->kind() == INFECTED);
+    assert(matrix_4.insertRowWithCollisions(insCol,2) == 1);
+/*  
+    E E E E E 
+    E ? E E E 
+    E ? E E E 
+    E I E E E 
+*/
 }

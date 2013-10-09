@@ -61,7 +61,7 @@ int main ()
         for (int x = 0; x < 15; x++){
             assert(m5.at(x,y)->moveFlag() == currentMoveFlag);
             if (m5.at(x,y)->kind()==ZOMBIE){
-
+                
             }
         }
     }
