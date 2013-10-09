@@ -1,18 +1,18 @@
-#ifndef _DMATRIX_H
-#define _DMATRIX_H
+#ifndef _MATRIX_H
+#define _MATRIX_H
 
 /**
- * @file Dmatrix.h
+ * @file Matrix.h
  * @author 
  */
 
 #include <stdint.h>
-#include "Darray.h"
+#include "Array.h"
 #include "Coord.h"
 
 #define numCellKinds 4
 
-class Dmatrix : public Darray
+class Matrix : public Array
 {
 
     private :
@@ -35,21 +35,21 @@ class Dmatrix : public Darray
          *                              the matrix is initialize 
          *                              By default, init = 0
          */
-        Dmatrix(uint32_t height, uint32_t width);
+        Matrix(uint32_t height, uint32_t width);
 
         /**
          * @brief       Constructeur par copie 
          *
          * @param       M       la matrice a copier
          */
-        Dmatrix(const Dmatrix& M);
+        Matrix(const Matrix& M);
 
-        Dmatrix();        
+        Matrix();        
 
         /**
          * @brief       Destructor
          */
-        ~Dmatrix();
+        ~Matrix();
 
         uint32_t getHeight() const;
 
@@ -95,19 +95,19 @@ class Dmatrix : public Darray
          * @return      true si les deux matrices sont identiques,
          *              false sinon
          */
-        bool operator==(const Dmatrix& M);
+        bool operator==(const Matrix& M);
 
-        Dmatrix& operator=(const Dmatrix& M);
+        Matrix& operator=(const Matrix& M);
 
-        void swap(Dmatrix& P);
+        void swap(Matrix& P);
 
-        Darray* extractColumn(uint32_t col);
+        Array* extractColumn(uint32_t col);
         
-        Darray* extractRow(uint32_t r);
+        Array* extractRow(uint32_t r);
 
-        Darray** toSend();
+        Array** toSend();
 
-        void insert(Darray*[4]);
+        void insert(Array*[4]);
 
 
 };

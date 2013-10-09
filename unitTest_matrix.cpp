@@ -1,13 +1,13 @@
 using namespace std;
 #include <iostream>
 #include <cassert>
-#include "Dmatrix.h"
+#include "Matrix.h"
 
 int main ()
 {
     // Test the constructors
     // Default Constructor
-    Dmatrix size0 = Dmatrix();
+    Matrix size0 = Matrix();
     assert(size0.getWidth() == 0);
     assert(size0.getHeight() == 0);
     assert(size0.getCount(0) == 0);
@@ -17,7 +17,7 @@ int main ()
 
     // Constructor with parameters
     // Without init value
-    Dmatrix matrix_0 = Dmatrix(2, 2);
+    Matrix matrix_0 = Matrix(2, 2);
     assert(matrix_0.getWidth() == 2);
     assert(matrix_0.getHeight() == 2);
     assert(matrix_0.getCount(0) == 4);
@@ -27,7 +27,7 @@ int main ()
 
     
     // Test set (and count update)
-    Dmatrix matrix_1 = Dmatrix(4, 4);
+    Matrix matrix_1 = Matrix(4, 4);
     for (int i = 0; i < 4; i++)
     {
         for (int j = 0; j < 4; j++)
@@ -54,11 +54,11 @@ int main ()
     assert(matrix_1.getCount(3) == 0);
 
     // Test swap
-    Dmatrix matrix_2 = Dmatrix(4,4);
-    Dmatrix matrix_3 = Dmatrix(4,4);
+    Matrix matrix_2 = Matrix(4,4);
+    Matrix matrix_3 = Matrix(4,4);
     matrix_2.set(1,1, 2);
-    Dmatrix oldMatrix_2 = matrix_2;
-    Dmatrix oldMatrix_3 = matrix_3;
+    Matrix oldMatrix_2 = matrix_2;
+    Matrix oldMatrix_3 = matrix_3;
     matrix_2.swap(matrix_3);
     assert(oldMatrix_2 == matrix_3);
     assert(oldMatrix_3 == matrix_2);
@@ -84,7 +84,7 @@ int main ()
     for (int i = 0; i < 4; i++) {
         matrix_2.set(0, i, i);
     }
-    Darray* column0 = matrix_2.extractColumn(0);
+    Array* column0 = matrix_2.extractColumn(0);
     for (int i = 0; i < 4; i++) {
         assert((*column0)(i)->kind() == i);
     }
@@ -93,7 +93,7 @@ int main ()
     for (int j = 0; j < 4; j++) {
         matrix_2.set(j,0, j);
     }
-    Darray* row0 = matrix_2.extractRow(0);
+    Array* row0 = matrix_2.extractRow(0);
     for (int j = 0; j < 4; j++) {
         assert((*row0)(j)->kind() == j);
     }

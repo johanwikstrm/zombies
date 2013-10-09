@@ -1,7 +1,7 @@
 #include <time.h>
 #include <stdlib.h>
 #include <iostream>
-#include "model.h"
+#include "Model.h"
 
 using namespace std;
 

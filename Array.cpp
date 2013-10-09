@@ -5,16 +5,16 @@ using namespace std;
 #include <cassert>
 #include <string.h>
 
-#include "Darray.h"
+#include "Array.h"
 
 // constructeur par défaut
-Darray::Darray()
+Array::Array()
 {
     size = 0;
 }
 
 // constructeur avec paramètres
-Darray::Darray(uint32_t s, int kind)
+Array::Array(uint32_t s, int kind)
 {
     // initilisation de la size du tableau
     size = s;
@@ -31,7 +31,7 @@ Darray::Darray(uint32_t s, int kind)
 }
 
 
-Darray::Darray(const Darray& P)
+Array::Array(const Array& P)
 {
     size = P.size;
     if (size == 0) {
@@ -43,7 +43,7 @@ Darray::Darray(const Darray& P)
     }
 }
 
-Darray::~Darray()
+Array::~Array()
 {
     if (size == 0) {
         return;
@@ -56,12 +56,12 @@ Darray::~Darray()
 }
 
 
-uint32_t Darray::getSize() const 
+uint32_t Array::getSize() const 
 {
     return size;
 }
 
-void Darray::print() const
+void Array::print() const
 {
     cout <<"Tableau : \n";
     for (uint32_t i = 0; i < size; i++) {
@@ -70,19 +70,19 @@ void Darray::print() const
     cout <<"\n";
 }
 
-Cell* Darray::operator()(uint32_t i) const
+Cell* Array::operator()(uint32_t i) const
 {
     assert(i >= 0 && i < size);
     return array[i];
 }
 
-Cell*& Darray::operator()(uint32_t i) 
+Cell*& Array::operator()(uint32_t i) 
 {
     assert(i >= 0 && i < size);
     return array[i];
 }
 
-Darray& Darray::operator=(const Darray& P)
+Array& Array::operator=(const Array& P)
 {
     if (size == 0 && P.size == 0) {
         return *this;
@@ -103,7 +103,7 @@ Darray& Darray::operator=(const Darray& P)
 
 
 
-bool Darray::operator==(const Darray& P) const
+bool Array::operator==(const Array& P) const
 {
     // Egalité de la size des deux vecteurs
     if (size == P.getSize()) {
@@ -119,14 +119,14 @@ bool Darray::operator==(const Darray& P) const
 }
 
 // The two arrays must have the same length
-void Darray::swap(Darray& P) 
+void Array::swap(Array& P) 
 {
     Cell** tmp = P.array;
     P.array = array;
     array = tmp;
 }
 
-ostream& operator<< (ostream& out, const Darray& P) 
+ostream& operator<< (ostream& out, const Array& P) 
 {
     for(uint32_t i = 0; i < P.getSize(); i++) {
         out<< P(i) <<endl;
@@ -135,7 +135,7 @@ ostream& operator<< (ostream& out, const Darray& P)
     return out;
 }
 /*
-istream& operator>> (istream& in, Darray& P)
+istream& operator>> (istream& in, Array& P)
 {
     // si le fichier contient trop de données, on arrête les affectations une fois que le arrayleau est rempli
     // si le fichier contient moins de données que la size du talbeau, 

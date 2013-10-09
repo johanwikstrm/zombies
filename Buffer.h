@@ -3,17 +3,17 @@
 
 #include <mpi.h>
 #include "Cell.h"
-#include "Darray.h"
+#include "Array.h"
 #include "constants.h"
 
 class Buffer
 {
 public:
 	explicit Buffer(int count);
-	explicit Buffer(Darray& array);
+	explicit Buffer(Array& array);
 	~Buffer();
 	void * rawData();
-	Darray * toDarray();
+	Array * toArray();
 	int count();
 	// NOTE: uncommitted datatype
 	error datatype(MPI_Datatype *type);

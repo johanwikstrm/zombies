@@ -1,4 +1,4 @@
-#include "model.h"
+#include "Model.h"
 #include "Lock.h"
 #include <iostream>
 #include <omp.h>
@@ -19,7 +19,7 @@ Model::Model(int width,int height,double naturalBirthProb, double naturalDeathRi
     this->humanMoveProb = humanMoveProb;
     this->zombieMoveProb = zombieMoveProb;
 
-    matrix = Dmatrix(height, width);
+    matrix = Matrix(height, width);
     randomizer = new MTRand(time(0));
     init();
 }

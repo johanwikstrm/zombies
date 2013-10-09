@@ -7,7 +7,7 @@ Buffer::Buffer(int count){
 	cells = (Cell*)calloc(cellCount,sizeof(Cell));
 }
 
-Buffer::Buffer(Darray& array){
+Buffer::Buffer(Array& array){
 	cellCount = array.getSize();
 	cells = (Cell*)calloc(cellCount,sizeof(Cell));
 	for (int i = 0; i < cellCount; i++){
@@ -15,8 +15,8 @@ Buffer::Buffer(Darray& array){
 	}
 }
 
-Darray * Buffer::toDarray(){
-	Darray* a = new Darray(cellCount);
+Array * Buffer::toArray(){
+	Array* a = new Array(cellCount);
 	for (int i = 0; i < cellCount; i++){
 		// TODO: copy constructor
 		Cell *c = (Cell*)malloc(sizeof(Cell));

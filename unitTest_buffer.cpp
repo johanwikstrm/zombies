@@ -3,7 +3,7 @@ using namespace std;
 #include <cassert>
 #include "stdlib.h"
 #include "Buffer.h"
-#include "Dmatrix.h"
+#include "Matrix.h"
 #include "constants.h"
 #include "mpiutils.h"
 
@@ -13,20 +13,20 @@ int main(int argc, char *argv[])
     Buffer buf = Buffer(10);
     assert(buf.count() == 10);
 
-    Darray d = Darray(100);
+    Array d = Array(100);
     d(55) = new Cell(HUMAN);
     Buffer buf2 = Buffer(d);
     assert(buf2.count() == 100);
-    assert((*buf2.toDarray())(55)->kind() == HUMAN);
-    assert((*buf2.toDarray())(54)->kind() == EMPTY);
+    assert((*buf2.toArray())(55)->kind() == HUMAN);
+    assert((*buf2.toArray())(54)->kind() == EMPTY);
 
-    Darray d2 = Darray(2);
+    Array d2 = Array(2);
     d2(0) = new Cell(ZOMBIE);
     Buffer from = Buffer(d2);
     Buffer to = Buffer(d2.getSize());
     assert(from.count() == 2);
     assert(to.count() == 2);
-    assert((*from.toDarray())(0)->kind() == ZOMBIE);
+    assert((*from.toArray())(0)->kind() == ZOMBIE);
     error err = MPI_Init(&argc, &argv);
     assert(err == MPI_SUCCESS);
     
@@ -47,8 +47,8 @@ int main(int argc, char *argv[])
 		err = recvFromNeighbour(0,&to,dtype,123);
         //err = MPI_Recv(to.rawData(), to.count(), dtype, 0, MPI_TAG,MPI_COMM_WORLD, &status);
 		assert(err == MPI_SUCCESS);
-		assert((*to.toDarray())(0)->kind() == ZOMBIE);
-		assert((*to.toDarray())(1)->kind() == EMPTY);
+		assert((*to.toArray())(0)->kind() == ZOMBIE);
+		assert((*to.toArray())(1)->kind() == EMPTY);
     }
 
     /* this is what all matrices should do
@@ -59,7 +59,7 @@ int main(int argc, char *argv[])
         E E E E      E H E E 
     */
 
-    Dmatrix myMatr = Dmatrix(5,4);
+    Matrix myMatr = Matrix(5,4);
     myMatr.set(1,1,HUMAN);
     myMatr.set(2,3,ZOMBIE);
     myMatr.print();
@@ -69,7 +69,7 @@ int main(int argc, char *argv[])
     neighbours(x(rank),y(rank),PROC_WIDTH,PROC_HEIGHT,nbours);
 
     //neighbours(nbours);
-    Darray **toSend = myMatr.toSend();
+    Array **toSend = myMatr.toSend();
     assert(toSend[UP]->getSize() == 4);
     assert((*(toSend[UP]))(1)->kind() == HUMAN);
     assert((*(toSend[UP]))(0)->kind() == EMPTY);
@@ -88,14 +88,14 @@ int main(int argc, char *argv[])
     assert(err == MPI_SUCCESS);
     err = recvFromAllNeighbours(nbours,bufs2,dtype);
     assert(err == MPI_SUCCESS);
-    assert((*(bufs2[DOWN]->toDarray()))(1)->kind() == HUMAN);
-    assert((*(bufs2[DOWN]->toDarray()))(0)->kind() == EMPTY);
-    assert((*(bufs2[UP]->toDarray()))(1)->kind() == EMPTY);
-    assert((*(bufs2[UP]->toDarray()))(2)->kind() == ZOMBIE);
-    assert((*(bufs2[LEFT]->toDarray()))(1)->kind() == EMPTY);
-    assert((*(bufs2[LEFT]->toDarray()))(3)->kind() == ZOMBIE);
-    assert((*(bufs2[RIGHT]->toDarray()))(2)->kind() == EMPTY);
-    assert((*(bufs2[RIGHT]->toDarray()))(1)->kind() == HUMAN);
+    assert((*(bufs2[DOWN]->toArray()))(1)->kind() == HUMAN);
+    assert((*(bufs2[DOWN]->toArray()))(0)->kind() == EMPTY);
+    assert((*(bufs2[UP]->toArray()))(1)->kind() == EMPTY);
+    assert((*(bufs2[UP]->toArray()))(2)->kind() == ZOMBIE);
+    assert((*(bufs2[LEFT]->toArray()))(1)->kind() == EMPTY);
+    assert((*(bufs2[LEFT]->toArray()))(3)->kind() == ZOMBIE);
+    assert((*(bufs2[RIGHT]->toArray()))(2)->kind() == EMPTY);
+    assert((*(bufs2[RIGHT]->toArray()))(1)->kind() == HUMAN);
 
 
 

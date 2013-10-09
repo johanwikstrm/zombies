@@ -2,7 +2,7 @@
 #define MPIUTILS_H 
 #include "constants.h"
 #include "Buffer.h"
-#include "Darray.h"
+#include "Array.h"
 
 // determines your four neighbours in a coordinate system 
 // where y grows downwards and x grows to the right

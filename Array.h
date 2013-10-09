@@ -1,8 +1,8 @@
-#ifndef _DARRAY_H
-#define _DARRAY_H
+#ifndef _ARRAY_H
+#define _ARRAY_H
 
 /**
- * @file Darray.h
+ * @file Array.h
  * @author
  */
 
@@ -10,7 +10,7 @@
 #include <stdint.h>
 #include <iostream>
 
-class Darray
+class Array
 {
     protected :
     uint32_t size;        /**< the array size */
@@ -21,7 +21,7 @@ class Darray
         /**
          * @brief Default constructor
          */
-        Darray();
+        Array();
 
         /**
          * @brief       Constructeur avec parametres
@@ -31,19 +31,19 @@ class Darray
          *                      a utiliser pour initialiser les elements du vecteur
          *                      (par defaut init=0)
          */
-        explicit Darray(uint32_t s,int kind = 0);
+        explicit Array(uint32_t s,int kind = 0);
 
         /**
          * @brief       Constructeur par copie 
          *              Le vecteur cree sera proprietaire de ses donnees si et seulement si le vecteur P l est
          * @param       P       le vecteur a copier
          */
-        Darray(const Darray& P);
+        Array(const Array& P);
 
         /**
          * @brief       Destructor
          */
-        ~Darray();
+        ~Array();
 
         /**
          * @brief       Accesseur de la taille du vecteur
@@ -77,7 +77,7 @@ class Darray
          */
         Cell*& operator()(uint32_t i) ;
 
-        Darray& operator=(const Darray& P);
+        Array& operator=(const Array& P);
 
         /**
          * @brief       Teste l egalite du vecteur avec un autre
@@ -86,9 +86,9 @@ class Darray
          *
          * @return      true si et seulement si les vecteurs sont egaux
          */
-        bool operator==(const Darray& P) const;
+        bool operator==(const Array& P) const;
 
-        void swap(Darray& P);
+        void swap(Array& P);
 
 };
 
@@ -100,7 +100,7 @@ class Darray
  *
  * @return           
  */
-std::ostream& operator<<(std::ostream& out, const Darray& P);
+std::ostream& operator<<(std::ostream& out, const Array& P);
 
 /**
  * @brief       Surcharge de l operateur de flux >>
@@ -116,6 +116,6 @@ std::ostream& operator<<(std::ostream& out, const Darray& P);
  *
  * @return      
  */
-std::istream& operator>>(std::istream& in, Darray& P);
+std::istream& operator>>(std::istream& in, Array& P);
 
 #endif
