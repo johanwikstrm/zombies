@@ -8,16 +8,12 @@ using namespace std;
 #include "Matrix.h"
 #include "constants.h"
 
-
-// constructeur avec paramètres
 // Intializing all cells to empty by default
-//Matrix::Matrix(uint32_t h, uint32_t w):Array(h*w , NULL)
 Matrix::Matrix(uint32_t h, uint32_t w):Array(h*w , EMPTY)
 {
-    //cout <<"Matrix constructor" <<endl;
     height = h;
     width = w;
-  //  dummy = new Cell(EMPTY); // is used as a replacer for ALL empty cells
+    dummy = new Cell(EMPTY); // is used as a replacer for ALL empty cells
     counts = new uint32_t[numCellKinds];
     for (uint32_t i = 0; i < numCellKinds; i++) {
         counts[i] = 0;
@@ -25,28 +21,19 @@ Matrix::Matrix(uint32_t h, uint32_t w):Array(h*w , EMPTY)
     counts[EMPTY] = h*w;
 }
 
-int Matrix::kind(Cell* ptr){
-    /**
-    if (ptr == 0)
-    {
+uint32_t Matrix::kind(Cell* ptr){
+    if (ptr == NULL) {
         return EMPTY;
-    }else{
-        return ptr->kind();
+    }else {
+        return ptr->getKind();
     }
-    **/
-
-    return ptr->getKind();
 }
 
-// constructeur par copie
-// On choisit que si le vecteur P est propriétaire de ses données, le vecteur créé le sera aussi
-// mais si le vecteur P n'est pas propriétaire de ses données, le vecteur créé ne le sera pas non plus
 Matrix::Matrix(const Matrix& P):Array(P)
 {
-    //cout <<"Matrix constructor" <<endl;
     width = P.width;
     height = P.height;
-    //dummy = new Cell(EMPTY);
+    dummy = new Cell(EMPTY);
     counts = new uint32_t[numCellKinds];
     for (int i = 0; i < numCellKinds; i++) {
         counts[i] = P.counts[i];
@@ -55,9 +42,9 @@ Matrix::Matrix(const Matrix& P):Array(P)
 
 Matrix::Matrix():Array()
 {
-    //cout <<"Matrix constructor" <<endl;
     width = 0;
     height = 0;
+    dummy = new Cell(EMPTY);
     counts = new uint32_t[numCellKinds];
     for (uint32_t i = 0; i < numCellKinds; i++) {
         counts[i] = 0;
@@ -66,15 +53,9 @@ Matrix::Matrix():Array()
 
 Matrix::~Matrix()
 {
-    //cout <<"Matrix destructor" <<endl;
-    //delete dummy;
+    delete dummy;
     delete[] counts;
 }
-
-
-///////////////////////////////////////////////////////
-////////// Les méthodes de la classe Matrix ////////// 
-///////////////////////////////////////////////////////
 
 uint32_t Matrix::getHeight() const
 {
@@ -93,14 +74,12 @@ uint32_t Matrix::getCount(uint32_t kind) const
 
 void Matrix::print() const
 {
-    // Création d'un alias sur this
     Matrix M = *this;
-    // Affichage de M
     cout <<"Matrix : \n";
     for (uint32_t y = 0; y < height; y++) {
         for (uint32_t x = 0; x < width; x++) {
             char kind = 'X';
-            switch(M(x, y)->getKind()){
+            switch(M(x, y)->getKind()) {
                 case ZOMBIE:
                 kind = 'Z';
                 break;
@@ -121,16 +100,21 @@ void Matrix::print() const
 }
 
 
-void Matrix::set(uint32_t x, uint32_t y, int k) 
+void Matrix::set(uint32_t x, uint32_t y, uint32_t k) 
 {
     int previousKind = kind(array[y*width + x]);
     counts[previousKind]--;
-    delete array[y*width+x];
-    array[y*width + x] = NULL;
-    array[y*width + x] = new Cell(k);
+    if (array[y*width+x] != NULL) {
+        delete array[y*width+x];
+        array[y*width + x] = NULL;
+    }
+    if (k != EMPTY) {
+        array[y*width + x] = new Cell(k);
+    }
     counts[k]++;
 }
 
+// TODO : unitTest !!!!
 void Matrix::move(uint32_t oldX, uint32_t oldY, uint32_t newX, uint32_t newY)
 {
     Matrix M = *this;
@@ -146,6 +130,7 @@ void Matrix::move(uint32_t oldX, uint32_t oldY, uint32_t newX, uint32_t newY)
     destination = tmp;
 }
 
+// TODO unitTest
 void Matrix::getInfected(uint32_t x, uint32_t y) {
     Cell* person = this->operator()(x, y);
     assert(kind(person) == HUMAN || kind(person) == INFECTED);
@@ -158,14 +143,11 @@ void Matrix::getInfected(uint32_t x, uint32_t y) {
 Cell* Matrix::operator()(uint32_t x, uint32_t y) const {
     assert(y>=0 && y<height && x>=0 && x<width);
     Cell* c = Array::operator()(y*width + x);
-    /**
-    if (c == NULL){
+    if (c == NULL) {
         return dummy;
-    }else {
+    } else {
         return c;
     }
-    */
-    return c;
 }
 
 Cell* Matrix::operator()(Coord c) const {
@@ -174,20 +156,15 @@ Cell* Matrix::operator()(Coord c) const {
     return cell;
 }
 
-
-
 Cell*& Matrix::operator()(uint32_t x, uint32_t y) 
 {
     assert(y>=0 && y<height && x>=0 && x<width);
-    /**
     Cell* c = Array::operator()(y*width + x);
-    if (c == NULL){
+    if (c == NULL) {
         return dummy;
-    }else {
+    } else {
         return Array::operator()(y*width + x);
     }
-    **/
-    return Array::operator()(y*width + x);
 }
 
 Cell*& Matrix::operator()(Coord c) 
@@ -198,11 +175,8 @@ Cell*& Matrix::operator()(Coord c)
 
 bool Matrix::operator==(const Matrix& M)
 {
-    // Construction d'un alias sur this
     Matrix N = *this;
-    // Vérifie que les deux matrices ont la même taille
     if (N.height == M.height && N.width == M.width) {
-        // Vérifie l'égalite des valeurs
         for (uint32_t i = 0; i < height; i++) {
             for (uint32_t j = 0; j < width; j++){
                 // TODO: deep equals
@@ -236,19 +210,25 @@ void Matrix::swap(Matrix& M)
 }
 
 Array* Matrix::extractColumn(uint32_t col) {
-    //Matrix M = *this;
     Array* column = new Array(height);
     for (uint32_t y = 0; y < height; y++) {
-        (*column)(y) = new Cell(*(*this)(col,y)); 
+        if ((*this)(col, y) != NULL) {
+            (*column)(y) = new Cell(*(*this)(col, y)); 
+        } else {
+            (*column)(y) = NULL;
+        }
     }
     return column;
 } 
 
 Array* Matrix::extractRow(uint32_t r) {
-    //Matrix M = *this;
     Array* row = new Array(width);
     for (uint32_t x = 0; x < width; x++) {
-        (*row)(x) = new Cell(*(*this)(x,r)); 
+        if ((*this)(x, r) != NULL) {
+            (*row)(x) = new Cell(*(*this)(x, r)); 
+        } else {
+            (*row)(x) = NULL;
+        }
     }
     return row;
 } 

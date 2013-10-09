@@ -20,10 +20,9 @@ class Matrix : public Array
         uint32_t height;            /**< matrix height */
         uint32_t width;             /**< matrix width */
         uint32_t *counts;           /**< the statistics : number of HUMAN, INFECTED, ZOMBIE and EMPTY */
-        // TODO
-        //Cell* dummy;
-
-        int kind(Cell* ptr);
+        Cell* dummy;                /**< cell to deal with null pointers */
+        
+        uint32_t kind(Cell* ptr);
 
     public :
 
@@ -85,7 +84,7 @@ class Matrix : public Array
          *  @param  y   the ordinate
          *  @param  k   the new kind of the cell at the position (x, y)
          */
-        void set(uint32_t x, uint32_t y, int k);
+        void set(uint32_t x, uint32_t y, uint32_t k);
 
         /**
          * @brief       Move a person

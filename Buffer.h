@@ -9,7 +9,7 @@
 class Buffer {
 
     public:
-        explicit Buffer(int count);
+        explicit Buffer(uint32_t count);
         explicit Buffer(Array& array);
         ~Buffer();
         void * rawData();
@@ -20,7 +20,7 @@ class Buffer {
 
     private:
         Cell* cells;
-        int cellCount;
+        uint32_t cellCount;
 
 };
 

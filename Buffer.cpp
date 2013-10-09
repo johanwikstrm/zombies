@@ -2,7 +2,7 @@
 #include "Buffer.h"
 
 
-Buffer::Buffer(int count){
+Buffer::Buffer(uint32_t count){
 	cellCount = count;
 	cells = (Cell*)calloc(cellCount,sizeof(Cell));
 }
@@ -17,7 +17,7 @@ Buffer::Buffer(Array& array){
 
 Array * Buffer::toArray(){
 	Array* a = new Array(cellCount);
-	for (int i = 0; i < cellCount; i++){
+	for (uint32_t i = 0; i < cellCount; i++){
 		// TODO: copy constructor
 		Cell *c = (Cell*)malloc(sizeof(Cell));
 		memcpy(c,cells+i,sizeof(Cell));

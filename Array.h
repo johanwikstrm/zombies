@@ -31,7 +31,7 @@ class Array
          * @param       kind    kind of the initial cells (HUMAN, INFECTED, ZOMBIE, or EMPTY)
          *                      by default EMPTY 
          */
-        explicit Array(uint32_t s, int kind = 0);
+        explicit Array(uint32_t s, uint32_t kind = 0);
 
         /**
          * @brief       Copy constructor
@@ -49,11 +49,6 @@ class Array
          * @return      the array size 
          */
         uint32_t getSize() const;
-
-        /**
-         * @brief       print the array elements 
-         */
-        void print() const;
 
         /**
          * @brief       Overloading the () operator to access the elements of the array (read only) 

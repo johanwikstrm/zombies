@@ -28,9 +28,9 @@ int main ()
     
     // Test set (and count update)
     Matrix matrix_1 = Matrix(4, 4);
-    for (int i = 0; i < 4; i++)
+    for (uint32_t i = 0; i < 4; i++)
     {
-        for (int j = 0; j < 4; j++)
+        for (uint32_t j = 0; j < 4; j++)
         {
             matrix_1.set(i,j, 1);
         }
@@ -62,7 +62,7 @@ int main ()
     matrix_2.swap(matrix_3);
     assert(oldMatrix_2 == matrix_3);
     assert(oldMatrix_3 == matrix_2);
-    for (int i = 0; i < 4; i++) {
+    for (uint32_t i = 0; i < 4; i++) {
         assert(oldMatrix_2.getCount(i) == matrix_3.getCount(i));
         assert(oldMatrix_3.getCount(i) == matrix_2.getCount(i));
     }
@@ -70,31 +70,31 @@ int main ()
     // Test overloading of =
     matrix_2 = matrix_3;
     assert(matrix_2 == matrix_3);
-    for (int i = 0; i < 4; i++) {
+    for (uint32_t i = 0; i < 4; i++) {
         assert(matrix_2.getCount(i) == matrix_3.getCount(i));
     }
     
     size0 = matrix_3;
     assert(size0 == matrix_3);
-    for (int i = 0; i < 4; i++) {
+    for (uint32_t i = 0; i < 4; i++) {
         assert(size0.getCount(i) == matrix_3.getCount(i));
     }
 
     // Extract column
-    for (int i = 0; i < 4; i++) {
+    for (uint32_t i = 0; i < 4; i++) {
         matrix_2.set(0, i, i);
     }
     Array* column0 = matrix_2.extractColumn(0);
-    for (int i = 0; i < 4; i++) {
+    for (uint32_t i = 0; i < 4; i++) {
         assert((*column0)(i)->getKind() == i);
     }
 
     // Extract row
-    for (int j = 0; j < 4; j++) {
+    for (uint32_t j = 0; j < 4; j++) {
         matrix_2.set(j,0, j);
     }
     Array* row0 = matrix_2.extractRow(0);
-    for (int j = 0; j < 4; j++) {
+    for (uint32_t j = 0; j < 4; j++) {
         assert((*row0)(j)->getKind() == j);
     }
 
