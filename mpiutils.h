@@ -14,9 +14,9 @@ const char * dirstr(DIRECTION d);
 
 
 void neighbours(int x,int y, int width, int height, int nbours[4]);
-int x(int rank);
+int toX(int rank);
 
-int y(int rank);
+int toY(int rank);
 
 error recvFromNeighbour(int from,Buffer* to,MPI_Datatype dtype,int tag);
 

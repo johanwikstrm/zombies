@@ -42,11 +42,11 @@ DIRECTION opposite(DIRECTION d){
 	return (DIRECTION)(((int)d + 2) % 4);
 }
 
-int x(int rank){
+int toX(int rank){
 	return rank % PROC_WIDTH;
 }
 
-int y(int rank){
+int toY(int rank){
 	return rank / PROC_WIDTH;
 }
 

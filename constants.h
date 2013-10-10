@@ -3,8 +3,8 @@
 
 // NOTE: for the MPI stuff to work PROC_WIDTH*PROC_HEIGHT 
 // must be equal to the number of MPI processes
-#define PROC_WIDTH 1
-#define PROC_HEIGHT 4
+#define PROC_WIDTH 2
+#define PROC_HEIGHT 2
 
 #define NKINDS 4
 

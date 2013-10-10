@@ -286,6 +286,7 @@ int Dmatrix::insertRowWithCollisions(Darray * toInsert,uint32_t row){
             collisions++;
         }else if (oldKind == EMPTY){
             this->set(x,row,(*toInsert)(x)->kind());    
+            (*this)(x,row)->setMoveFlag((*toInsert)(x)->moveFlag());
         }    
     }
     return collisions;  

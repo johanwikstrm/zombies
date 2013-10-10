@@ -1,12 +1,14 @@
 #include <time.h>
+#include <mpi.h>
+#include <cassert>
 #include <stdlib.h>
 #include <iostream>
 #include "model.h"
 
 using namespace std;
 
-#define WIDTH 10   
-#define HEIGHT 10
+#define WIDTH 100
+#define HEIGHT 100
 
 // natural death rate for humans about once every 60 years
 #define NATURAL_DEATH_RISK (1.0/(60.0*365.0))
@@ -21,17 +23,24 @@ using namespace std;
 #define HUMAN_MOVE_PROB 0.7
 #define ZOMBIE_MOVE_PROB 0.5
 
-#define ITERATIONS 10
+#define ITERATIONS 1
 
 
-int main(int argc, char const *argv[])
+int main(int argc, char *argv[])
 {
-    Model m = Model(WIDTH,HEIGHT,NATURAL_BIRTH_PROB,NATURAL_DEATH_RISK,POP_DENSITY, BRAIN_EATING_PROB,INFECTED_TO_ZOMBIE_PROB,
+	error err = MPI_Init(&argc, &argv);
+    assert(err == MPI_SUCCESS);
+    int rank;
+    err = MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    assert(err == MPI_SUCCESS);
+    Model m = Model(WIDTH,HEIGHT,rank,NATURAL_BIRTH_PROB,NATURAL_DEATH_RISK,POP_DENSITY, BRAIN_EATING_PROB,INFECTED_TO_ZOMBIE_PROB,
         ZOMBIE_DECOMPOSITION_RISK,HUMAN_MOVE_PROB,ZOMBIE_MOVE_PROB);
 
     //m.moveAll(ITERATIONS);
-    m.moveAll_omp(ITERATIONS);
+    m.moveAll(ITERATIONS);
     //m.printStats();
 
+    err = MPI_Finalize();
+	assert(err == MPI_SUCCESS);    
     return 0;
 }

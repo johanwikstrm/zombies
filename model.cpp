@@ -1,15 +1,19 @@
-#include "model.h"
-#include "Lock.h"
 #include <iostream>
 #include <omp.h>
 #include <assert.h>
+#include "model.h"
+#include "Lock.h"
+#include "mpiutils.h"
 
 using namespace std;
 
-Model::Model(int width,int height,double naturalBirthProb, double naturalDeathRisk, double initialPopDensity, double
+Model::Model(int width,int height,int procRank,double naturalBirthProb, double naturalDeathRisk, double initialPopDensity, double
         brainEatingProb,double infectedToZombieProb,double zombieDecompositionRisk, double humanMoveProb, double zombieMoveProb){
     this->width = width;
     this->height = height;
+    // finding my neighbours
+    nbours = new int[4];
+    neighbours(toX(procRank),toY(procRank),PROC_WIDTH,PROC_HEIGHT,nbours);
     this->naturalBirthProb = naturalBirthProb;
     this->naturalDeathRisk = naturalDeathRisk;
     this->initialPopDensity = initialPopDensity;
@@ -29,19 +33,17 @@ Model::~Model(){
 }
 
 void Model::init(){
-    for (int y = 0; y < height; y++)
+    for (int y = 1; y < height-1; y++)
     {
-        for (int x = 0; x < width; x++){
+        for (int x = 1; x < width-1; x++){
             if ((*randomizer)() < initialPopDensity)
             {
                 matrix.set(x,y,HUMAN);
             }
         }
     }
-    int x = (int)((*randomizer)()*width);
-    int y = (int)((*randomizer)()*height);
-    matrix.set(x, y, ZOMBIE);
-    matrix.set((x+2)%width, y, ZOMBIE);
+    matrix.set(width/2, height/2, ZOMBIE);
+    matrix.set(width/2+1,height/2+1, ZOMBIE);
 }
 
 bool Model::timeToDie(){
@@ -188,16 +190,17 @@ void Model::move(int x,int y, bool hasMoved){
 }
 
 void Model::moveAll(int iterations){
+    
     for (int i = 0; i < iterations; i++){
         // TODO : init flags
         // really bad assuming that all Cells have moveFlag set to false in beginning
         bool hasMoved = (i % 2) == 1;
-        for (int y = 0; y < height; y++){
-            for (int x = 0; x < width; x++){
+        for (int y = 1; y < height-1; y++){
+            for (int x = 1; x < width-1; x++){
                 move(x, y, hasMoved);
             }
         }
-        //print(); 
+        swapAll(nbours,matrix);
     }
 }
 

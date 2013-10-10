@@ -15,4 +15,5 @@ char * kindstr(int kind){
 		return "INFECTED";
 		break;
 	}
+	return "UNKNOWN KIND";
 }

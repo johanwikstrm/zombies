@@ -65,7 +65,7 @@ int main(int argc, char *argv[])
     int nbours[4];
     MPI_Request reqs[4];
 
-    neighbours(x(rank),y(rank),PROC_WIDTH,PROC_HEIGHT,nbours);
+    neighbours(toX(rank),toY(rank),PROC_WIDTH,PROC_HEIGHT,nbours);
 
     //neighbours(nbours);
     Darray **toSend = myMatr.toSend(1);

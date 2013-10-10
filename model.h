@@ -10,7 +10,7 @@
 class Model
 {
 public:
-	Model(int width,int height,double naturalBirthProb, double naturalDeathRisk, double initialPopDensity, double
+	Model(int width,int height,int procRank,double naturalBirthProb, double naturalDeathRisk, double initialPopDensity, double
 		brainEatingProb,double infectedToZombieProb,double zombieDecompositionRisk, double humanMoveProb, double zombieMoveProb);
 	~Model();
 	void moveAll(int iterations=1);
@@ -22,6 +22,7 @@ public:
 	Cell * at(int x, int y);
 private:
 	Dmatrix matrix;
+	int *nbours;
 	MTRand *randomizer;
 	int width, height;
 	double naturalBirthProb, naturalDeathRisk, initialPopDensity, brainEatingProb, infectedToZombieProb;
