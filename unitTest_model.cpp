@@ -6,6 +6,7 @@
 using namespace std;
 
 int main(int argc, char *argv[]){
+    
     //Model(int width,int height,double naturalBirthProb, double naturalDeathRisk, double initialPopDensity, double
     //brainEatingProb,double infectedToZombieProb,double zombieDecompositionRisk, double humanMoveProb, double zombieMoveProb);
      
@@ -19,8 +20,7 @@ int main(int argc, char *argv[]){
     assert(m1.getCount(EMPTY)==7);
 
     Model m2 = Model(10,10,rank,0,0,1,0,0,0,0,0);
-    assert(m2.getCount(EMPTY)==36);
-    assert(m2.getCount(HUMAN)==62);        
+    assert(m2.getCount(HUMAN)==98);        
     assert(m2.getCount(ZOMBIE)==2);        
 
     Model m3 = Model(10,10,rank,0,0,1,1,0,0,0,1);
@@ -58,10 +58,7 @@ int main(int argc, char *argv[]){
         }    
     }
 
-
-    m5.moveAll(1);
-
-
+    m5.moveAll(10);
     bool currentMoveFlag;
     bool out = false;
     for (uint32_t x = 0; x < 15; x++) {
@@ -78,7 +75,6 @@ int main(int argc, char *argv[]){
     }
 
     // checking that our zombies are within range
-
     for (int y = 0; y < 10; y++){
         for (int x = 0; x < 15; x++) {
             

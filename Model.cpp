@@ -25,7 +25,9 @@ Model::Model(int width,int height,int procRank,double naturalBirthProb, double n
     
     matrix = Matrix(height, width);
     randomizer = new MTRand(time(0));
-    init();
+    
+    init(); 
+    //init_mpi();
 }
 
 Model::~Model(){
@@ -33,12 +35,22 @@ Model::~Model(){
     delete randomizer;
 }
 
+void Model::init_mpi(){
+    for (uint32_t y = 1; y < height-1; y++) {
+        for (uint32_t x = 1; x < width-1; x++) {
+            if ((*randomizer)() < initialPopDensity) {
+                matrix.set(x,y,HUMAN);
+            }
+        }
+    }
+    matrix.set(width/2, height/2, ZOMBIE);
+    matrix.set(width/2+1,height/2+1, ZOMBIE);
+}
+
 void Model::init(){
-    for (uint32_t y = 1; y < height-1; y++)
-    {
-        for (uint32_t x = 1; x < width-1; x++){
-            if ((*randomizer)() < initialPopDensity)
-            {
+    for (uint32_t y = 0; y < height; y++) {
+        for (uint32_t x = 0; x < width; x++) {
+            if ((*randomizer)() < initialPopDensity) {
                 matrix.set(x,y,HUMAN);
             }
         }
@@ -195,8 +207,8 @@ void Model::moveAll(uint32_t iterations){
     initMoveFlags();
     for (uint32_t i = 0; i < iterations; i++){
         bool hasMoved = (i % 2) == 1;
-        for (uint32_t y = 1; y < height-1; y++){
-            for (uint32_t x = 1; x < width-1; x++){
+        for (uint32_t y = 0; y < height; y++){
+            for (uint32_t x = 0; x < width; x++){
                 move(x, y, hasMoved);
             }
         }
@@ -221,8 +233,6 @@ void Model::moveAll_omp(uint32_t iterations){
     Lock locks = Lock(height);
     double startTime = omp_get_wtime();
     for (uint32_t i = 0; i < iterations; i++){
-        // TODO : init flags
-        // really bad assuming that all Cells have moveFlag set to false in beginning
         bool hasMoved = (i % 2) == 1;
 #pragma omp parallel for shared(locks)
         for (uint32_t y = 0; y < height; y++){

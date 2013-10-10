@@ -24,9 +24,9 @@ class Model
 
     private:
         Matrix matrix;
+        uint32_t width, height;
         int *nbours;
         MTRand *randomizer;
-        uint32_t width, height;
         double naturalBirthProb, naturalDeathRisk, initialPopDensity, brainEatingProb, infectedToZombieProb;
         double zombieDecompositionRisk,humanMoveProb,zombieMoveProb;
         void move(int x,int y, bool hasMoved);
@@ -43,6 +43,7 @@ class Model
         bool timeToMoveZombie();
         bool timeToEatBrain();
         void init();
+        void init_mpi();
         void initMoveFlags();
 };
 

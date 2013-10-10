@@ -93,7 +93,12 @@ void Matrix::printMoveFlags() const
     cout <<"Matrix : \n";
     for (uint32_t y = 0; y < height; y++) {
         for (uint32_t x = 0; x < width; x++) {
-            char mf = M(x,y)->getMoveFlag()? 'T':'F';
+            char mf;
+            if (M(x,y)->getKind() == EMPTY) {
+                mf = 'X';
+            } else {
+                mf = M(x,y)->getMoveFlag()? 'T':'F';
+            }
             cout << mf <<" ";
         }
         cout <<"\n";
