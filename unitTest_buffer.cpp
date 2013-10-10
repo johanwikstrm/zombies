@@ -12,16 +12,23 @@ int main(int argc, char *argv[])
 {
     Buffer buf = Buffer(10);
     assert(buf.count() == 10);
-
+    
     Array d = Array(100);
-    d(55) = new Cell(HUMAN);
+    cout << "--1---\n";
+    assert(d(55)->getKind() == EMPTY);
+    d.set(55,HUMAN);
+    assert(d(55)->getKind() == HUMAN);    
+cout << "--2---\n";
+    
     Buffer buf2 = Buffer(d);
+    
     assert(buf2.count() == 100);
     assert((*buf2.toArray())(55)->getKind() == HUMAN);
+    cout << (*buf2.toArray())(54)->getKind()<<endl;
     assert((*buf2.toArray())(54)->getKind() == EMPTY);
 
     Array d2 = Array(2);
-    d2(0) = new Cell(ZOMBIE);
+    d2.set(0,ZOMBIE);
     Buffer from = Buffer(d2);
     Buffer to = Buffer(d2.getSize());
     assert(from.count() == 2);
@@ -29,7 +36,7 @@ int main(int argc, char *argv[])
     assert((*from.toArray())(0)->getKind() == ZOMBIE);
     error err = MPI_Init(&argc, &argv);
     assert(err == MPI_SUCCESS);
-    
+    cout << "--3---\n";
     int rank;
     MPI_Request request;
     MPI_Datatype dtype;
@@ -50,7 +57,7 @@ int main(int argc, char *argv[])
 		assert((*to.toArray())(0)->getKind() == ZOMBIE);
 		assert((*to.toArray())(1)->getKind() == EMPTY);
     }
-
+    cout << "--4---\n";
     /* this is what all matrices should do
         E E E E      E E Z E
         E H E E      E H E H
@@ -62,14 +69,13 @@ int main(int argc, char *argv[])
     Matrix myMatr = Matrix(5,4);
     myMatr.set(1,1,HUMAN);
     myMatr.set(2,3,ZOMBIE);
-    myMatr.print();
     int nbours[4];
     MPI_Request reqs[4];
 
-    neighbours(x(rank),y(rank),PROC_WIDTH,PROC_HEIGHT,nbours);
-
+    neighbours(toX(rank),toY(rank),PROC_WIDTH,PROC_HEIGHT,nbours);
+cout << "--5---\n";
     //neighbours(nbours);
-    Array **toSend = myMatr.toSend();
+    Array **toSend = myMatr.toSend(1);
     assert(toSend[UP]->getSize() == 4);
     assert((*(toSend[UP]))(1)->getKind() == HUMAN);
     assert((*(toSend[UP]))(0)->getKind() == EMPTY);
@@ -97,7 +103,26 @@ int main(int argc, char *argv[])
     assert((*(bufs2[RIGHT]->toArray()))(2)->getKind() == EMPTY);
     assert((*(bufs2[RIGHT]->toArray()))(1)->getKind() == HUMAN);
 
-
+    // Full test with matrix
+    Matrix matrix = Matrix(6,7);
+    matrix.set(0,2,ZOMBIE);
+    matrix.set(1,1,HUMAN);
+    matrix.set(4,4,INFECTED);
+    /*
+        E E E E E E E       E E E E I E E
+        E H E E E E E       E H E E E E H
+        Z E E E E E E       Z E E E E Z E
+        E E E E E E E  ->   E E E E E E E
+        E E E E I E E       E E E E I E E
+        E E E E E E E       E H E E E E E
+    */
+    assert(matrix.getCount(ZOMBIE) == 1);
+    assert(matrix.getCount(HUMAN) == 1);
+    assert(matrix.getCount(INFECTED) == 1);
+    swapAll(nbours,matrix);
+    assert(matrix.getCount(ZOMBIE) == 2);
+    assert(matrix.getCount(HUMAN) == 3);
+    assert(matrix.getCount(INFECTED) == 2);
 
 
 

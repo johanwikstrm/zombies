@@ -9,6 +9,7 @@ using namespace std;
 
 Array::Array()
 {
+    dummy = new Cell(EMPTY);
     size = 0;
 }
 
@@ -19,6 +20,7 @@ Array::Array(uint32_t s, uint32_t kind)
         return;
     }
     array = new Cell*[size];
+    dummy = new Cell(EMPTY);
     for (uint32_t i = 0; i < size; i++) {
         if (kind == EMPTY) {
             array[i] = NULL;
@@ -35,6 +37,7 @@ Array::Array(const Array& P)
         return;
     }
     array = new Cell*[size];
+    dummy = new Cell(EMPTY);
     for (uint32_t i = 0; i < size; i++) {
         if (P.array[i] != NULL) {
             array[i] = new Cell(*P.array[i]);
@@ -46,6 +49,7 @@ Array::Array(const Array& P)
 
 Array::~Array()
 {
+    delete dummy;
     if (size == 0) {
         return;
     }
@@ -68,13 +72,33 @@ uint32_t Array::getSize() const
 Cell* Array::operator()(uint32_t i) const
 {
     assert(i >= 0 && i < size);
-    return array[i];
+    if (array[i] == NULL){
+        return  dummy;
+    }else{
+        return array[i];    
+    }
 }
 
 Cell*& Array::operator()(uint32_t i) 
 {
     assert(i >= 0 && i < size);
-    return array[i];
+    if (array[i] == NULL){
+        return  dummy;
+    }else{
+        return array[i];    
+    }
+}
+
+void Array::set(uint32_t x, uint32_t k) 
+{
+    int previousKind = (*this)(x)->getKind();
+    if (previousKind != EMPTY) {
+        delete array[x];
+        array[x] = NULL;
+    }
+    if (k != EMPTY) {
+        array[x] = new Cell(k);
+    }
 }
 
 Array& Array::operator=(const Array& P)

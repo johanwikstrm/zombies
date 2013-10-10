@@ -10,8 +10,6 @@
 #include "Array.h"
 #include "Coord.h"
 
-#define numCellKinds 4
-
 class Matrix : public Array
 {
 
@@ -20,7 +18,6 @@ class Matrix : public Array
         uint32_t height;            /**< matrix height */
         uint32_t width;             /**< matrix width */
         uint32_t *counts;           /**< the statistics : number of HUMAN, INFECTED, ZOMBIE and EMPTY */
-        Cell* dummy;                /**< cell to deal with null pointers */
         
         uint32_t kind(Cell* ptr);
 
@@ -186,6 +183,29 @@ class Matrix : public Array
 
         // TODO
         void insert(Array*[4]);
+        
+        int insertColumnWithCollisions(Array * toInsert,uint32_t col);
+
+        // Returns the number of collisions
+        int insertRowWithCollisions(Array * toInsert,uint32_t row);
+    
+        /*  
+            offset=0   offset=1
+            X X X X X  E X E X E 
+            X E E E X  X X X X X
+            X E E E X  X X X X X
+            X X X X X  E X E X E
+        */
+        Array** toSend(int offset);
+
+        /*  offset=0   offset=1
+            X X X X X  E X E X E 
+            X E E E X  X X X X X
+            X E E E X  X X X X X
+            X X X X X  E X E X E
+        */
+        int insertWithCollisions(Array** toInsert, int offset);
+
 
 
 };

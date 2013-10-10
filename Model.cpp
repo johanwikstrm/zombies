@@ -3,13 +3,17 @@
 #include <iostream>
 #include <omp.h>
 #include <assert.h>
+#include "mpiutils.h"
 
 using namespace std;
 
-Model::Model(int width,int height,double naturalBirthProb, double naturalDeathRisk, double initialPopDensity, double
+Model::Model(int width,int height,int procRank,double naturalBirthProb, double naturalDeathRisk, double initialPopDensity, double
         brainEatingProb,double infectedToZombieProb,double zombieDecompositionRisk, double humanMoveProb, double zombieMoveProb){
     this->width = width;
     this->height = height;
+    // finding my neighbours
+    nbours = new int[4];
+    neighbours(toX(procRank),toY(procRank),PROC_WIDTH,PROC_HEIGHT,nbours);
     this->naturalBirthProb = naturalBirthProb;
     this->naturalDeathRisk = naturalDeathRisk;
     this->initialPopDensity = initialPopDensity;
@@ -18,30 +22,29 @@ Model::Model(int width,int height,double naturalBirthProb, double naturalDeathRi
     this->zombieDecompositionRisk = zombieDecompositionRisk;
     this->humanMoveProb = humanMoveProb;
     this->zombieMoveProb = zombieMoveProb;
-
+    
     matrix = Matrix(height, width);
     randomizer = new MTRand(time(0));
     init();
 }
 
 Model::~Model(){
+    delete[] nbours;
     delete randomizer;
 }
 
 void Model::init(){
-    for (int y = 0; y < height; y++)
+    for (int y = 1; y < height-1; y++)
     {
-        for (int x = 0; x < width; x++){
+        for (int x = 1; x < width-1; x++){
             if ((*randomizer)() < initialPopDensity)
             {
                 matrix.set(x,y,HUMAN);
             }
         }
     }
-    int x = (int)((*randomizer)()*width);
-    int y = (int)((*randomizer)()*height);
-    matrix.set(x, y, ZOMBIE);
-    matrix.set((x+2)%width, y, ZOMBIE);
+    matrix.set(width/2, height/2, ZOMBIE);
+    matrix.set(width/2+1,height/2+1, ZOMBIE);
 }
 
 bool Model::timeToDie(){
@@ -89,7 +92,7 @@ void Model::print(){
 
 Coord Model::moveZombie(int x,int y){
     Coord crd = Coord(x, y);
-    
+
     if (timeToDecompose()) {
         matrix.set(x, y, EMPTY);
 
@@ -150,7 +153,7 @@ Coord Model::moveHuman(int x,int y){
     } else if(timeToMoveHuman()) {
         Coord crd2 = getSquareToMoveTo(x,y);
         if (matrix(crd2)->getKind() == ZOMBIE && timeToEatBrain()){ // zombie encounter!!
-        // brain eaten, infected, doesn't move;
+            // brain eaten, infected, doesn't move;
             matrix.getInfected(x, y); 
         }else if(matrix(crd2)->getKind() == EMPTY){
             matrix.move(x, y, crd2.getX(), crd2.getY());
@@ -161,15 +164,15 @@ Coord Model::moveHuman(int x,int y){
 }
 
 void Model::move(int x,int y, bool hasMoved){
-    if (matrix(x,y)->getMoveFlag() == hasMoved) {
-        int kind = matrix(x,y)->getKind();
+
+    int kind = matrix(x,y)->getKind();
+    if (kind ==EMPTY) {
+        if(timeToBeBorn()){
+            matrix.set(x, y, HUMAN);
+        }
+    } else if (matrix(x,y)->getMoveFlag() == hasMoved) {
         Coord crd = Coord(x, y);
         switch(kind){
-            case EMPTY :
-                if(timeToBeBorn()){
-                    matrix.set(x, y, HUMAN);
-                }
-                break;
             case HUMAN :
                 crd = moveHuman(x, y);
                 break;
@@ -192,12 +195,12 @@ void Model::moveAll(int iterations){
         // TODO : init flags
         // really bad assuming that all Cells have moveFlag set to false in beginning
         bool hasMoved = (i % 2) == 1;
-        for (int y = 0; y < height; y++){
-            for (int x = 0; x < width; x++){
+        for (int y = 1; y < height-1; y++){
+            for (int x = 1; x < width-1; x++){
                 move(x, y, hasMoved);
             }
         }
-        print(); 
+        //swapAll(nbours,matrix);
     }
 }
 
@@ -217,7 +220,7 @@ void Model::moveAll_omp(int iterations){
             }
             locks.unlock(y);
         }
-        print(); 
+        //print(); 
     }
     cout <<omp_get_max_threads() <<"\t" <<omp_get_wtime()-startTime <<endl;
 }

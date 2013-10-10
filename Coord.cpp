@@ -1,7 +1,13 @@
 using namespace std;
 
 #include "Coord.h"
-#include <cmath>
+
+int abs(int a){
+    if (a < 0)
+        return -1*a;
+    else
+        return a;
+}
 
 Coord::Coord() {
     this->x = 0;

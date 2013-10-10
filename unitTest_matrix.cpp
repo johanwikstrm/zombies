@@ -2,6 +2,7 @@ using namespace std;
 #include <iostream>
 #include <cassert>
 #include "Matrix.h"
+#include "constants.h"
 
 int main ()
 {
@@ -88,7 +89,7 @@ int main ()
     for (uint32_t i = 0; i < 4; i++) {
         assert((*column0)(i)->getKind() == i);
     }
-
+    delete column0;
     // Extract row
     for (uint32_t j = 0; j < 4; j++) {
         matrix_2.set(j,0, j);
@@ -97,5 +98,59 @@ int main ()
     for (uint32_t j = 0; j < 4; j++) {
         assert((*row0)(j)->getKind() == j);
     }
+    delete row0;
+
+
+    // testing insertion of columns
+    Matrix matrix_4 = Matrix(4,5);
+    matrix_4.set(1,2,INFECTED);
+/*  
+    E E E E E 
+    E E E E E 
+    E I E E E 
+    E E E E E 
+*/
+    // no collision
+    Array * insCol = new Array(4);
+    insCol->set(1,ZOMBIE);
+    assert(matrix_4.insertColumnWithCollisions(insCol,1) == 0);
+/*  
+    E E E E E 
+    E Z E E E 
+    E I E E E 
+    E E E E E 
+*/
+    assert(matrix_4(1,1)->getKind() == ZOMBIE);
+    assert(matrix_4(1,2)->getKind() == INFECTED);
+    insCol->set(1,HUMAN);
+    assert(matrix_4.insertColumnWithCollisions(insCol,1) == 1);
+/*  
+    E E E E E 
+    E ? E E E 
+    E I E E E 
+    E E E E E 
+*/
+
+    delete insCol;
+
+    insCol = new Array(5);
+    insCol->set(1,INFECTED);
+    assert(matrix_4.insertRowWithCollisions(insCol,3) == 0);
+/*  
+    E E E E E 
+    E ? E E E 
+    E I E E E 
+    E I E E E 
+*/
+    assert(matrix_4(1,3)->getKind() == INFECTED);
+    assert(matrix_4.insertRowWithCollisions(insCol,2) == 1);
+/*  
+    E E E E E 
+    E ? E E E 
+    E ? E E E 
+    E I E E E 
+*/
+
+    delete insCol;
 
 }

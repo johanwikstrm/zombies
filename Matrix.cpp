@@ -13,29 +13,19 @@ Matrix::Matrix(uint32_t h, uint32_t w):Array(h*w , EMPTY)
 {
     height = h;
     width = w;
-    dummy = new Cell(EMPTY); // is used as a replacer for ALL empty cells
-    counts = new uint32_t[numCellKinds];
-    for (uint32_t i = 0; i < numCellKinds; i++) {
+    counts = new uint32_t[NKINDS];
+    for (uint32_t i = 0; i < NKINDS; i++) {
         counts[i] = 0;
     }
     counts[EMPTY] = h*w;
-}
-
-uint32_t Matrix::kind(Cell* ptr){
-    if (ptr == NULL) {
-        return EMPTY;
-    }else {
-        return ptr->getKind();
-    }
 }
 
 Matrix::Matrix(const Matrix& P):Array(P)
 {
     width = P.width;
     height = P.height;
-    dummy = new Cell(EMPTY);
-    counts = new uint32_t[numCellKinds];
-    for (int i = 0; i < numCellKinds; i++) {
+    counts = new uint32_t[NKINDS];
+    for (int i = 0; i < NKINDS; i++) {
         counts[i] = P.counts[i];
     }
 }
@@ -44,16 +34,14 @@ Matrix::Matrix():Array()
 {
     width = 0;
     height = 0;
-    dummy = new Cell(EMPTY);
-    counts = new uint32_t[numCellKinds];
-    for (uint32_t i = 0; i < numCellKinds; i++) {
+    counts = new uint32_t[NKINDS];
+    for (uint32_t i = 0; i < NKINDS; i++) {
         counts[i] = 0;
     }
 }
 
 Matrix::~Matrix()
 {
-    delete dummy;
     delete[] counts;
 }
 
@@ -102,39 +90,32 @@ void Matrix::print() const
 
 void Matrix::set(uint32_t x, uint32_t y, uint32_t k) 
 {
-    int previousKind = kind(array[y*width + x]);
+    int previousKind = (*this)(x, y)->getKind();
     counts[previousKind]--;
-    if (array[y*width+x] != NULL) {
-        delete array[y*width+x];
-        array[y*width + x] = NULL;
-    }
-    if (k != EMPTY) {
-        array[y*width + x] = new Cell(k);
-    }
     counts[k]++;
+    Array::set(y*width+x, k);
 }
 
-// TODO : unitTest !!!!
 void Matrix::move(uint32_t oldX, uint32_t oldY, uint32_t newX, uint32_t newY)
 {
-    Matrix M = *this;
-    Cell* person = M(oldX, oldY);
-    Cell* destination = M(newX, newY);
+    uint32_t person = (*this)(oldX, oldY)->getKind();
+    uint32_t destination = (*this)(newX, newY)->getKind();
+    
     // Make sure we move a person (human, infected or zombie, i.e not empty)
-    assert(kind(person) != EMPTY);
+    assert(person != EMPTY);
     // Make sure the square the person is trying to move to is empty
-    assert(kind(destination) == EMPTY);
+    assert(destination == EMPTY);
+   
     // The move
-    Cell* tmp = person;
-    person = destination;
-    destination = tmp;
+    Array::set(oldY*width+oldX, EMPTY);
+    Array::set(newY*width+newX, person);
 }
 
-// TODO unitTest
+// Only a HUMAN or an INFECTED can get INFECTED
 void Matrix::getInfected(uint32_t x, uint32_t y) {
     Cell* person = this->operator()(x, y);
-    assert(kind(person) == HUMAN || kind(person) == INFECTED);
-    this->operator()(x, y)->setKind(INFECTED);
+    assert(person->getKind() == HUMAN || person->getKind() == INFECTED);
+    person->setKind(INFECTED);
     counts[HUMAN]--;
     counts[INFECTED]++; 
 }
@@ -142,34 +123,21 @@ void Matrix::getInfected(uint32_t x, uint32_t y) {
 
 Cell* Matrix::operator()(uint32_t x, uint32_t y) const {
     assert(y>=0 && y<height && x>=0 && x<width);
-    Cell* c = Array::operator()(y*width + x);
-    if (c == NULL) {
-        return dummy;
-    } else {
-        return c;
-    }
+    return  Array::operator()(y*width + x);
 }
 
 Cell* Matrix::operator()(Coord c) const {
-    assert(c.getY()>=0 && c.getY()<height && c.getX()>=0 && c.getX()<width);
-    Cell* cell = Matrix::operator()(c.getX(), c.getY());
-    return cell;
+    return Matrix::operator()(c.getX(), c.getY());
 }
 
 Cell*& Matrix::operator()(uint32_t x, uint32_t y) 
 {
     assert(y>=0 && y<height && x>=0 && x<width);
-    Cell* c = Array::operator()(y*width + x);
-    if (c == NULL) {
-        return dummy;
-    } else {
-        return Array::operator()(y*width + x);
-    }
+    return Array::operator()(y*width + x);
 }
 
 Cell*& Matrix::operator()(Coord c) 
 {
-    assert(c.getY()>=0 && c.getY()<height && c.getX()>=0 && c.getX()<width);
     return Matrix::operator()(c.getX(), c.getY());
 }
 
@@ -179,7 +147,6 @@ bool Matrix::operator==(const Matrix& M)
     if (N.height == M.height && N.width == M.width) {
         for (uint32_t i = 0; i < height; i++) {
             for (uint32_t j = 0; j < width; j++){
-                // TODO: deep equals
                 if (M(i, j)->getKind() != N(i, j)->getKind()) {
                     return false;  
                 }
@@ -197,7 +164,7 @@ Matrix& Matrix::operator=(const Matrix& P)
     Array::operator=(P);
     width = P.width;
     height = P.height;
-    memcpy(counts, P.counts, numCellKinds*sizeof(int));
+    memcpy(counts, P.counts, NKINDS*sizeof(int));
     return *this;
 }
 
@@ -212,11 +179,7 @@ void Matrix::swap(Matrix& M)
 Array* Matrix::extractColumn(uint32_t col) {
     Array* column = new Array(height);
     for (uint32_t y = 0; y < height; y++) {
-        if ((*this)(col, y) != NULL) {
-            (*column)(y) = new Cell(*(*this)(col, y)); 
-        } else {
-            (*column)(y) = NULL;
-        }
+       	column->set(y,(*this)(col, y)->getKind()); 
     }
     return column;
 } 
@@ -224,25 +187,85 @@ Array* Matrix::extractColumn(uint32_t col) {
 Array* Matrix::extractRow(uint32_t r) {
     Array* row = new Array(width);
     for (uint32_t x = 0; x < width; x++) {
-        if ((*this)(x, r) != NULL) {
-            (*row)(x) = new Cell(*(*this)(x, r)); 
-        } else {
-            (*row)(x) = NULL;
-        }
+        row->set(x,(*this)(x,r)->getKind()); 
     }
     return row;
-} 
+}
 
-Array** Matrix::toSend(){
-    assert(width >=4 && height >= 4);// assuming a'matrix that is at least 4x4
+// Returns the number of collisions
+int Matrix::insertColumnWithCollisions(Array * toInsert,uint32_t col){
+    assert(toInsert->getSize() == height);
+    int collisions = 0;
+    for (uint32_t y = 0; y < height; y++) {
+        int oldKind = (*this)(col,y)->getKind();
+        int newKind = (*toInsert)(y)->getKind();
+        if (oldKind != EMPTY && newKind != EMPTY){
+            /*cout << "Collision inserting " << kindstr((*toInsert)(y)->getKind())
+                << " into cell with " << kindstr((*this)(col,y)->getKind()) << " in it at "
+                << col<<","<<y<<endl;*/
+            collisions++;
+        }else if (oldKind == EMPTY){
+            this->set(col,y,(*toInsert)(y)->getKind());    
+        }    
+    }
+    return collisions;  
+}
+
+// Returns the number of collisions
+int Matrix::insertRowWithCollisions(Array * toInsert,uint32_t row){
+    assert(toInsert->getSize() == width);
+    int collisions = 0;
+    for (uint32_t x = 0; x < width; x++) {
+        int oldKind = (*this)(x,row)->getKind();
+        int newKind = (*toInsert)(x)->getKind();
+        if (oldKind != EMPTY && newKind != EMPTY){
+            /*cout << "Collision inserting " << kindstr((*toInsert)(x)->getKind())
+                << " into cell with " << kindstr((*this)(x,row)->getKind()) << " in it at "
+                << x<<","<<row<<endl;*/
+            collisions++;
+        }else if (oldKind == EMPTY){
+            this->set(x,row,(*toInsert)(x)->getKind());    
+            (*this)(x,row)->setMoveFlag((*toInsert)(x)->getMoveFlag());
+        }    
+    }
+    return collisions;  
+}
+
+/*  
+    offset=0   offset=1
+    X X X X X  E X E X E 
+    X E E E X  X X X X X
+    X E E E X  X X X X X
+    X X X X X  E X E X E
+*/
+Array** Matrix::toSend(int offset){
+    assert(width >=4 && height >= 4);// assuming a matrix that is at least 4x4
+    assert(offset == 1 || offset == 0);
     Array **toRet = (Array**)calloc(4,sizeof(Array*));
-    toRet[UP] = extractRow(1);
-    toRet[DOWN] = extractRow(height-2);
-    toRet[LEFT] = extractColumn(1);
-    toRet[RIGHT] = extractColumn(width-2);
+    toRet[UP] = extractRow(offset);
+    toRet[DOWN] = extractRow(height-1-offset);
+    toRet[LEFT] = extractColumn(offset);
+    toRet[RIGHT] = extractColumn(width-1-offset);
     return toRet;
 }
 
-void Matrix::insert(Array** toInsert){
-
+/*  offset=0   offset=1
+    X X X X X  E X E X E 
+    X E E E X  X X X X X
+    X E E E X  X X X X X
+    X X X X X  E X E X E
+*/
+int Matrix::insertWithCollisions(Array** toInsert, int offset){
+    assert(offset == 1 || offset == 0);
+    assert(width >=4 && height >= 4);// assuming a matrix that is at least 4x4
+    assert(toInsert[UP]->getSize() == width);
+    assert(toInsert[DOWN]->getSize() == width);
+    assert(toInsert[LEFT]->getSize() == height);
+    assert(toInsert[RIGHT]->getSize() == height);
+    int collisions =0;
+    collisions += insertRowWithCollisions(toInsert[UP] , offset);
+    collisions += insertRowWithCollisions(toInsert[DOWN] , height-1-offset);
+    collisions += insertColumnWithCollisions(toInsert[LEFT] , offset);
+    collisions += insertColumnWithCollisions(toInsert[RIGHT] , width-1-offset);
+    return collisions;
 }

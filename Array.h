@@ -16,7 +16,7 @@ class Array
     protected :
         uint32_t size;          /**< the array size */
         Cell** array;           /**< the array containing the data */
-
+        Cell * dummy;
     public :
 
         /**
@@ -68,6 +68,7 @@ class Array
          */
         Cell*& operator()(uint32_t i) ;
 
+        void set(uint32_t x, uint32_t k);
         /**
          * @brief       Overloading the = operator (assignment) 
          */
