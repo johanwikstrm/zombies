@@ -23,24 +23,21 @@ using namespace std;
 #define HUMAN_MOVE_PROB 0.7
 #define ZOMBIE_MOVE_PROB 0.5
 
-#define ITERATIONS 10
-
-
 int main(int argc, char *argv[])
 {
-	error err = MPI_Init(&argc, &argv);
+    error err = MPI_Init(&argc, &argv);
     assert(err == MPI_SUCCESS);
     int rank;
     err = MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     assert(err == MPI_SUCCESS);
     Model m = Model(WIDTH,HEIGHT,rank,NATURAL_BIRTH_PROB,NATURAL_DEATH_RISK,POP_DENSITY, BRAIN_EATING_PROB,INFECTED_TO_ZOMBIE_PROB,
-        ZOMBIE_DECOMPOSITION_RISK,HUMAN_MOVE_PROB,ZOMBIE_MOVE_PROB);
+            ZOMBIE_DECOMPOSITION_RISK,HUMAN_MOVE_PROB,ZOMBIE_MOVE_PROB);
 
-    //m.moveAll(ITERATIONS);
-    m.moveAll(ITERATIONS);
-    //m.moveAll_omp(ITERATIONS);
+    uint32_t nbIterations = 10;
+    m.moveAll(nbIterations);
+    //m.moveAll_omp(nbIterations);
 
     err = MPI_Finalize();
-	assert(err == MPI_SUCCESS);    
+    assert(err == MPI_SUCCESS);    
     return 0;
 }

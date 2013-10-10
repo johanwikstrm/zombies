@@ -34,9 +34,9 @@ Model::~Model(){
 }
 
 void Model::init(){
-    for (int y = 1; y < height-1; y++)
+    for (uint32_t y = 1; y < height-1; y++)
     {
-        for (int x = 1; x < width-1; x++){
+        for (uint32_t x = 1; x < width-1; x++){
             if ((*randomizer)() < initialPopDensity)
             {
                 matrix.set(x,y,HUMAN);
@@ -191,42 +191,60 @@ void Model::move(int x,int y, bool hasMoved){
     }
 }
 
-void Model::moveAll(int iterations){
-    for (int i = 0; i < iterations; i++){
-        // TODO : init flags
-        // really bad assuming that all Cells have moveFlag set to false in beginning
+void Model::moveAll(uint32_t iterations){
+    initMoveFlags();
+    for (uint32_t i = 0; i < iterations; i++){
         bool hasMoved = (i % 2) == 1;
-        for (int y = 1; y < height-1; y++){
-            for (int x = 1; x < width-1; x++){
+        for (uint32_t y = 1; y < height-1; y++){
+            for (uint32_t x = 1; x < width-1; x++){
                 move(x, y, hasMoved);
             }
         }
-        //swapAll(nbours,matrix);
     }
 }
 
-void Model::moveAll_omp(int iterations){
+void Model::moveAll_mpi(uint32_t iterations){
+    initMoveFlags();
+    for (uint32_t i = 0; i < iterations; i++){
+        bool hasMoved = (i % 2) == 1;
+        for (uint32_t y = 1; y < height-1; y++){
+            for (uint32_t x = 1; x < width-1; x++){
+                move(x, y, hasMoved);
+            }
+        }
+        swapAll(nbours,matrix);
+    }
+}
+
+void Model::moveAll_omp(uint32_t iterations){
+    initMoveFlags();
     Lock locks = Lock(height);
     double startTime = omp_get_wtime();
-    for (int i = 0; i < iterations; i++){
+    for (uint32_t i = 0; i < iterations; i++){
         // TODO : init flags
         // really bad assuming that all Cells have moveFlag set to false in beginning
         bool hasMoved = (i % 2) == 1;
 #pragma omp parallel for shared(locks)
-        for (int y = 0; y < height; y++){
+        for (uint32_t y = 0; y < height; y++){
             // Lock the 3 columns
             locks.lock(y);
-            for (int x = 0; x < width; x++){
+            for (uint32_t x = 0; x < width; x++){
                 move(x, y, hasMoved);
             }
             locks.unlock(y);
         }
-        //print(); 
     }
     cout <<omp_get_max_threads() <<"\t" <<omp_get_wtime()-startTime <<endl;
 }
 
 
+void Model::initMoveFlags() {
+    for (uint32_t x = 0; x < width; x++) {
+        for(uint32_t y = 0; y < height; y++) {
+            matrix(x,y)->setMoveFlag(false);
+        }
+    }    
+}
 
 Cell * Model::at(int x, int y){
     return matrix(x,y);
