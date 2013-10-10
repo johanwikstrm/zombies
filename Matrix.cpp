@@ -87,6 +87,19 @@ void Matrix::print() const
     }
 }
 
+void Matrix::printMoveFlags() const
+{
+    Matrix M = *this;
+    cout <<"Matrix : \n";
+    for (uint32_t y = 0; y < height; y++) {
+        for (uint32_t x = 0; x < width; x++) {
+            char mf = M(x,y)->getMoveFlag()? 'T':'F';
+            cout << mf <<" ";
+        }
+        cout <<"\n";
+    }
+}
+
 
 void Matrix::set(uint32_t x, uint32_t y, uint32_t k) 
 {
@@ -191,6 +204,47 @@ Array* Matrix::extractRow(uint32_t r) {
     }
     return row;
 }
+
+/**
+// Returns the number of collisions
+int Matrix::insertColumnWithCollisions(Array * toInsert,uint32_t col){
+    assert(toInsert->getSize() == height);
+    int collisions = 0;
+    for (uint32_t y = 0; y < height; y++) {
+        int oldKind = (*this)(col,y)->getKind();
+        int newKind = (*toInsert)(y)->getKind();
+        if (oldKind != EMPTY && newKind != EMPTY){
+            //cout << "Collision inserting " << kindstr((*toInsert)(y)->getKind())
+            //    << " into cell with " << kindstr((*this)(col,y)->getKind()) << " in it at "
+            //    << col<<","<<y<<endl;
+            collisions++;
+        }else if (oldKind == EMPTY){
+            this->set(col,y,(*toInsert)(y)->getKind());    
+        }    
+    }
+    return collisions;  
+}
+
+// Returns the number of collisions
+int Matrix::insertRowWithCollisions(Array * toInsert,uint32_t row){
+    assert(toInsert->getSize() == width);
+    int collisions = 0;
+    for (uint32_t x = 0; x < width; x++) {
+        int oldKind = (*this)(x,row)->getKind();
+        int newKind = (*toInsert)(x)->getKind();
+        if (oldKind != EMPTY && newKind != EMPTY){
+            //cout << "Collision inserting " << kindstr((*toInsert)(x)->getKind())
+            //    << " into cell with " << kindstr((*this)(x,row)->getKind()) << " in it at "
+            //    << x<<","<<row<<endl;
+            collisions++;
+        }else if (oldKind == EMPTY){
+            this->set(x,row,(*toInsert)(x)->getKind());    
+            (*this)(x,row)->setMoveFlag((*toInsert)(x)->getMoveFlag());
+        }    
+    }
+    return collisions;  
+}
+*/
 
 // Returns the number of collisions
 int Matrix::insertColumnWithCollisions(Array * toInsert,uint32_t col){

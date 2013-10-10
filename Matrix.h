@@ -73,6 +73,7 @@ class Matrix : public Array
          * @brief       Print the elements of the matrix 
          */
         void print() const;
+        void printMoveFlags() const;
 
         /**
          *  @brief      Change the kind of the cell at the position (x, y)

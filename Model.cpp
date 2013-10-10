@@ -88,6 +88,7 @@ void Model::print(){
     cout << "Stats:\nHuman   Infctd  Zombie  Empty\n";
     printStats();
     matrix.print();
+    matrix.printMoveFlags();
 }
 
 Coord Model::moveZombie(int x,int y){

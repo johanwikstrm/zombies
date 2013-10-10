@@ -99,8 +99,7 @@ int main ()
         assert((*row0)(j)->getKind() == j);
     }
     delete row0;
-
-
+    
     // testing insertion of columns
     Matrix matrix_4 = Matrix(4,5);
     matrix_4.set(1,2,INFECTED);
@@ -130,9 +129,7 @@ int main ()
     E I E E E 
     E E E E E 
 */
-
     delete insCol;
-
     insCol = new Array(5);
     insCol->set(1,INFECTED);
     assert(matrix_4.insertRowWithCollisions(insCol,3) == 0);

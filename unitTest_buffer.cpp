@@ -14,11 +14,9 @@ int main(int argc, char *argv[])
     assert(buf.count() == 10);
     
     Array d = Array(100);
-    cout << "--1---\n";
     assert(d(55)->getKind() == EMPTY);
     d.set(55,HUMAN);
     assert(d(55)->getKind() == HUMAN);    
-cout << "--2---\n";
     
     Buffer buf2 = Buffer(d);
     
@@ -36,7 +34,7 @@ cout << "--2---\n";
     assert((*from.toArray())(0)->getKind() == ZOMBIE);
     error err = MPI_Init(&argc, &argv);
     assert(err == MPI_SUCCESS);
-    cout << "--3---\n";
+    
     int rank;
     MPI_Request request;
     MPI_Datatype dtype;
@@ -73,7 +71,6 @@ cout << "--2---\n";
     MPI_Request reqs[4];
 
     neighbours(toX(rank),toY(rank),PROC_WIDTH,PROC_HEIGHT,nbours);
-cout << "--5---\n";
     //neighbours(nbours);
     Array **toSend = myMatr.toSend(1);
     assert(toSend[UP]->getSize() == 4);
