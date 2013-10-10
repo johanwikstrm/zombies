@@ -3,12 +3,12 @@
 #include <cassert>
 #include <stdlib.h>
 #include <iostream>
-#include "model.h"
+#include "Model.h"
 
 using namespace std;
 
-#define WIDTH 100
-#define HEIGHT 100
+#define WIDTH 10   
+#define HEIGHT 10
 
 // natural death rate for humans about once every 60 years
 #define NATURAL_DEATH_RISK (1.0/(60.0*365.0))
@@ -23,7 +23,7 @@ using namespace std;
 #define HUMAN_MOVE_PROB 0.7
 #define ZOMBIE_MOVE_PROB 0.5
 
-#define ITERATIONS 1
+#define ITERATIONS 10
 
 
 int main(int argc, char *argv[])
@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
 
     //m.moveAll(ITERATIONS);
     m.moveAll(ITERATIONS);
-    //m.printStats();
+    //m.moveAll_omp(ITERATIONS);
 
     err = MPI_Finalize();
 	assert(err == MPI_SUCCESS);    

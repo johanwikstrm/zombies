@@ -2,26 +2,27 @@
 #include "Buffer.h"
 
 
-Buffer::Buffer(int count){
+Buffer::Buffer(uint32_t count){
 	cellCount = count;
 	cells = (Cell*)calloc(cellCount,sizeof(Cell));
 }
 
-Buffer::Buffer(Darray& array){
+Buffer::Buffer(Array& array){
 	cellCount = array.getSize();
 	cells = (Cell*)calloc(cellCount,sizeof(Cell));
-	for (int i = 0; i < cellCount; i++){
+	for (uint32_t i = 0; i < cellCount; i++){
 		memcpy(cells+i,array(i),sizeof(Cell));
 	}
 }
 
-Darray * Buffer::toDarray(){
-	Darray* a = new Darray(cellCount);
-	for (int i = 0; i < cellCount; i++){
+Array * Buffer::toArray(){
+	Array* a = new Array(cellCount);
+	for (uint32_t i = 0; i < cellCount; i++){
 		// TODO: copy constructor
 		Cell *c = (Cell*)malloc(sizeof(Cell));
 		memcpy(c,cells+i,sizeof(Cell));
-		(*a)(i) = c;
+		a->set(i,c->getKind());
+		free(c);
 	}
 	return a;
 }

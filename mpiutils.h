@@ -2,8 +2,8 @@
 #define MPIUTILS_H 
 #include "constants.h"
 #include "Buffer.h"
-#include "Darray.h"
-#include "Dmatrix.h"
+#include "Array.h"
+#include "Matrix.h"
 
 // determines your four neighbours in a coordinate system 
 // where y grows downwards and x grows to the right
@@ -29,6 +29,6 @@ error recvFromAllNeighbours(int nbours[4],Buffer *data[4], MPI_Datatype dtype);
 // Swaps all the necessary rows and columns of matrix
 // with all neighbours, in total 8 rows and columns
 // returns the number of collisions
-int swapAll(int nbours[4],Dmatrix& matrix);
+int swapAll(int nbours[4],Matrix& matrix);
 
 #endif

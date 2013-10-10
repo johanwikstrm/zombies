@@ -1,8 +1,8 @@
+#include "Model.h"
+#include "Lock.h"
 #include <iostream>
 #include <omp.h>
 #include <assert.h>
-#include "model.h"
-#include "Lock.h"
 #include "mpiutils.h"
 
 using namespace std;
@@ -23,7 +23,7 @@ Model::Model(int width,int height,int procRank,double naturalBirthProb, double n
     this->humanMoveProb = humanMoveProb;
     this->zombieMoveProb = zombieMoveProb;
 
-    matrix = Dmatrix(height, width);
+    matrix = Matrix(height, width);
     randomizer = new MTRand(time(0));
     init();
 }
@@ -87,17 +87,18 @@ void Model::print(){
     cout << "Stats:\nHuman   Infctd  Zombie  Empty\n";
     printStats();
     matrix.print();
+    matrix.printMoveFlags();
 }
 
 Coord Model::moveZombie(int x,int y){
     Coord crd = Coord(x, y);
-    
+
     if (timeToDecompose()) {
         matrix.set(x, y, EMPTY);
 
     }else if(timeToMoveZombie()) {
         Coord crd2 = getSquareToMoveTo(x,y);
-        int destKind = matrix(crd2)->kind();
+        int destKind = matrix(crd2)->getKind();
         switch(destKind){
             case HUMAN :
             case INFECTED :
@@ -151,10 +152,10 @@ Coord Model::moveHuman(int x,int y){
         matrix.set(x, y, EMPTY);
     } else if(timeToMoveHuman()) {
         Coord crd2 = getSquareToMoveTo(x,y);
-        if (matrix(crd2)->kind() == ZOMBIE && timeToEatBrain()){ // zombie encounter!!
-        // brain eaten, infected, doesn't move;
+        if (matrix(crd2)->getKind() == ZOMBIE && timeToEatBrain()){ // zombie encounter!!
+            // brain eaten, infected, doesn't move;
             matrix.getInfected(x, y); 
-        }else if(matrix(crd2)->kind() == EMPTY){
+        }else if(matrix(crd2)->getKind() == EMPTY){
             matrix.move(x, y, crd2.getX(), crd2.getY());
             crd = crd2;
         }
@@ -163,15 +164,15 @@ Coord Model::moveHuman(int x,int y){
 }
 
 void Model::move(int x,int y, bool hasMoved){
-    if (matrix(x,y)->moveFlag() == hasMoved) {
-        int kind = matrix(x,y)->kind();
+
+    int kind = matrix(x,y)->getKind();
+    if (kind ==EMPTY) {
+        if(timeToBeBorn()){
+            matrix.set(x, y, HUMAN);
+        }
+    } else if (matrix(x,y)->getMoveFlag() == hasMoved) {
         Coord crd = Coord(x, y);
         switch(kind){
-            case EMPTY :
-                if(timeToBeBorn()){
-                    matrix.set(x, y, HUMAN);
-                }
-                break;
             case HUMAN :
                 crd = moveHuman(x, y);
                 break;
@@ -190,7 +191,6 @@ void Model::move(int x,int y, bool hasMoved){
 }
 
 void Model::moveAll(int iterations){
-    
     for (int i = 0; i < iterations; i++){
         // TODO : init flags
         // really bad assuming that all Cells have moveFlag set to false in beginning
@@ -200,7 +200,7 @@ void Model::moveAll(int iterations){
                 move(x, y, hasMoved);
             }
         }
-        swapAll(nbours,matrix);
+//        swapAll(nbours,matrix);
     }
 }
 

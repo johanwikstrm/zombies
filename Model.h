@@ -2,7 +2,7 @@
 #define MODEL_H
 #include "mtrand.h"
 #include "constants.h"
-#include "Dmatrix.h"
+#include "Matrix.h"
 #include "Coord.h"
 
 
@@ -21,7 +21,7 @@ public:
 	// Used for testing
 	Cell * at(int x, int y);
 private:
-	Dmatrix matrix;
+	Matrix matrix;
 	int *nbours;
 	MTRand *randomizer;
 	int width, height;

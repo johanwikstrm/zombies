@@ -1,14 +1,14 @@
 using namespace std;
 #include <iostream>
 #include <cassert>
-#include "Dmatrix.h"
+#include "Matrix.h"
 #include "constants.h"
 
 int main ()
 {
     // Test the constructors
     // Default Constructor
-    Dmatrix size0 = Dmatrix();
+    Matrix size0 = Matrix();
     assert(size0.getWidth() == 0);
     assert(size0.getHeight() == 0);
     assert(size0.getCount(0) == 0);
@@ -18,7 +18,7 @@ int main ()
 
     // Constructor with parameters
     // Without init value
-    Dmatrix matrix_0 = Dmatrix(2, 2);
+    Matrix matrix_0 = Matrix(2, 2);
     assert(matrix_0.getWidth() == 2);
     assert(matrix_0.getHeight() == 2);
     assert(matrix_0.getCount(0) == 4);
@@ -28,10 +28,10 @@ int main ()
 
     
     // Test set (and count update)
-    Dmatrix matrix_1 = Dmatrix(4, 4);
-    for (int i = 0; i < 4; i++)
+    Matrix matrix_1 = Matrix(4, 4);
+    for (uint32_t i = 0; i < 4; i++)
     {
-        for (int j = 0; j < 4; j++)
+        for (uint32_t j = 0; j < 4; j++)
         {
             matrix_1.set(i,j, 1);
         }
@@ -39,7 +39,7 @@ int main ()
 
     // Test set (and count update)
     matrix_1.set(0, 0, 0);
-    assert(matrix_1(0,0)->kind() == 0);
+    assert(matrix_1(0,0)->getKind() == 0);
     assert(matrix_1.getCount(1) == 15);
     assert(matrix_1.getCount(0) == 1);
     matrix_1.set(1, 1, 0);
@@ -48,22 +48,22 @@ int main ()
     assert(matrix_1.getCount(2) == 0);
     assert(matrix_1.getCount(3) == 0);
     matrix_1.set(1, 1, 2);
-    assert(matrix_1(1,1)->kind() == 2);
+    assert(matrix_1(1,1)->getKind() == 2);
     assert(matrix_1.getCount(1) == 14);
     assert(matrix_1.getCount(0) == 1);
     assert(matrix_1.getCount(2) == 1);
     assert(matrix_1.getCount(3) == 0);
 
     // Test swap
-    Dmatrix matrix_2 = Dmatrix(4,4);
-    Dmatrix matrix_3 = Dmatrix(4,4);
+    Matrix matrix_2 = Matrix(4,4);
+    Matrix matrix_3 = Matrix(4,4);
     matrix_2.set(1,1, 2);
-    Dmatrix oldMatrix_2 = matrix_2;
-    Dmatrix oldMatrix_3 = matrix_3;
+    Matrix oldMatrix_2 = matrix_2;
+    Matrix oldMatrix_3 = matrix_3;
     matrix_2.swap(matrix_3);
     assert(oldMatrix_2 == matrix_3);
     assert(oldMatrix_3 == matrix_2);
-    for (int i = 0; i < 4; i++) {
+    for (uint32_t i = 0; i < 4; i++) {
         assert(oldMatrix_2.getCount(i) == matrix_3.getCount(i));
         assert(oldMatrix_3.getCount(i) == matrix_2.getCount(i));
     }
@@ -71,35 +71,36 @@ int main ()
     // Test overloading of =
     matrix_2 = matrix_3;
     assert(matrix_2 == matrix_3);
-    for (int i = 0; i < 4; i++) {
+    for (uint32_t i = 0; i < 4; i++) {
         assert(matrix_2.getCount(i) == matrix_3.getCount(i));
     }
     
     size0 = matrix_3;
     assert(size0 == matrix_3);
-    for (int i = 0; i < 4; i++) {
+    for (uint32_t i = 0; i < 4; i++) {
         assert(size0.getCount(i) == matrix_3.getCount(i));
     }
 
     // Extract column
-    for (int i = 0; i < 4; i++) {
+    for (uint32_t i = 0; i < 4; i++) {
         matrix_2.set(0, i, i);
     }
-    Darray* column0 = matrix_2.extractColumn(0);
-    for (int i = 0; i < 4; i++) {
-        assert((*column0)(i)->kind() == i);
+    Array* column0 = matrix_2.extractColumn(0);
+    for (uint32_t i = 0; i < 4; i++) {
+        assert((*column0)(i)->getKind() == i);
     }
-
+    delete column0;
     // Extract row
-    for (int j = 0; j < 4; j++) {
+    for (uint32_t j = 0; j < 4; j++) {
         matrix_2.set(j,0, j);
     }
-    Darray* row0 = matrix_2.extractRow(0);
-    for (int j = 0; j < 4; j++) {
-        assert((*row0)(j)->kind() == j);
+    Array* row0 = matrix_2.extractRow(0);
+    for (uint32_t j = 0; j < 4; j++) {
+        assert((*row0)(j)->getKind() == j);
     }
+    delete row0;
     // testing insertion of columns
-    Dmatrix matrix_4 = Dmatrix(4,5);
+    Matrix matrix_4 = Matrix(4,5);
     matrix_4.set(1,2,INFECTED);
 /*  
     E E E E E 
@@ -108,8 +109,8 @@ int main ()
     E E E E E 
 */
     // no collision
-    Darray * insCol = new Darray(4);
-    (*insCol)(1) = new Cell(ZOMBIE);
+    Array * insCol = new Array(4);
+    insCol->set(1,ZOMBIE);
     assert(matrix_4.insertColumnWithCollisions(insCol,1) == 0);
 /*  
     E E E E E 
@@ -117,9 +118,9 @@ int main ()
     E I E E E 
     E E E E E 
 */
-    assert(matrix_4(1,1)->kind() == ZOMBIE);
-    assert(matrix_4(1,2)->kind() == INFECTED);
-    (*insCol)(1) = new Cell(HUMAN);
+    assert(matrix_4(1,1)->getKind() == ZOMBIE);
+    assert(matrix_4(1,2)->getKind() == INFECTED);
+    insCol->set(1,HUMAN);
     assert(matrix_4.insertColumnWithCollisions(insCol,1) == 1);
 /*  
     E E E E E 
@@ -127,8 +128,9 @@ int main ()
     E I E E E 
     E E E E E 
 */
-    insCol = new Darray(5);
-    (*insCol)(1) = new Cell(INFECTED);
+    delete insCol;
+    insCol = new Array(5);
+    insCol->set(1,INFECTED);
     assert(matrix_4.insertRowWithCollisions(insCol,3) == 0);
 /*  
     E E E E E 
@@ -136,7 +138,7 @@ int main ()
     E I E E E 
     E I E E E 
 */
-    assert(matrix_4(1,3)->kind() == INFECTED);
+    assert(matrix_4(1,3)->getKind() == INFECTED);
     assert(matrix_4.insertRowWithCollisions(insCol,2) == 1);
 /*  
     E E E E E 
@@ -144,4 +146,5 @@ int main ()
     E ? E E E 
     E I E E E 
 */
+    delete insCol;
 }

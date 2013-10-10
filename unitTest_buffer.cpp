@@ -3,7 +3,7 @@ using namespace std;
 #include <cassert>
 #include "stdlib.h"
 #include "Buffer.h"
-#include "Dmatrix.h"
+#include "Matrix.h"
 #include "constants.h"
 #include "mpiutils.h"
 
@@ -12,24 +12,29 @@ int main(int argc, char *argv[])
 {
     Buffer buf = Buffer(10);
     assert(buf.count() == 10);
+    
+    Array d = Array(100);
 
-    Darray d = Darray(100);
-    d(55) = new Cell(HUMAN);
+    assert(d(55)->getKind() == EMPTY);
+    d.set(55,HUMAN);
+    assert(d(55)->getKind() == HUMAN);    
+    
     Buffer buf2 = Buffer(d);
+    
     assert(buf2.count() == 100);
-    assert((*buf2.toDarray())(55)->kind() == HUMAN);
-    assert((*buf2.toDarray())(54)->kind() == EMPTY);
+    assert((*buf2.toArray())(55)->getKind() == HUMAN);
+    assert((*buf2.toArray())(54)->getKind() == EMPTY);
 
-    Darray d2 = Darray(2);
-    d2(0) = new Cell(ZOMBIE);
+    Array d2 = Array(2);
+    d2.set(0,ZOMBIE);
     Buffer from = Buffer(d2);
     Buffer to = Buffer(d2.getSize());
     assert(from.count() == 2);
     assert(to.count() == 2);
-    assert((*from.toDarray())(0)->kind() == ZOMBIE);
+    assert((*from.toArray())(0)->getKind() == ZOMBIE);
     error err = MPI_Init(&argc, &argv);
     assert(err == MPI_SUCCESS);
-    
+
     int rank;
     MPI_Request request;
     MPI_Datatype dtype;
@@ -47,8 +52,8 @@ int main(int argc, char *argv[])
 		err = recvFromNeighbour(0,&to,dtype,123);
         //err = MPI_Recv(to.rawData(), to.count(), dtype, 0, MPI_TAG,MPI_COMM_WORLD, &status);
 		assert(err == MPI_SUCCESS);
-		assert((*to.toDarray())(0)->kind() == ZOMBIE);
-		assert((*to.toDarray())(1)->kind() == EMPTY);
+		assert((*to.toArray())(0)->getKind() == ZOMBIE);
+		assert((*to.toArray())(1)->getKind() == EMPTY);
     }
 
     /* this is what all matrices should do
@@ -59,20 +64,19 @@ int main(int argc, char *argv[])
         E E E E      E H E E 
     */
 
-    Dmatrix myMatr = Dmatrix(5,4);
+    Matrix myMatr = Matrix(5,4);
     myMatr.set(1,1,HUMAN);
     myMatr.set(2,3,ZOMBIE);
     int nbours[4];
     MPI_Request reqs[4];
 
     neighbours(toX(rank),toY(rank),PROC_WIDTH,PROC_HEIGHT,nbours);
-
     //neighbours(nbours);
-    Darray **toSend = myMatr.toSend(1);
+    Array **toSend = myMatr.toSend(1);
     assert(toSend[UP]->getSize() == 4);
-    assert((*(toSend[UP]))(1)->kind() == HUMAN);
-    assert((*(toSend[UP]))(0)->kind() == EMPTY);
-    assert((*(toSend[DOWN]))(2)->kind() == ZOMBIE);
+    assert((*(toSend[UP]))(1)->getKind() == HUMAN);
+    assert((*(toSend[UP]))(0)->getKind() == EMPTY);
+    assert((*(toSend[DOWN]))(2)->getKind() == ZOMBIE);
     assert(toSend[LEFT]->getSize() == 5);
     Buffer** bufs = (Buffer**)calloc(4,sizeof(Buffer*));
     Buffer** bufs2 = (Buffer**)calloc(4,sizeof(Buffer*));
@@ -87,17 +91,17 @@ int main(int argc, char *argv[])
     assert(err == MPI_SUCCESS);
     err = recvFromAllNeighbours(nbours,bufs2,dtype);
     assert(err == MPI_SUCCESS);
-    assert((*(bufs2[DOWN]->toDarray()))(1)->kind() == HUMAN);
-    assert((*(bufs2[DOWN]->toDarray()))(0)->kind() == EMPTY);
-    assert((*(bufs2[UP]->toDarray()))(1)->kind() == EMPTY);
-    assert((*(bufs2[UP]->toDarray()))(2)->kind() == ZOMBIE);
-    assert((*(bufs2[LEFT]->toDarray()))(1)->kind() == EMPTY);
-    assert((*(bufs2[LEFT]->toDarray()))(3)->kind() == ZOMBIE);
-    assert((*(bufs2[RIGHT]->toDarray()))(2)->kind() == EMPTY);
-    assert((*(bufs2[RIGHT]->toDarray()))(1)->kind() == HUMAN);
+    assert((*(bufs2[DOWN]->toArray()))(1)->getKind() == HUMAN);
+    assert((*(bufs2[DOWN]->toArray()))(0)->getKind() == EMPTY);
+    assert((*(bufs2[UP]->toArray()))(1)->getKind() == EMPTY);
+    assert((*(bufs2[UP]->toArray()))(2)->getKind() == ZOMBIE);
+    assert((*(bufs2[LEFT]->toArray()))(1)->getKind() == EMPTY);
+    assert((*(bufs2[LEFT]->toArray()))(3)->getKind() == ZOMBIE);
+    assert((*(bufs2[RIGHT]->toArray()))(2)->getKind() == EMPTY);
+    assert((*(bufs2[RIGHT]->toArray()))(1)->getKind() == HUMAN);
 
     // Full test with matrix
-    Dmatrix matrix = Dmatrix(6,7);
+    Matrix matrix = Matrix(6,7);
     matrix.set(0,2,ZOMBIE);
     matrix.set(1,1,HUMAN);
     matrix.set(4,4,INFECTED);

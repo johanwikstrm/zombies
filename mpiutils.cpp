@@ -67,7 +67,7 @@ error sendToAllNeighbours(int nbours[4],Buffer *data[4],MPI_Request reqs[4], MPI
 		/*if (nbours[UP] == 0)
 		cout << "Sending data to " << dirstr((DIRECTION)direction)
 			<< "(rank == " << nbours[direction]
-			<< ")data[1] == " << (*(data[direction]->toDarray()))(1)->kind() << endl;
+			<< ")data[1] == " << (*(data[direction]->toArray()))(1)->getKind() << endl;
 			*/
 		// As tag I am sending the direction that the receiver should expect to receive the message from
 		// i.e. if I am sending to the RIGHT the receiver should expect this message from the LEFT
@@ -88,7 +88,7 @@ error recvFromAllNeighbours(int nbours[4],Buffer *to[4], MPI_Datatype dtype){
 		/*if (nbours[UP] == 0)
 		cout << "Received data from " << dirstr((DIRECTION)direction)
 			<< "(rank == " << nbours[direction]
-			<< ") data[1] == " << (*(to[direction]->toDarray()))(1)->kind() << endl;
+			<< ") data[1] == " << (*(to[direction]->toArray()))(1)->getKind() << endl;
 			*/
 		if (e != MPI_SUCCESS){
 			err = e;
@@ -97,18 +97,18 @@ error recvFromAllNeighbours(int nbours[4],Buffer *to[4], MPI_Datatype dtype){
 	return err;
 }
 
-void initBuffers(Dmatrix& matrix,Buffer ** send,Buffer ** recv, int offset){
-	Darray ** edges = matrix.toSend(offset);
+void initBuffers(Matrix& matrix,Buffer ** send,Buffer ** recv, int offset){
+	Array ** edges = matrix.toSend(offset);
 	for (int i = 0; i < 4; i++){
         send[i] = new Buffer(*(edges[i]));
         recv[i] = new Buffer(edges[i]->getSize());
     }
 }
 
-Darray ** buffersToDarrays(Buffer **received){
-	Darray ** arrays = (Darray**)calloc(4,sizeof(Darray*));
+Array ** buffersToArrays(Buffer **received){
+	Array ** arrays = (Array**)calloc(4,sizeof(Array*));
 	for (int i = 0; i < 4; i++){
-		arrays[i] = received[i]->toDarray();
+		arrays[i] = received[i]->toArray();
 	}
 	return arrays;
 }
@@ -116,7 +116,7 @@ Darray ** buffersToDarrays(Buffer **received){
 // NOTE NOTE NOTE, this works because we do async sends and syncronous recvs.
 // If we want to do something "smarter" and time saving
 // we need to use MPI_TAG:s a lot more
-int swapAll(int nbours[4],Dmatrix& matrix){
+int swapAll(int nbours[4],Matrix& matrix){
 	error err;
 	MPI_Datatype dtype;
 	MPI_Request reqs[4];
@@ -135,7 +135,7 @@ int swapAll(int nbours[4],Dmatrix& matrix){
 	// Insert their outer ones into my inner ones 
 	err = recvFromAllNeighbours(nbours,to,dtype);
 	assert(err == MPI_SUCCESS);
-	int collisions = matrix.insertWithCollisions(buffersToDarrays(to),1);
+	int collisions = matrix.insertWithCollisions(buffersToArrays(to),1);
 	// Send my inner ones
 	initBuffers(matrix,from,to,1);
 	err = sendToAllNeighbours(nbours,from,reqs,dtype);
@@ -144,7 +144,7 @@ int swapAll(int nbours[4],Dmatrix& matrix){
 	err = recvFromAllNeighbours(nbours,to,dtype);
 	assert(err == MPI_SUCCESS);
 	// TOOD insertWithoutCollisions
-	collisions += matrix.insertWithCollisions(buffersToDarrays(to),0);
+	collisions += matrix.insertWithCollisions(buffersToArrays(to),0);
 
 	// Giant memory leaks
 	free(to);
