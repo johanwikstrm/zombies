@@ -55,8 +55,8 @@ void Model::init(){
             }
         }
     }
-    matrix.set(width/2, height/2, ZOMBIE);
-    matrix.set(width/2+1,height/2+1, ZOMBIE);
+    //matrix.set(width/2, height/2, ZOMBIE);
+    //matrix.set(width/2+1,height/2+1, ZOMBIE);
 }
 
 bool Model::timeToDie(){
@@ -99,8 +99,8 @@ void Model::printStats(){
 void Model::print(){
     cout << "Stats:\nHuman   Infctd  Zombie  Empty\n";
     printStats();
-    matrix.print();
-    matrix.printMoveFlags();
+    //matrix.print();
+    //matrix.printMoveFlags();
 }
 
 Coord Model::moveZombie(int x,int y){
@@ -228,7 +228,7 @@ void Model::moveAll_mpi(uint32_t iterations){
     }
 }
 
-void Model::moveAll_omp(uint32_t iterations){
+void Model::moveAll_omp(uint32_t iterations) {
     initMoveFlags();
     Lock locks = Lock(height);
     double startTime = omp_get_wtime();
