@@ -4,17 +4,19 @@
 #include "constants.h"
 #include "Matrix.h"
 #include "Coord.h"
+#include "Statistic.h"
 
 
 
 class Model
 {
     public:
-        Model(int width,int height,int procRank,double naturalBirthProb, double naturalDeathRisk, double initialPopDensity, double
-                brainEatingProb,double infectedToZombieProb,double zombieDecompositionRisk, double humanMoveProb, double zombieMoveProb);
+        Model(int width,int height,int procRank,double naturalBirthProb, double naturalDeathRisk, double initialPopDensity
+                , double brainEatingProb,double infectedToZombieProb,double zombieDecompositionRisk, double humanMoveProb
+                , double zombieMoveProb, bool mpiEnabled = false);
         ~Model();
         void moveAll(uint32_t iterations=1);
-        void moveAll_mpi(uint32_t iterations=1);
+        Statistic ** moveAll_mpi(uint32_t iterations=1);
         void moveAll_omp(uint32_t iterations=1);
         void print();
         void printStats();

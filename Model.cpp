@@ -1,6 +1,7 @@
 #include "Model.h"
 #include "Lock.h"
 #include <iostream>
+#include <stdlib.h>
 #include <omp.h>
 #include <assert.h>
 #include "mpiutils.h"
@@ -8,7 +9,8 @@
 using namespace std;
 
 Model::Model(int width,int height,int procRank,double naturalBirthProb, double naturalDeathRisk, double initialPopDensity, double
-        brainEatingProb,double infectedToZombieProb,double zombieDecompositionRisk, double humanMoveProb, double zombieMoveProb){
+        brainEatingProb,double infectedToZombieProb,double zombieDecompositionRisk, double humanMoveProb
+        , double zombieMoveProb,bool mpiEnabled){
     this->width = width;
     this->height = height;
     // finding my neighbours
@@ -26,8 +28,11 @@ Model::Model(int width,int height,int procRank,double naturalBirthProb, double n
     matrix = Matrix(height, width);
     randomizer = new MTRand(time(0));
     
-    init(); 
-    //init_mpi();
+    if (mpiEnabled){
+        init_mpi();
+    }else{
+        init();    
+    }
 }
 
 Model::~Model(){
@@ -215,8 +220,10 @@ void Model::moveAll(uint32_t iterations){
     }
 }
 
-void Model::moveAll_mpi(uint32_t iterations){
+Statistic** Model::moveAll_mpi(uint32_t iterations){
     initMoveFlags();
+    Statistic **stats;
+    stats = (Statistic**)calloc(iterations,sizeof(Statistic*));
     for (uint32_t i = 0; i < iterations; i++){
         bool hasMoved = (i % 2) == 1;
         for (uint32_t y = 1; y < height-1; y++){
@@ -224,8 +231,12 @@ void Model::moveAll_mpi(uint32_t iterations){
                 move(x, y, hasMoved);
             }
         }
+        stats[i] = new Statistic(matrix);
+        stats[i]->mpi_reduce();
         swapAll(nbours,matrix);
+
     }
+    return stats;
 }
 
 void Model::moveAll_omp(uint32_t iterations) {
