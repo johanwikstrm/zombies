@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
     err = MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     assert(err == MPI_SUCCESS);
     Model m = Model(WIDTH,HEIGHT,rank,NATURAL_BIRTH_PROB,NATURAL_DEATH_RISK,POP_DENSITY, BRAIN_EATING_PROB,INFECTED_TO_ZOMBIE_PROB,
-            ZOMBIE_DECOMPOSITION_RISK,HUMAN_MOVE_PROB,ZOMBIE_MOVE_PROB);
+            ZOMBIE_DECOMPOSITION_RISK,HUMAN_MOVE_PROB,ZOMBIE_MOVE_PROB,true);
 
     uint32_t nbIterations = 10;
     m.moveAll(nbIterations);

@@ -133,8 +133,9 @@ void Matrix::move(uint32_t oldX, uint32_t oldY, uint32_t newX, uint32_t newY)
 void Matrix::getInfected(uint32_t x, uint32_t y) {
     Cell* person = this->operator()(x, y);
     assert(person->getKind() == HUMAN || person->getKind() == INFECTED);
+    int oldkind = person->getKind();
     person->setKind(INFECTED);
-    counts[HUMAN]--;
+    counts[oldkind]--;
     counts[INFECTED]++; 
 }
 

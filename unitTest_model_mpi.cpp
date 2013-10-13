@@ -15,19 +15,19 @@ int main(int argc, char *argv[]){
     int rank;
     err = MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     assert(err == MPI_SUCCESS);
-    Model m1 = Model(3,3,rank,0,0,0, 1,0,0,1,0);
+    Model m1 = Model(3,3,rank,0,0,0, 1,0,0,1,0,true);
     // should have only 2 zombies in it
     assert(m1.getCount(ZOMBIE)==2);
     assert(m1.getCount(HUMAN)==0);
     assert(m1.getCount(INFECTED)==0);
     assert(m1.getCount(EMPTY)==7);
 
-    Model m2 = Model(10,10,rank,0,0,1,0,0,0,0,0);
+    Model m2 = Model(10,10,rank,0,0,1,0,0,0,0,0,true);
     assert(m2.getCount(EMPTY)==36);
     assert(m2.getCount(HUMAN)==62);        
     assert(m2.getCount(ZOMBIE)==2);        
 
-    Model m3 = Model(10,10,rank,0,0,1,1,0,0,0,1);
+    Model m3 = Model(10,10,rank,0,0,1,1,0,0,0,1,true);
 
     m3.moveAll(1);
     // At least 1 people infected by zombies movement
@@ -36,14 +36,14 @@ int main(int argc, char *argv[]){
     assert(m3.getCount(HUMAN)>=60);
 
     // Model where the bitten turn into zombies very fast
-    Model m4 = Model(10,10,rank,0,0,1,1,1,0,1,1);
+    Model m4 = Model(10,10,rank,0,0,1,1,1,0,1,1,true);
 
     assert(m4.getCount(INFECTED) == 0);
     m4.moveAll(5);
     assert(m4.getCount(INFECTED) > 0);
     assert(m4.getCount(ZOMBIE) > 2);
 
-    Model m5 = Model(15,10,rank,0,0,0,0,0,0,0,1); // just two zombies
+    Model m5 = Model(15,10,rank,0,0,0,0,0,0,0,1,true); // just two zombies
     assert(m5.getCount(ZOMBIE)==2);
     int zx,zy,zx2,zy2;
     zx = zy = zx2 = zy2 = -1;

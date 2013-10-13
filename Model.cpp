@@ -17,7 +17,8 @@ typedef struct inputMoveParallel {
 } inputMoveParallel;
 
 Model::Model(int width,int height,int procRank,double naturalBirthProb, double naturalDeathRisk, double initialPopDensity, double
-        brainEatingProb,double infectedToZombieProb,double zombieDecompositionRisk, double humanMoveProb, double zombieMoveProb){
+        brainEatingProb,double infectedToZombieProb,double zombieDecompositionRisk, double humanMoveProb
+        , double zombieMoveProb,bool mpiEnabled){
     this->width = width;
     this->height = height;
     // finding my neighbours
@@ -39,8 +40,11 @@ Model::Model(int width,int height,int procRank,double naturalBirthProb, double n
         randomizer[i] = new MTRand(time(0));
     }
 
-    init(); 
-    //init_mpi();
+    if (mpiEnabled){
+        init_mpi();
+    }else{
+        init();    
+    }
 }
 
 Model::~Model(){
@@ -245,8 +249,10 @@ void Model::moveAll(uint32_t iterations){
     }
 }
 
-void Model::moveAll_mpi(uint32_t iterations) {
+Statistic** Model::moveAll_mpi(uint32_t iterations){
     initMoveFlags();
+    Statistic **stats;
+    stats = (Statistic**)calloc(iterations,sizeof(Statistic*));
     for (uint32_t i = 0; i < iterations; i++){
         bool hasMoved = (i % 2) == 1;
         for (uint32_t y = 1; y < height-1; y++){
@@ -254,8 +260,12 @@ void Model::moveAll_mpi(uint32_t iterations) {
                 move(x, y, hasMoved, 0);
             }
         }
+        stats[i] = new Statistic(matrix);
+        stats[i]->mpi_reduce();
         swapAll(nbours,matrix);
+
     }
+    return stats;
 }
 
 uint32_t Model::getWidth() {
