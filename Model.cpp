@@ -20,7 +20,7 @@ Model::Model(int width,int height,int procRank,double naturalBirthProb, double n
     this->naturalDeathRisk = naturalDeathRisk;
     this->initialPopDensity = initialPopDensity;
     this->brainEatingProb = brainEatingProb;
-    this ->infectedToZombieProb = infectedToZombieProb;
+    this->infectedToZombieProb = infectedToZombieProb;
     this->zombieDecompositionRisk = zombieDecompositionRisk;
     this->humanMoveProb = humanMoveProb;
     this->zombieMoveProb = zombieMoveProb;
@@ -60,8 +60,8 @@ void Model::init(){
             }
         }
     }
-    //matrix.set(width/2, height/2, ZOMBIE);
-    //matrix.set(width/2+1,height/2+1, ZOMBIE);
+    matrix.set(width/2, height/2, ZOMBIE);
+    matrix.set(width/2+1,height/2+1, ZOMBIE);
 }
 
 bool Model::timeToDie(){
@@ -104,7 +104,7 @@ void Model::printStats(){
 void Model::print(){
     cout << "Stats:\nHuman   Infctd  Zombie  Empty\n";
     printStats();
-    //matrix.print();
+    matrix.print();
     //matrix.printMoveFlags();
 }
 
@@ -208,8 +208,10 @@ void Model::move(int x,int y, bool hasMoved){
     }
 }
 
-void Model::moveAll(uint32_t iterations){
+Statistic** Model::moveAll(uint32_t iterations){
     initMoveFlags();
+    Statistic **stats;
+    stats = (Statistic**)calloc(iterations,sizeof(Statistic*));
     for (uint32_t i = 0; i < iterations; i++){
         bool hasMoved = (i % 2) == 1;
         for (uint32_t y = 0; y < height; y++){
@@ -217,7 +219,9 @@ void Model::moveAll(uint32_t iterations){
                 move(x, y, hasMoved);
             }
         }
+        stats[i] = new Statistic(matrix);
     }
+    return stats;
 }
 
 Statistic** Model::moveAll_mpi(uint32_t iterations){
