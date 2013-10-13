@@ -5,8 +5,10 @@ TESTS = $(SRC_TESTS:.cpp=)
 OBJETS = Array.o Matrix.o mtrand.o Model.o Cell.o Buffer.o Coord.o Lock.o mpiutils.o
 
 CXX = mpiCC 
-#g++
-CXXFLAGS = -Wall -g -pedantic -fopenmp
+
+CXXFLAGS = -Wall -g -pedantic 
+##-fopenmp
+LDLIBS+=-lpthread
 
 all : $(TESTS) main
 
