@@ -6,7 +6,7 @@
 #include "Coord.h"
 #include "Statistic.h"
 
-
+#define NUM_THREADS 2
 
 class Model
 {
@@ -21,6 +21,8 @@ class Model
         void print();
         void printStats();
         int getCount(int kind);
+        uint32_t getWidth();
+        uint32_t getHeight();
         // Used for testing
         Cell * at(int x, int y);
 
@@ -28,22 +30,26 @@ class Model
         Matrix matrix;
         uint32_t width, height;
         int *nbours;
-        MTRand *randomizer;
+
+        // a generator for each thread
+        MTRand** randomizer;
+        
+        static void* moveParallel(void* context);
         double naturalBirthProb, naturalDeathRisk, initialPopDensity, brainEatingProb, infectedToZombieProb;
         double zombieDecompositionRisk,humanMoveProb,zombieMoveProb;
-        void move(int x,int y, bool hasMoved);
-        Coord moveHuman(int x,int y);
-        Coord moveInfected(int x,int y);
-        Coord moveZombie(int x,int y);
-        Coord getSquareToMoveTo(int fromX,int fromY);
+        void move(int x, int y, bool hasMoved, uint32_t numThread);
+        Coord moveHuman(int x, int y, uint32_t numThread);
+        Coord moveInfected(int x, int y, uint32_t numThread);
+        Coord moveZombie(int x, int y, uint32_t numThread);
+        Coord getSquareToMoveTo(int fromX, int fromY, uint32_t numThread);
 
-        bool timeToDie();
-        bool timeToDecompose();
-        bool timeToBeBorn();
-        bool timeToBecomeZombie();
-        bool timeToMoveHuman();
-        bool timeToMoveZombie();
-        bool timeToEatBrain();
+        bool timeToDie(uint32_t numThread);
+        bool timeToDecompose(uint32_t numThread);
+        bool timeToBeBorn(uint32_t numThread);
+        bool timeToBecomeZombie(uint32_t numThread);
+        bool timeToMoveHuman(uint32_t numThread);
+        bool timeToMoveZombie(uint32_t numThread);
+        bool timeToEatBrain(uint32_t numThread);
         void init();
         void init_mpi();
         void initMoveFlags();
