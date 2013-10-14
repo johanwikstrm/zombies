@@ -89,15 +89,22 @@ Cell*& Array::operator()(uint32_t i)
     }
 }
 
-void Array::set(uint32_t x, uint32_t k) 
+void Array::set(uint32_t x, uint32_t k, uint32_t sex) 
 {
     int previousKind = (*this)(x)->getKind();
+    
     if (previousKind != EMPTY) {
-        delete array[x];
-        array[x] = NULL;
-    }
-    if (k != EMPTY) {
-        array[x] = new Cell(k);
+        if (k == EMPTY) {
+            delete array[x];
+            array[x] = NULL;
+        } else {
+            array[x]->setKind(k);
+            array[x]->setSex(sex);
+        }
+    } else {    
+        if (k != EMPTY) {
+            array[x] = new Cell(k, sex);
+        }
     }
 }
 

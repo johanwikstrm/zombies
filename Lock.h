@@ -7,14 +7,15 @@
 
 
 class Lock {
-
+    
 
     private:
+        
+        
         uint32_t height;
         // if locks[y] == TRUE, then the column y is currently used by one of the threads
         bool* locks;
         // Mutex variable
-        pthread_mutex_t mutex;
 
     public:
         Lock(uint32_t height);

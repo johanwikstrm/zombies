@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <iostream>
 #include "Model.h"
+#include "Statistic.h"
 
 using namespace std;
 
@@ -19,7 +20,7 @@ using namespace std;
 // Probabiblity of getting your brain eaten when encountering a zombie
 #define BRAIN_EATING_PROB 1
 #define INFECTED_TO_ZOMBIE_PROB (1.0/10.0)
-#define ZOMBIE_DECOMPOSITION_RISK 0.1
+#define ZOMBIE_DECOMPOSITION_RISK 0.05
 #define HUMAN_MOVE_PROB 0.7
 #define ZOMBIE_MOVE_PROB 0.5
 
@@ -27,15 +28,22 @@ int main(int argc, char *argv[])
 {
     error err = MPI_Init(&argc, &argv);
     assert(err == MPI_SUCCESS);
-    int rank;
+    int rank = 0;
     err = MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     assert(err == MPI_SUCCESS);
     Model m = Model(WIDTH,HEIGHT,rank,NATURAL_BIRTH_PROB,NATURAL_DEATH_RISK,POP_DENSITY, BRAIN_EATING_PROB,INFECTED_TO_ZOMBIE_PROB,
-            ZOMBIE_DECOMPOSITION_RISK,HUMAN_MOVE_PROB,ZOMBIE_MOVE_PROB,true);
+            ZOMBIE_DECOMPOSITION_RISK,HUMAN_MOVE_PROB,ZOMBIE_MOVE_PROB);
 
-    uint32_t nbIterations = 10;
-    m.moveAll(nbIterations);
-    //m.moveAll_omp(nbIterations);
+    uint32_t nbIterations = 100;
+    
+    // Moving 
+    Statistic** stats = m.moveAll_mpi(nbIterations);
+    //Statistic** stats = m.moveAll(nbIterations);
+
+    // Printing
+    if (rank == ROOT_NODE){
+        printStatsCsv(stats,nbIterations);
+    }
 
     err = MPI_Finalize();
     assert(err == MPI_SUCCESS);    

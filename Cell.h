@@ -11,7 +11,8 @@
 class Cell {
     
     private:
-        uint32_t k;          /**< the kind of the cell (HUMAN, INFECTED, ZOMBIE, or EMPTY)*/
+        uint8_t k;          /**< the kind of the cell (HUMAN, INFECTED, ZOMBIE, or EMPTY)*/
+        uint8_t sex;    
         bool mFlag;          /**< hasMoved flag */
 
     public:
@@ -21,7 +22,7 @@ class Cell {
          *
          * @param       kind    kind of the cell
          */
-        Cell(uint32_t kind);
+        Cell(uint32_t kind, uint32_t sex = 0);
         
         /**
          * @brief       Copy constructor 
@@ -43,6 +44,10 @@ class Cell {
          * @param       the new kind of the cell
          */
         void setKind(uint32_t);
+        
+        uint32_t getSex();
+
+        void setSex(uint32_t);
 
         /**
          * @return      the move flag of the cell

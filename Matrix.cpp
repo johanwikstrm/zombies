@@ -5,8 +5,12 @@ using namespace std;
 #include <iostream>
 #include <stdlib.h>
 #include <string.h>
+
 #include "Matrix.h"
 #include "constants.h"
+
+static pthread_mutex_t countsMutex = PTHREAD_MUTEX_INITIALIZER;
+
 
 // Intializing all cells to empty by default
 Matrix::Matrix(uint32_t h, uint32_t w):Array(h*w , EMPTY)
@@ -106,12 +110,18 @@ void Matrix::printMoveFlags() const
 }
 
 
-void Matrix::set(uint32_t x, uint32_t y, uint32_t k) 
+void Matrix::set(uint32_t x, uint32_t y, uint32_t k, uint32_t sex) 
 {
     int previousKind = (*this)(x, y)->getKind();
+  
+    // begining of the critical section 
+    pthread_mutex_lock(&countsMutex);
     counts[previousKind]--;
     counts[k]++;
-    Array::set(y*width+x, k);
+    // end of the critical section 
+    pthread_mutex_unlock(&countsMutex);
+    
+    Array::set(y*width+x, k, sex);
 }
 
 void Matrix::move(uint32_t oldX, uint32_t oldY, uint32_t newX, uint32_t newY)
@@ -135,8 +145,13 @@ void Matrix::getInfected(uint32_t x, uint32_t y) {
     assert(person->getKind() == HUMAN || person->getKind() == INFECTED);
     int oldkind = person->getKind();
     person->setKind(INFECTED);
+    
+    // begining of the critical section 
+    pthread_mutex_lock(&countsMutex);
     counts[oldkind]--;
     counts[INFECTED]++; 
+    // end of the critical section 
+    pthread_mutex_unlock(&countsMutex);
 }
 
 
@@ -266,6 +281,7 @@ int Matrix::insertColumnWithCollisions(Array * toInsert,uint32_t col){
             collisions++;
         }else if (oldKind == EMPTY){
             this->set(col,y,(*toInsert)(y)->getKind());    
+            (*this)(col,y)->setMoveFlag((*toInsert)(y)->getMoveFlag());
         }    
     }
     return collisions;  

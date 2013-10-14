@@ -6,7 +6,7 @@
 #include "Coord.h"
 #include "Statistic.h"
 
-#define NUM_THREADS 2
+#define NUM_THREADS 5
 
 class Model
 {
@@ -15,7 +15,7 @@ class Model
                 , double brainEatingProb,double infectedToZombieProb,double zombieDecompositionRisk, double humanMoveProb
                 , double zombieMoveProb, bool mpiEnabled = false);
         ~Model();
-        void moveAll(uint32_t iterations=1);
+        Statistic ** moveAll(uint32_t iterations=1);
         Statistic ** moveAll_mpi(uint32_t iterations=1);
         void moveAll_omp(uint32_t iterations=1);
         void print();

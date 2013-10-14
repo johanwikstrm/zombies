@@ -7,6 +7,7 @@
  */
 
 #include <stdint.h>
+#include <pthread.h>
 #include "Array.h"
 #include "Coord.h"
 
@@ -18,7 +19,7 @@ class Matrix : public Array
         uint32_t height;            /**< matrix height */
         uint32_t width;             /**< matrix width */
         uint32_t *counts;           /**< the statistics : number of HUMAN, INFECTED, ZOMBIE and EMPTY */
-        
+
         uint32_t kind(Cell* ptr);
 
     public :
@@ -82,7 +83,7 @@ class Matrix : public Array
          *  @param  y   the ordinate
          *  @param  k   the new kind of the cell at the position (x, y)
          */
-        void set(uint32_t x, uint32_t y, uint32_t k);
+        void set(uint32_t x, uint32_t y, uint32_t k, uint32_t sex = 0);
 
         /**
          * @brief       Move a person

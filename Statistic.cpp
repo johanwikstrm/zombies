@@ -35,11 +35,12 @@ void Statistic::mpi_reduce(){
 
 string Statistic::toCsv(){
 	stringstream t;
-	t << nEmpty << nHumans << nZombies << nInfected << endl;
+	t << nEmpty<< ' ' << nHumans <<' '<< nZombies<<' ' << nInfected << endl;
 	return t.str();
 }
 
 void printStatsCsv(Statistic ** stats, int n){
+	cout <<"EMPTY HUMANS ZOMBIES INFECTED\n";
 	for (int i = 0; i < n; i++){
 		cout << stats[i]->toCsv();
 	}
