@@ -22,7 +22,6 @@ int main(int argc, char *argv[])
     
     assert(buf2.count() == 100);
     assert((*buf2.toArray())(55)->getKind() == HUMAN);
-    cout << (*buf2.toArray())(54)->getKind()<<endl;
     assert((*buf2.toArray())(54)->getKind() == EMPTY);
 
     Array d2 = Array(2);
@@ -55,7 +54,6 @@ int main(int argc, char *argv[])
 		assert((*to.toArray())(0)->getKind() == ZOMBIE);
 		assert((*to.toArray())(1)->getKind() == EMPTY);
     }
-    cout << "--4---\n";
     /* this is what all matrices should do
         E E E E      E E Z E
         E H E E      E H E H

@@ -266,6 +266,7 @@ int Matrix::insertColumnWithCollisions(Array * toInsert,uint32_t col){
             collisions++;
         }else if (oldKind == EMPTY){
             this->set(col,y,(*toInsert)(y)->getKind());    
+            (*this)(col,y)->setMoveFlag((*toInsert)(y)->getMoveFlag());
         }    
     }
     return collisions;  

@@ -6,6 +6,9 @@
 #define PROC_WIDTH 2
 #define PROC_HEIGHT 2
 
+// Number of OMP threads
+#define NUM_THREADS 3
+
 #define NKINDS 4
 
 #define EMPTY 0
@@ -13,7 +16,8 @@
 #define INFECTED 2
 #define ZOMBIE 3
 
-char * kindstr(int kind);
+// The node used as MPI root node throughout the application.
+#define ROOT_NODE 0
 
 typedef int error;
 

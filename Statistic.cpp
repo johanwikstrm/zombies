@@ -12,6 +12,15 @@ Statistic::Statistic(){
 	nZombies = nEmpty = nHumans = nInfected = 0;
 }
 
+int Statistic::sum(){
+	return nZombies+nHumans+nEmpty+nInfected;
+}
+
+// used for debugging
+bool Statistic::allAboveZero(){
+	return nZombies >= 0 && nHumans >= 0 && nEmpty >= 0 && nInfected >= 0;
+}
+
 Statistic::Statistic(Matrix& m){
 	nZombies = m.getCount(ZOMBIE);
 	nHumans = m.getCount(HUMAN);
@@ -31,15 +40,19 @@ void Statistic::mpi_reduce(){
 	err = MPI_Reduce(&nInfected, &gInfected, 1, MPI_INT, MPI_SUM, ROOT_NODE,MPI_COMM_WORLD);
 	assert(err == MPI_SUCCESS);
 	nZombies = gZombies;
+	nHumans = gHumans;
+	nEmpty = gEmpty;
+	nInfected = gInfected;
 }
 
 string Statistic::toCsv(){
 	stringstream t;
-	t << nEmpty << nHumans << nZombies << nInfected << endl;
+	t << nEmpty<< ' ' << nHumans <<' '<< nZombies<<' ' << nInfected << endl;
 	return t.str();
 }
 
 void printStatsCsv(Statistic ** stats, int n){
+	cout <<"EMPTY HUMANS ZOMBIES INFECTED\n";
 	for (int i = 0; i < n; i++){
 		cout << stats[i]->toCsv();
 	}

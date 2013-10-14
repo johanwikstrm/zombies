@@ -15,7 +15,7 @@ Lock locks = Lock(10);
 
 void *thread1(void *a) {
     long id = (long) a;
-    printf("Thread n°%li execution \n", id);
+//    printf("Thread n°%li execution \n", id);
     fflush(stdout);
     locks.lock(id);
     assert(locks.getValue(id));    
@@ -30,7 +30,7 @@ void *thread1(void *a) {
     assert(array[(id-1+10)%10] == id); 
     assert(array[(id+1)%10] == id);
     locks.unlock(id);   
-    printf("Thread n°%li execution end\n", id);
+//    printf("Thread n°%li execution end\n", id);
     fflush(stdout);
     return (void*)0L;
 }
@@ -71,7 +71,7 @@ int main(int argc, char *argv[]){
     pthread_t threads[NUM_THREAD];
 
     for (long i = 0; i < NUM_THREAD; i++) {
-        printf("Creation thread n° %li \n", i);
+  //      printf("Creation thread n° %li \n", i);
         pthread_create(&(threads[i]), NULL, thread1, (void*) i);
     }
 
@@ -79,12 +79,12 @@ int main(int argc, char *argv[]){
     for (long i = 0; i < NUM_THREAD; i++) {
         pthread_join(threads[i], &status);
         if (status != (void*)0) {
-            printf("Error in the execution");
+    //        printf("Error in the execution");
             return 1;
         } 
     }
 
-    printf("All thread have finished \n");
+    //printf("All thread have finished \n");
 
     return 0;
 

@@ -14,9 +14,15 @@ int main(int argc, char *argv[]){
     assert(err== MPI_SUCCESS);
     Statistic stat = Statistic();
     stat.nZombies = 5;
+    stat.nEmpty = 4;
+    stat.nHumans = 3;
+    stat.nInfected = 2;
     stat.mpi_reduce();
     if (rank == ROOT_NODE){
     	assert(stat.nZombies == size * 5);
+        assert(stat.nEmpty == size * 4);
+        assert(stat.nHumans == size * 3);
+        assert(stat.nInfected == size * 2);
     }
     
     

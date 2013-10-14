@@ -12,7 +12,7 @@ int main(int argc, char *argv[]){
     int rank = 1;
    
     uint32_t width = 100;
-    uint32_t height = 50;
+    uint32_t height = 99;
    
     double naturalBirthProb = 0.5;
     double naturalDeathRisk = 6/(1000*366);
@@ -26,7 +26,7 @@ int main(int argc, char *argv[]){
     Model m = Model(width, height, rank, naturalBirthProb, naturalDeathRisk, 
                     initialPopDensity, brainEatingProb, infectedToZombieProb, 
                     zombieDecompositionRisk, humanMoveProb, zombieMoveProb);
-    m.print();
-    m.moveAll_omp(10);
-    m.print();
+    //m.print();
+    m.moveAll_omp(100);
+    //m.print();
 }

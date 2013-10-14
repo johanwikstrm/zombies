@@ -31,7 +31,7 @@ int main(int argc, char *argv[]){
     Model m = Model(width, height, rank, naturalBirthProb, naturalDeathRisk, 
                     initialPopDensity, brainEatingProb, infectedToZombieProb, 
                     zombieDecompositionRisk, humanMoveProb, zombieMoveProb);
-    m.print();
+    //m.print();
     m.moveAll_omp(10);
-    m.print();
+    //m.print();
 }

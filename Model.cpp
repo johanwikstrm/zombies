@@ -218,13 +218,6 @@ void Model::move(int x,int y, bool hasMoved, uint32_t numThread){
                 break;
         }
 
-        if (x != 0 && x != (width-1)) {
-            assert(abs((int)crd.getX() - (int)x) <=1);
-        }
-        if (y != 0 && y != (height-1)) {
-            assert(abs((int)crd.getY() - (int)y) <= 1);
-        }
-
         // Very important when multi-threading (because of the dummy)
         if (matrix(x,y)->getKind() != EMPTY) {
             // The square (x, y) has been considered 
@@ -320,6 +313,28 @@ void Model::moveAll_omp(uint32_t iterations) {
             } 
         }
     }
+}
+
+void Model::moveAll_omp_mpi(uint32_t iterations){
+    initMoveFlags();
+    Lock locks = Lock(height);
+    for (uint32_t i = 0; i < iterations; i++) {
+        bool hasMoved = (i % 2) == 1;
+        void *status;
+        pthread_t threads[NUM_THREADS];
+        for (uint32_t n = 0; n < NUM_THREADS; n++) {
+            inputMoveParallel input = {n, this, &locks, hasMoved};
+            pthread_create(&(threads[n]), NULL, Model::moveParallel, (void*) (&input));
+        } 
+        // Wait for the end of every thread
+        for (uint32_t n = 0; n < NUM_THREADS; n++) {
+            pthread_join(threads[n], &status);
+            if (status != (void*)0) {
+                printf("Error in the execution");
+            } 
+        }
+        swapAll(nbours,matrix);
+    }   
 }
 
 
