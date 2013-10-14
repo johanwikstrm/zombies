@@ -11,8 +11,8 @@ int main(int argc, char *argv[]){
      
     int rank = 1;
    
-    uint32_t width = 20;
-    uint32_t height = 20;
+    uint32_t width = 100;
+    uint32_t height = 99;
    
     double naturalBirthProb = 0.2;
     double naturalDeathRisk = 6/(1000*366);

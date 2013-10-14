@@ -2,12 +2,14 @@
 #include <mpi.h>
 #include "Model.h"
 #include <iostream>
+#include "constants.h"
+#include "Statistic.h"
 
 using namespace std;
 
 int main(int argc, char *argv[]){
 
-    //Model(int width,int height,double naturalBirthProb, double naturalDeathRisk, double initialPopDensity, double
+    //Model(int width,int height,int procRank,double naturalBirthProb, double naturalDeathRisk, double initialPopDensity, double
     //brainEatingProb,double infectedToZombieProb,double zombieDecompositionRisk, double humanMoveProb, double zombieMoveProb);
     error err = MPI_Init(&argc, &argv);
     assert(err == MPI_SUCCESS);
@@ -22,60 +24,17 @@ int main(int argc, char *argv[]){
     assert(m1.getCount(INFECTED)==0);
     assert(m1.getCount(EMPTY)==7);
 
-    Model m2 = Model(10,10,rank,0,0,1,0,0,0,0,0,true);
-    assert(m2.getCount(EMPTY)==36);
-    assert(m2.getCount(HUMAN)==62);        
-    assert(m2.getCount(ZOMBIE)==2);        
+    Model m2 = Model(10,5,rank,0,0,1,1,0.5,0,0.5,0.5,true);
 
-    Model m3 = Model(10,10,rank,0,0,1,1,0,0,0,1,true);
-
-    m3.moveAll(1);
-    // At least 1 people infected by zombies movement
-    assert(m3.getCount(INFECTED)>=1);
-    assert(m3.getCount(ZOMBIE)== 2);
-    assert(m3.getCount(HUMAN)>=60);
-
-    // Model where the bitten turn into zombies very fast
-    Model m4 = Model(10,10,rank,0,0,1,1,1,0,1,1,true);
-
-    assert(m4.getCount(INFECTED) == 0);
-    m4.moveAll(5);
-    assert(m4.getCount(INFECTED) > 0);
-    assert(m4.getCount(ZOMBIE) > 2);
-
-    Model m5 = Model(15,10,rank,0,0,0,0,0,0,0,1,true); // just two zombies
-    assert(m5.getCount(ZOMBIE)==2);
-    int zx,zy,zx2,zy2;
-    zx = zy = zx2 = zy2 = -1;
-    for (int y = 0; y < 10; y++){
-        for (int x = 0; x < 15; x++){
-            if (m5.at(x,y)->getKind() == ZOMBIE){ // finding pos of both zombies
-                if (zx != -1){
-                    zx = x;
-                    zy = y;
-                }else  {
-                    zx2 = x;
-                    zy2 = y;
-                }
-            }
-        }    
+    Statistic ** stats = m2.moveAll_mpi(1);
+    assert(stats[0]->allAboveZero());
+    if (rank == ROOT_NODE && stats[0]->sum() != 10*5*4){
+        cout << "Expected sum to be " << 10*5*4 <<" got "<<stats[0]->sum()<<endl<<flush;
+        m2.print();
+        assert(false);
     }
-    m5.moveAll(1);
-    bool currentMoveFlag = m5.at(0,0)->getMoveFlag();
-    // checking that our zombies are within range
-    //m5.print();
-    for (int y = 0; y < 10; y++){
-        for (int x = 0; x < 15; x++){
-            if (m5.at(x,y)->getMoveFlag() == currentMoveFlag){
-                //cout << "Wrong moveflag at "<<x<<","<<y<<endl;
-            }
-            //assert(m5.at(x,y)->getMoveFlag() == currentMoveFlag);
-            if (m5.at(x,y)->getKind()==ZOMBIE){
-                
-            }
-        }
-    }
-    assert(m5.getCount(ZOMBIE)==2);
+    stats = m2.moveAll_mpi(10);
+    assert(stats[0]->allAboveZero());
     
     err = MPI_Finalize();
     assert(err == MPI_SUCCESS);    

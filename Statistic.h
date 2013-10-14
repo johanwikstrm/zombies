@@ -12,6 +12,8 @@ Statistic();
 Statistic(Matrix& m);
 void mpi_reduce();
 string toCsv();
+int sum();
+bool allAboveZero();
 int nZombies,nEmpty,nHumans,nInfected;
 private:
 };

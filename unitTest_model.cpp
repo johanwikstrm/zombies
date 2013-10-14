@@ -42,22 +42,6 @@ int main(int argc, char *argv[]){
     Model m5 = Model(15,10,rank,0,0,0,0,0,0,0,1); // just two zombies
     assert(m5.getCount(ZOMBIE)==2);
 
-    int zx,zy,zx2,zy2;
-    zx = zy = zx2 = zy2 = -1;
-    for (int y = 0; y < 10; y++){
-        for (int x = 0; x < 15; x++){
-            if (m5.at(x,y)->getKind() == ZOMBIE){ // finding pos of both zombies
-                if (zx != -1){
-                    zx = x;
-                    zy = y;
-                }else  {
-                    zx2 = x;
-                    zy2 = y;
-                }
-            }
-        }    
-    }
-
     m5.moveAll(10);
     bool currentMoveFlag;
     bool out = false;
