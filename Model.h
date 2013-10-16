@@ -6,8 +6,6 @@
 #include "Coord.h"
 #include "Statistic.h"
 
-
-
 class Model
 {
     public:

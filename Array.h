@@ -68,7 +68,7 @@ class Array
          */
         Cell*& operator()(uint32_t i) ;
 
-        void set(uint32_t x, uint32_t k);
+        void set(uint32_t x, uint32_t k, uint32_t sex = 0);
         /**
          * @brief       Overloading the = operator (assignment) 
          */

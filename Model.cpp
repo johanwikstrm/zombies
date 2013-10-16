@@ -35,14 +35,13 @@ Model::Model(int width,int height,int procRank,double naturalBirthProb, double n
 
     matrix = Matrix(height, width);
     randomizer = new MTRand*[NUM_THREADS]; 
-    // TODO better initialization
     for (int i = 0; i < NUM_THREADS; i++) {
-        randomizer[i] = new MTRand(time(0));
+        randomizer[i] = new MTRand(time(0) + i + procRank);
     }
 
     if (mpiEnabled){
         init_mpi();
-    }else{
+    } else {
         init();    
     }
 }
@@ -112,14 +111,19 @@ int Model::getCount(int kind){
 }
 
 void Model::printStats(){
-    cout << Model::matrix.getCount(HUMAN)<< "\t"<<Model::matrix.getCount(INFECTED) << "\t"<<Model::matrix.getCount(ZOMBIE)<< "\t"<<Model::matrix.getCount(EMPTY)<<"\n";
+    cout << "Stats : "<<endl;
+    cout <<"Human\tInfctd\tZombie\tEmpty\tTotal\n";
+    uint32_t humans = matrix.getCount(HUMAN);
+    uint32_t infected = matrix.getCount(INFECTED);
+    uint32_t zombies = matrix.getCount(ZOMBIE);
+    uint32_t empty = matrix.getCount(EMPTY);
+    uint32_t total= humans + infected + zombies + empty;
+    cout <<humans <<"\t" <<infected <<"\t" <<zombies<<"\t" <<empty<<"\t" <<total<<endl;
 }
 
 void Model::print(){
-    cout << "Stats:\nHuman   Infctd  Zombie  Empty\n";
     printStats();
     matrix.print();
-    //matrix.printMoveFlags();
 }
 
 Coord Model::moveZombie(int x,int y, uint32_t numThread){

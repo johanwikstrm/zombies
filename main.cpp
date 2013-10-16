@@ -37,9 +37,9 @@ int main(int argc, char *argv[])
     uint32_t nbIterations = 100;
     
     // Moving 
-    Statistic** stats = m.moveAll_mpi(nbIterations);
+    //Statistic** stats = m.moveAll_mpi(nbIterations);
     //Statistic** stats = m.moveAll(nbIterations);
-    //m.moveAll_omp_mpi(nbIterations);
+    m.moveAll_omp_mpi(nbIterations);
     
     // Printing
     if (rank == ROOT_NODE){

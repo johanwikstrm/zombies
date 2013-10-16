@@ -3,13 +3,15 @@
 
 using namespace std;
 
-Cell::Cell(uint32_t kind){
-	k = kind;
-	mFlag = false;
+Cell::Cell(uint32_t kind, uint32_t sex){
+	this->k = kind;
+        this->sex = sex;  
+	this->mFlag = false;
 }
 
 Cell::Cell(const Cell& c){
     k = c.k;
+    sex = c.sex;
     mFlag = c.mFlag;
 }
 
@@ -24,6 +26,15 @@ uint32_t Cell::getKind(){
 void Cell::setKind(uint32_t kind){
 	k = kind;
 }
+
+uint32_t Cell::getSex(){
+	return sex;
+}
+
+void Cell::setSex(uint32_t sex){
+	this->sex = sex;
+}
+
 
 bool Cell::getMoveFlag(){
 	return mFlag;

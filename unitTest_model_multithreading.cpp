@@ -14,19 +14,19 @@ int main(int argc, char *argv[]){
     uint32_t width = 100;
     uint32_t height = 99;
    
-    double naturalBirthProb = 0.5;
+    double naturalBirthProb = 0.2;
     double naturalDeathRisk = 6/(1000*366);
     double initialPopDensity = 0.9;
-    double brainEatingProb = 0;
-    double infectedToZombieProb = 0;
-    double zombieDecompositionRisk = 0;
-    double humanMoveProb = 1;
+    double brainEatingProb = 1;
+    double infectedToZombieProb = 0.8;
+    double zombieDecompositionRisk = 0.2;
+    double humanMoveProb = 0.8;
     double zombieMoveProb = 0.5; 
     
     Model m = Model(width, height, rank, naturalBirthProb, naturalDeathRisk, 
                     initialPopDensity, brainEatingProb, infectedToZombieProb, 
                     zombieDecompositionRisk, humanMoveProb, zombieMoveProb);
-    //m.print();
+    m.print();
     m.moveAll_omp(100);
-    //m.print();
+    m.print();
 }
