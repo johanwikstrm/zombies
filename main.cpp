@@ -37,13 +37,13 @@ int main(int argc, char *argv[])
     uint32_t nbIterations = 100;
     
     // Moving 
-    //Statistic** stats = m.moveAll_mpi(nbIterations);
+    Statistic** stats = m.moveAll_mpi(nbIterations);
     //Statistic** stats = m.moveAll(nbIterations);
-    m.moveAll_omp_mpi(nbIterations);
+    //m.moveAll_omp_mpi(nbIterations);
     
     // Printing
     if (rank == ROOT_NODE){
-        //printStatsCsv(stats,nbIterations);
+        printStatsCsv(stats,nbIterations);
         cout << "Successfully ran " << nbIterations << " iterations with " << PROC_WIDTH * PROC_HEIGHT
         << " processors and " << NUM_THREADS << " threads per processor"<<endl;
     }
