@@ -7,7 +7,7 @@
 #define PROC_HEIGHT 2
 
 // Number of OMP threads
-#define NUM_THREADS 3
+#define NUM_THREADS 10
 
 #define NKINDS 4
 

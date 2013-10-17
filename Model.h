@@ -1,6 +1,6 @@
 #ifndef MODEL_H
 #define MODEL_H
-#include "mtrand.h"
+#include "MersenneTwister.h"
 #include "constants.h"
 #include "Matrix.h"
 #include "Coord.h"
@@ -31,7 +31,7 @@ class Model
         int *nbours;
 
         // a generator for each thread
-        MTRand** randomizer;
+        MersenneTwister** randomizer;
         
         static void* moveParallel(void* context);
         double naturalBirthProb, naturalDeathRisk, initialPopDensity, brainEatingProb, infectedToZombieProb;
