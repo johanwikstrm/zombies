@@ -11,7 +11,7 @@ int main(int argc, char *argv[]){
     int rank = 1;
    
     uint32_t width = 100;
-    uint32_t height = 50;
+    uint32_t height = 100;
    
     // Population density in Northern Territory
     double initialPopDensity = 0.17;

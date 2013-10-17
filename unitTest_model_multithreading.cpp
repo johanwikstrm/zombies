@@ -12,7 +12,7 @@ int main(int argc, char *argv[]){
     int rank = 1;
    
     uint32_t width = 100;
-    uint32_t height = 99;
+    uint32_t height = 100;
    
     double naturalBirthProb = 0.2;
     double naturalDeathRisk = 6/(1000*366);
@@ -27,6 +27,6 @@ int main(int argc, char *argv[]){
                     initialPopDensity, brainEatingProb, infectedToZombieProb, 
                     zombieDecompositionRisk, humanMoveProb, zombieMoveProb);
     m.print();
-    m.moveAll_omp(100);
+    m.moveAll_omp(3600);
     m.print();
 }

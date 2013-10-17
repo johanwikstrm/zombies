@@ -34,9 +34,9 @@ Model::Model(int width,int height,int procRank,double naturalBirthProb, double n
     this->zombieMoveProb = zombieMoveProb;
 
     matrix = Matrix(height, width);
-    randomizer = new MTRand*[NUM_THREADS]; 
+    randomizer = new MersenneTwister*[NUM_THREADS]; 
     for (int i = 0; i < NUM_THREADS; i++) {
-        randomizer[i] = new MTRand(time(0) + i + procRank);
+        randomizer[i] = new MersenneTwister(time(0) + i + procRank);
     }
 
     if (mpiEnabled){
@@ -57,7 +57,7 @@ Model::~Model(){
 void Model::init_mpi(){
     for (uint32_t y = 1; y < height-1; y++) {
         for (uint32_t x = 1; x < width-1; x++) {
-            if ((*randomizer[0])() < initialPopDensity) {
+            if (randomizer[0]->rand() < initialPopDensity) {
                 matrix.set(x,y,HUMAN);
             }
         }
@@ -69,7 +69,7 @@ void Model::init_mpi(){
 void Model::init(){
     for (uint32_t y = 0; y < height; y++) {
         for (uint32_t x = 0; x < width; x++) {
-            if ((*randomizer[0])() < initialPopDensity) {
+            if (randomizer[0]->rand() < initialPopDensity) {
                 matrix.set(x,y,HUMAN);
             }
         }
@@ -79,31 +79,31 @@ void Model::init(){
 }
 
 bool Model::timeToDie(uint32_t numThread){
-    return (*randomizer[numThread])() < naturalDeathRisk;
+    return randomizer[numThread]->rand() < naturalDeathRisk;
 }
 
 bool Model::timeToDecompose(uint32_t numThread){
-    return (*randomizer[numThread])() < zombieDecompositionRisk;
+    return randomizer[numThread]->rand() < zombieDecompositionRisk;
 }
 
 bool Model::timeToBeBorn(uint32_t numThread) {
-    return (*randomizer[numThread])() < naturalBirthProb;
+    return randomizer[numThread]->rand() < naturalBirthProb;
 }
 
 bool Model::timeToBecomeZombie(uint32_t numThread){
-    return (*randomizer[numThread])() < infectedToZombieProb;
+    return randomizer[numThread]->rand() < infectedToZombieProb;
 }
 
 bool Model::timeToEatBrain(uint32_t numThread){
-    return (*randomizer[numThread])() < brainEatingProb;
+    return randomizer[numThread]->rand() < brainEatingProb;
 }
 
 bool Model::timeToMoveHuman(uint32_t numThread){
-    return (*randomizer[numThread])() < humanMoveProb;
+    return randomizer[numThread]->rand() < humanMoveProb;
 }
 
 bool Model::timeToMoveZombie(uint32_t numThread){
-    return (*randomizer[numThread])() < zombieMoveProb;	
+    return randomizer[numThread]->rand() < zombieMoveProb;	
 }
 
 int Model::getCount(int kind){
@@ -123,7 +123,7 @@ void Model::printStats(){
 
 void Model::print(){
     printStats();
-    matrix.print();
+    //²matrix.print();
 }
 
 Coord Model::moveZombie(int x,int y, uint32_t numThread){
@@ -165,7 +165,7 @@ Coord Model::moveInfected(int x,int y, uint32_t numThread){
 
 Coord Model::getSquareToMoveTo(int fromX,int fromY, uint32_t numThread){
     
-    double r = (*(randomizer[numThread]))();
+    double r = randomizer[numThread]->rand();
 
     Coord crd = Coord(fromX, fromY);
     if (r < 0.25) // left
@@ -316,6 +316,7 @@ void Model::moveAll_omp(uint32_t iterations) {
                 printf("Error in the execution");
             } 
         }
+        cout <<i <<endl;
     }
 }
 
