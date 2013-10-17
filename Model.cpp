@@ -319,7 +319,9 @@ void Model::moveAll_omp(uint32_t iterations) {
     }
 }
 
-void Model::moveAll_omp_mpi(uint32_t iterations){
+Statistic** Model::moveAll_omp_mpi(uint32_t iterations){
+    Statistic **stats;
+    stats = (Statistic**)calloc(iterations,sizeof(Statistic*));
     initMoveFlags();
     Lock locks = Lock(height);
     for (uint32_t i = 0; i < iterations; i++) {
@@ -337,8 +339,11 @@ void Model::moveAll_omp_mpi(uint32_t iterations){
                 printf("Error in the execution");
             } 
         }
+        stats[i] = new Statistic(matrix);
+        stats[i]->mpi_reduce();
         swapAll(nbours,matrix);
-    }   
+    }
+    return stats ;  
 }
 
 
