@@ -85,7 +85,7 @@ int main ()
     for (uint32_t i = 0; i < 4; i++) {
         matrix_2.set(0, i, i);
     }
-    Array* column0 = matrix_2.extractColumn(0);
+    Array* column0 = matrix_2.extractColumn(0,0);
     for (uint32_t i = 0; i < 4; i++) {
         assert((*column0)(i)->getKind() == i);
     }
@@ -94,7 +94,7 @@ int main ()
     for (uint32_t j = 0; j < 4; j++) {
         matrix_2.set(j,0, j);
     }
-    Array* row0 = matrix_2.extractRow(0);
+    Array* row0 = matrix_2.extractRow(0,0);
     for (uint32_t j = 0; j < 4; j++) {
         assert((*row0)(j)->getKind() == j);
     }
@@ -112,7 +112,7 @@ int main ()
     // no collision
     Array * insCol = new Array(4);
     insCol->set(1,ZOMBIE);
-    assert(matrix_4.insertColumnWithCollisions(insCol,1) == 0);
+    assert(matrix_4.insertColumnWithCollisions(insCol,1,0) == 0);
 /*  
     E E E E E 
     E Z E E E 
@@ -122,7 +122,7 @@ int main ()
     assert(matrix_4(1,1)->getKind() == ZOMBIE);
     assert(matrix_4(1,2)->getKind() == INFECTED);
     insCol->set(1,HUMAN);
-    assert(matrix_4.insertColumnWithCollisions(insCol,1) == 1);
+    assert(matrix_4.insertColumnWithCollisions(insCol,1,0) == 1);
 /*  
     E E E E E 
     E ? E E E 
@@ -132,7 +132,7 @@ int main ()
     delete insCol;
     insCol = new Array(5);
     insCol->set(1,INFECTED);
-    assert(matrix_4.insertRowWithCollisions(insCol,3) == 0);
+    assert(matrix_4.insertRowWithCollisions(insCol,3,0) == 0);
 /*  
     E E E E E 
     E ? E E E 
@@ -140,7 +140,7 @@ int main ()
     E I E E E 
 */
     assert(matrix_4(1,3)->getKind() == INFECTED);
-    assert(matrix_4.insertRowWithCollisions(insCol,2) == 1);
+    assert(matrix_4.insertRowWithCollisions(insCol,2,0) == 1);
 /*  
     E E E E E 
     E ? E E E 
