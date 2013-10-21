@@ -39,7 +39,7 @@ Model::Model(int width,int height,int procRank,double naturalBirthProb, double n
         randomizer[i] = new MersenneTwister(time(0) + i + procRank);
     }
 
-    if (mpiEnabled){
+    if (mpiEnabled) {
         init_mpi();
     } else {
         init();    
