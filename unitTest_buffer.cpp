@@ -71,32 +71,31 @@ int main(int argc, char *argv[])
     neighbours(toX(rank),toY(rank),PROC_WIDTH,PROC_HEIGHT,nbours);
     //neighbours(nbours);
     Array **toSend = myMatr.toSend(1);
-    assert(toSend[UP]->getSize() == 4);
-    assert((*(toSend[UP]))(1)->getKind() == HUMAN);
-    assert((*(toSend[UP]))(0)->getKind() == EMPTY);
-    assert((*(toSend[DOWN]))(2)->getKind() == ZOMBIE);
-    assert(toSend[LEFT]->getSize() == 5);
+    assert(toSend[UP]->getSize() == 2);
+    assert((*(toSend[UP]))(0)->getKind() == HUMAN);
+    assert((*(toSend[DOWN]))(1)->getKind() == ZOMBIE);
+    assert(toSend[LEFT]->getSize() == 3);
     Buffer** bufs = (Buffer**)calloc(4,sizeof(Buffer*));
     Buffer** bufs2 = (Buffer**)calloc(4,sizeof(Buffer*));
     for (int i = 0; i < 4; i++){
         bufs[i] = new Buffer(*(toSend[i]));
         bufs2[i] = new Buffer(toSend[i]->getSize());
     }
-    assert(bufs[DOWN]->count() == 4);
-    assert(bufs[LEFT]->count() == 5);
-    assert(bufs2[LEFT]->count() == 5);
+    assert(bufs[DOWN]->count() == 2);
+    assert(bufs[LEFT]->count() == 3);
+    assert(bufs2[LEFT]->count() == 3);
     err = sendToAllNeighbours(nbours,bufs,reqs,dtype);
     assert(err == MPI_SUCCESS);
     err = recvFromAllNeighbours(nbours,bufs2,dtype);
     assert(err == MPI_SUCCESS);
-    assert((*(bufs2[DOWN]->toArray()))(1)->getKind() == HUMAN);
-    assert((*(bufs2[DOWN]->toArray()))(0)->getKind() == EMPTY);
-    assert((*(bufs2[UP]->toArray()))(1)->getKind() == EMPTY);
-    assert((*(bufs2[UP]->toArray()))(2)->getKind() == ZOMBIE);
+    assert((*(bufs2[DOWN]->toArray()))(0)->getKind() == HUMAN);
+    assert((*(bufs2[DOWN]->toArray()))(1)->getKind() == EMPTY);
+    assert((*(bufs2[UP]->toArray()))(0)->getKind() == EMPTY);
+    assert((*(bufs2[UP]->toArray()))(1)->getKind() == ZOMBIE);
     assert((*(bufs2[LEFT]->toArray()))(1)->getKind() == EMPTY);
-    assert((*(bufs2[LEFT]->toArray()))(3)->getKind() == ZOMBIE);
+    assert((*(bufs2[LEFT]->toArray()))(2)->getKind() == ZOMBIE);
     assert((*(bufs2[RIGHT]->toArray()))(2)->getKind() == EMPTY);
-    assert((*(bufs2[RIGHT]->toArray()))(1)->getKind() == HUMAN);
+    assert((*(bufs2[RIGHT]->toArray()))(0)->getKind() == HUMAN);
 
     // Full test with matrix
     Matrix matrix = Matrix(6,7);
@@ -118,9 +117,57 @@ int main(int argc, char *argv[])
     assert(matrix.getCount(ZOMBIE) == 2);
     assert(matrix.getCount(HUMAN) == 3);
     assert(matrix.getCount(INFECTED) == 2);
-
-
-
+    // Trying to get seg fault by using a lot of collisions
+    Matrix matrix2 = Matrix(4,4);
+    matrix2.set(0,0,HUMAN);
+    matrix2.set(0,1,HUMAN);
+    matrix2.set(0,2,HUMAN);
+    matrix2.set(0,3,HUMAN);
+    matrix2.set(1,0,HUMAN);
+    matrix2.set(1,1,HUMAN);
+    matrix2.set(1,2,HUMAN);
+    matrix2.set(1,3,HUMAN);
+    matrix2.set(2,0,HUMAN);
+    matrix2.set(2,1,HUMAN);
+    matrix2.set(2,2,HUMAN);
+    matrix2.set(2,3,HUMAN);
+    matrix2.set(3,0,HUMAN);
+    matrix2.set(3,1,HUMAN);
+    matrix2.set(3,2,HUMAN);
+    matrix2.set(3,3,HUMAN);
+    /*
+        H H H H        H H H H
+        H H H H        H H H H
+        H H H H        H H H H
+        H H H H   ->   H H H H 
+    */
+    assert(matrix2.getCount(HUMAN) == 16);
+    for (int i = 0; i < 100; i++){
+        swapAll(nbours,matrix);
+    }
+    assert(matrix2.getCount(HUMAN) == 16);
+    // Handling collisions
+    Matrix matrix3 = Matrix(5,6);
+    
+    matrix3.set(1,1,INFECTED);
+    matrix3.set(1,4,ZOMBIE);
+    // Collision handling
+    /*
+        E E E E E E      E E E E E E
+        E I E E E E      E I E E E I
+        E E E E E E  ->  E Z E E E Z
+        E E E E E E      E E E E E E
+        E Z E E E E      E I E E E E
+    */
+    assert(matrix3.getCount(INFECTED) == 1);
+    assert(matrix3.getCount(ZOMBIE) == 1);
+    int collisions = swapAll(nbours,matrix3);
+    
+    cout << "Collisions " << collisions << endl << flush;
+    matrix3.print();
+    //assert(collisions == 1);
+    //assert(matrix3.getCount(INFECTED) == 3);
+    //assert(matrix3.getCount(ZOMBIE) == 2);
     err = MPI_Finalize();
 	assert(err == MPI_SUCCESS);    
 }

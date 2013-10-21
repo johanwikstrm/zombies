@@ -16,7 +16,7 @@ class Model
         Statistic ** moveAll(uint32_t iterations=1);
         Statistic ** moveAll_mpi(uint32_t iterations=1);
         void moveAll_omp(uint32_t iterations=1);
-        void moveAll_omp_mpi(uint32_t iterations);
+        Statistic ** moveAll_omp_mpi(uint32_t iterations);
         void print();
         void printStats();
         int getCount(int kind);

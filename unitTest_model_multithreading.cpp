@@ -2,8 +2,11 @@
 #include <mpi.h>
 #include "Model.h"
 #include <iostream>
+#include "MersenneTwister.h"
+#include <pthread.h>
 
 using namespace std;
+
 
 int main(int argc, char *argv[]){
     //Model(int width,int height, int rank, double naturalBirthProb, double naturalDeathRisk, double initialPopDensity, double
@@ -16,7 +19,7 @@ int main(int argc, char *argv[]){
    
     double naturalBirthProb = 0.2;
     double naturalDeathRisk = 6/(1000*366);
-    double initialPopDensity = 0.9;
+    double initialPopDensity = 0.8;
     double brainEatingProb = 1;
     double infectedToZombieProb = 0.8;
     double zombieDecompositionRisk = 0.2;

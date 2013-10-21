@@ -94,7 +94,7 @@ public:
 
 	// Access to 32-bit random numbers
 	double rand();                          // real number in [0,1]
-	double rand( const double& n );         // real number in [0,n]
+	//double rand( const double& n );         // real number in [0,n]
 	double randExc();                       // real number in [0,1)
 	double randExc( const double& n );      // real number in [0,n)
 	double randDblExc();                    // real number in (0,1)
@@ -135,7 +135,9 @@ protected:
 };
 
 inline MersenneTwister::MersenneTwister( const uint32& oneSeed )
-	{ seed(oneSeed); }
+	{ 
+		seed(oneSeed); 
+	}
 
 inline MersenneTwister::MersenneTwister( uint32 *const bigSeed, const uint32 seedLength )
 	{ seed(bigSeed,seedLength); }
@@ -144,10 +146,12 @@ inline MersenneTwister::MersenneTwister()
 	{ seed(); }
 
 inline double MersenneTwister::rand()
-	{ return double(randInt()) * (1.0/4294967295.0); }
+	{
+		return double(randInt()) * (1.0/4294967295.0); 
+	}
 
-inline double MersenneTwister::rand( const double& n )
-	{ return rand() * n; }
+//inline double MersenneTwister::rand( const double& n )
+//	{ return rand() * n; }
 
 inline double MersenneTwister::randExc()
 	{ return double(randInt()) * (1.0/4294967296.0); }
@@ -183,7 +187,10 @@ inline MersenneTwister::uint32 MersenneTwister::randInt()
 
 	if( left == 0 ) reload();
 	--left;
-
+/*
+	if (!(pNext >= state && pNext < state + N)){
+		printf("pNext=%p, state = %p, state+N = %p, left = %d\n",pNext,state,state+N,left);
+	}*/
 	register uint32 s1;
 	s1 = *pNext++;
 	s1 ^= (s1 >> 11);
@@ -311,6 +318,7 @@ inline void MersenneTwister::reload()
 	*p = twist( p[M-N], p[0], state[0] );
 
 	left = N, pNext = state;
+	//printf("Reloaded. pNext = %p left = %d\n",pNext,left );
 }
 
 

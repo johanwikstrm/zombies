@@ -21,7 +21,7 @@ Array * Buffer::toArray(){
 		// TODO: copy constructor
 		Cell *c = (Cell*)malloc(sizeof(Cell));
 		memcpy(c,cells+i,sizeof(Cell));
-		a->set(i,c->getKind());
+		a->set(i,c->getKind(),c->getSex());
 		free(c);
 	}
 	return a;

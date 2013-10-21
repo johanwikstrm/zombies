@@ -1,0 +1,37 @@
+\documentclass{report}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{listings}
+\usepackage{graphicx}
+\usepackage[table]{xcolor}
+\usepackage{caption}
+\usepackage{url}
+\usepackage{fancyhdr}
+
+\title{Modeling the zombie apocalypse using a HIZD-model and HPC}
+\author{Johan Wikström - 645714}
+
+\pagestyle{fancy}
+\fancyhead{}
+\fancyhead[L]{Johan Wikström - 645714}
+\fancyfoot{}
+
+\begin{document}
+\maketitle
+\tableofcontents
+\section{Problem description}	
+SIR-models (susceptible, infected, removed/recovered) are commonly used to model diseases in populations. In this report, we use a modified SIR-model called a HIZD-model (human,infected,zombie,decayed) to model a potential zombie apocalypse. The aim of the report is determining the effect of some vital parameters, such as the infection risk when encountering a zombie, on the survival of the human and zombie populations.
+\section{Model}
+As a model of a geographical area we use a mesh of 1*1 km squares. Each square can be inhabited or empty and there are three types of inhabitants: humans, infected and zombies. This is a sparsely populated area but in the case of a zombie apocalypse, the authors believe that many areas will become sparsely populated rather quickly.
+
+The time granularity is days and the modeled inhabitants may choose to move one square in a random direction or stay at the square they are inhabiting.
+
+To speed up the calculations, the mesh is divided into several smaller meshes and run on a Blue Gene Q using mpi. Each smaller mesh also uses multithreading to speed up individual computations.
+
+
+\section{Results}
+
+\section{Discussion of results}
+
+\end{document}
