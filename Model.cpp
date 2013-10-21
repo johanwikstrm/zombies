@@ -36,9 +36,9 @@ Model::Model(int width,int height,int procRank,double naturalBirthProb, double n
     matrix = Matrix(height, width);
     randomizer = new MersenneTwister*[NUM_THREADS]; 
     for (int i = 0; i < NUM_THREADS; i++) {
-        //randomizer[i] = new MersenneTwister(time(0) + i + procRank);
+        randomizer[i] = new MersenneTwister(time(0) + i + procRank);
         // TODO: change back, right now I want to be able to reproduce the seg fault
-        randomizer[i] = new MersenneTwister(i);
+        //randomizer[i] = new MersenneTwister(i);
     }
 
     if (mpiEnabled) {
@@ -115,8 +115,8 @@ int Model::getCount(int kind){
 }
 
 void Model::printStats(){
-    cout << "Stats : "<<endl;
-    cout <<"Human\tInfctd\tZombie\tEmpty\tTotal\n";
+    //cout << "Stats : "<<endl;
+    //cout <<"Human\tInfctd\tZombie\tEmpty\tTotal\n";
     uint32_t humans = matrix.getCount(HUMAN);
     uint32_t infected = matrix.getCount(INFECTED);
     uint32_t zombies = matrix.getCount(ZOMBIE);
@@ -135,7 +135,6 @@ Coord Model::moveZombie(int x,int y, uint32_t numThread){
 
     if (timeToDecompose(numThread)) {
         matrix.set(x, y, EMPTY);
-
     } else if(timeToMoveZombie(numThread)) {
         Coord crd2 = getSquareToMoveTo(x, y, numThread);
         int destKind = matrix(crd2)->getKind();
@@ -297,7 +296,6 @@ void* Model::moveParallel(void* context) {
     Lock* locks = input->locks;
     bool hasMoved = input->hasMoved;
     assert(model->getHeight() % NUM_THREADS == 0);
-    // the seg fault is not in getHeight()
     uint32_t numColumns = model->getHeight() / NUM_THREADS;
     
     uint32_t firstColumn = numThread*numColumns;
@@ -339,7 +337,7 @@ void Model::moveAll_omp(uint32_t iterations) {
                 printf("Error in the execution");
             } 
         }
-        cout <<i <<endl;
+    print();
     }
 }
 
