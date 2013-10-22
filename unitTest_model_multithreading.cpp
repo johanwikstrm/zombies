@@ -14,13 +14,13 @@ int main(int argc, char *argv[]){
      
     int rank = 1;
    
-    uint32_t width = 100;
-    uint32_t height = 100;
+    uint32_t width = 1000;
+    uint32_t height = 1500;
    
     double naturalBirthProb = 0.2;
     double naturalDeathRisk = 6/(1000*366);
-    double initialPopDensity = 0.8;
-    double brainEatingProb = 1;
+    double initialPopDensity = 0.017;
+    double brainEatingProb = 0;
     double infectedToZombieProb = 0.8;
     double zombieDecompositionRisk = 0.2;
     double humanMoveProb = 0.8;
@@ -30,6 +30,6 @@ int main(int argc, char *argv[]){
                     initialPopDensity, brainEatingProb, infectedToZombieProb, 
                     zombieDecompositionRisk, humanMoveProb, zombieMoveProb);
     m.print();
-    m.moveAll_omp(3600);
+    m.moveAll_omp(100);
     m.print();
 }

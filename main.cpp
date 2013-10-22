@@ -42,11 +42,15 @@ int main(int argc, char *argv[])
     Statistic** stats = m.moveAll_omp_mpi(nbIterations);
     
     // Printing
+    // 
+    /**
     if (rank == ROOT_NODE){
         printStatsCsv(stats,nbIterations);
         cout << "Successfully ran " << nbIterations << " iterations with " << PROC_WIDTH * PROC_HEIGHT
         << " processors and " << NUM_THREADS << " threads per processor"<<endl;
     }
+    **/
+    
 
     err = MPI_Finalize();
     assert(err == MPI_SUCCESS);    
