@@ -8,21 +8,21 @@
 
 using namespace std;
 
-#define WIDTH 10   
-#define HEIGHT 10
+#define WIDTH 100   
+#define HEIGHT 100
 
 // natural death rate for humans about once every 60 years
 #define NATURAL_DEATH_RISK (1.0/(60.0*365.0))
 // simplest possible birth control mechanism
-#define NATURAL_BIRTH_PROB (1.0/(60.0*365.0))
+#define NATURAL_BIRTH_PROB (0.5/(60.0*365.0))
 
-#define POP_DENSITY 0.3
+#define POP_DENSITY 0.1
 // Probabiblity of getting your brain eaten when encountering a zombie
-#define BRAIN_EATING_PROB 1
-#define INFECTED_TO_ZOMBIE_PROB (1.0/10.0)
-#define ZOMBIE_DECOMPOSITION_RISK 0.05
-#define HUMAN_MOVE_PROB 0.7
-#define ZOMBIE_MOVE_PROB 0.5
+#define BRAIN_EATING_PROB 0.8
+#define INFECTED_TO_ZOMBIE_PROB (1.0/20.0)
+#define ZOMBIE_DECOMPOSITION_RISK 0.03
+#define HUMAN_MOVE_PROB 0.5
+#define ZOMBIE_MOVE_PROB 0.7
 
 int main(int argc, char *argv[])
 {
@@ -34,12 +34,12 @@ int main(int argc, char *argv[])
     Model m = Model(WIDTH,HEIGHT,rank,NATURAL_BIRTH_PROB,NATURAL_DEATH_RISK,POP_DENSITY, BRAIN_EATING_PROB,INFECTED_TO_ZOMBIE_PROB,
             ZOMBIE_DECOMPOSITION_RISK,HUMAN_MOVE_PROB,ZOMBIE_MOVE_PROB);
 
-    uint32_t nbIterations = 100;
+    uint32_t nbIterations = 365*10;
     
     // Moving 
     //Statistic** stats = m.moveAll_mpi(nbIterations);
     //Statistic** stats = m.moveAll(nbIterations);
-    m.moveAll_omp_mpi(nbIterations);
+    Statistic** stats = m.moveAll_omp_mpi(nbIterations);
     
     // Printing
     if (rank == ROOT_NODE){

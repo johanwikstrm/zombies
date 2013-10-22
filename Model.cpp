@@ -24,6 +24,11 @@ Model::Model(int width,int height,int procRank,double naturalBirthProb, double n
     // finding my neighbours
     nbours = new int[4];
     neighbours(toX(procRank),toY(procRank),PROC_WIDTH,PROC_HEIGHT,nbours);
+    /*cout << "Proc "<<procRank << " has neighbours: "
+        << nbours[UP] << ","
+        << nbours[RIGHT] << ","
+        << nbours[DOWN] << ","
+        << nbours[LEFT] << "\n"<<flush;*/
     this->naturalBirthProb = naturalBirthProb;
     this->naturalDeathRisk = naturalDeathRisk;
     this->initialPopDensity = initialPopDensity;
@@ -36,9 +41,7 @@ Model::Model(int width,int height,int procRank,double naturalBirthProb, double n
     matrix = Matrix(height, width);
     randomizer = new MersenneTwister*[NUM_THREADS]; 
     for (int i = 0; i < NUM_THREADS; i++) {
-        //randomizer[i] = new MersenneTwister(time(0) + i + procRank);
-        // TODO: change back, right now I want to be able to reproduce the seg fault
-        randomizer[i] = new MersenneTwister(i);
+        randomizer[i] = new MersenneTwister(time(0) + i + procRank);
     }
 
     if (mpiEnabled){
@@ -73,9 +76,7 @@ void Model::init(){
         for (uint32_t x = 0; x < width; x++) {
             if (randomizer[0]->rand() < initialPopDensity) {
                 matrix.set(x,y,HUMAN);
-            }/*else{
-                matrix.set(x,y,ZOMBIE);
-            }*/
+            }
         }
     }
     matrix.set(width/2, height/2, ZOMBIE);
@@ -91,7 +92,8 @@ bool Model::timeToDecompose(uint32_t numThread){
 }
 
 bool Model::timeToBeBorn(uint32_t numThread) {
-    return randomizer[numThread]->rand() < naturalBirthProb;
+    double area = (double)(matrix.getWidth()*matrix.getHeight());
+    return randomizer[numThread]->rand() < (naturalBirthProb*(double)matrix.getCount(HUMAN)/area);
 }
 
 bool Model::timeToBecomeZombie(uint32_t numThread){
@@ -351,17 +353,23 @@ Statistic** Model::moveAll_omp_mpi(uint32_t iterations){
     for (uint32_t i = 0; i < iterations; i++) {
         bool hasMoved = (i % 2) == 1;
         void *status;
+        inputMoveParallel* inputs[NUM_THREADS];
         pthread_t threads[NUM_THREADS];
         for (uint32_t n = 0; n < NUM_THREADS; n++) {
-            inputMoveParallel input = {n, this, &locks, hasMoved};
-            pthread_create(&(threads[n]), NULL, Model::moveParallel, (void*) (&input));
-        }
+            inputs[n] = (inputMoveParallel*)malloc(sizeof(inputMoveParallel));
+            inputs[n]->numThread = n;
+            inputs[n]->model = this;
+            inputs[n]->locks = &locks;
+            inputs[n]->hasMoved = hasMoved;
+            pthread_create(&(threads[n]), NULL, Model::moveParallel, (void*)inputs[n]);
+        } 
         // Wait for the end of every thread
         for (uint32_t n = 0; n < NUM_THREADS; n++) {
             pthread_join(threads[n], &status);
+            free(inputs[n]);
             if (status != (void*)0) {
                 printf("Error in the execution");
-            }
+            } 
         }
         stats[i] = new Statistic(matrix);
         stats[i]->mpi_reduce();
