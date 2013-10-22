@@ -92,8 +92,9 @@ bool Model::timeToDecompose(uint32_t numThread){
 }
 
 bool Model::timeToBeBorn(uint32_t numThread) {
-    double area = (double)(matrix.getWidth()*matrix.getHeight());
-    return randomizer[numThread]->rand() < (naturalBirthProb*(double)matrix.getCount(HUMAN)/area);
+    double empties = matrix.getCount(EMPTY);
+    double humans = matrix.getCount(HUMAN);
+    return randomizer[numThread]->rand() < (naturalBirthProb*humans/empties);
 }
 
 bool Model::timeToBecomeZombie(uint32_t numThread){

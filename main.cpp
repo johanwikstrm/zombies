@@ -8,17 +8,17 @@
 
 using namespace std;
 
-#define WIDTH 100   
-#define HEIGHT 100
+#define WIDTH 1000   
+#define HEIGHT 1500
 
 // natural death rate for humans about once every 60 years
-#define NATURAL_DEATH_RISK (1.0/(60.0*365.0))
+#define NATURAL_DEATH_RISK (6.5/1000.0/365.25)
 // simplest possible birth control mechanism
-#define NATURAL_BIRTH_PROB (0.5/(60.0*365.0))
+#define NATURAL_BIRTH_PROB (13.3 / 365.25 / 1000.0)
 
 #define POP_DENSITY 0.1
 // Probabiblity of getting your brain eaten when encountering a zombie
-#define BRAIN_EATING_PROB 0.8
+#define BRAIN_EATING_PROB 0.0
 #define INFECTED_TO_ZOMBIE_PROB (1.0/20.0)
 #define ZOMBIE_DECOMPOSITION_RISK 0.03
 #define HUMAN_MOVE_PROB 0.5
@@ -43,13 +43,13 @@ int main(int argc, char *argv[])
     
     // Printing
     // 
-    /**
+    
     if (rank == ROOT_NODE){
         printStatsCsv(stats,nbIterations);
         cout << "Successfully ran " << nbIterations << " iterations with " << PROC_WIDTH * PROC_HEIGHT
         << " processors and " << NUM_THREADS << " threads per processor"<<endl;
     }
-    **/
+    
     
 
     err = MPI_Finalize();
