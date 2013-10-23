@@ -25,7 +25,7 @@
 \section{Problem description}	
 
 \paragraph{}
-SIR-models (Susceptible, Infected, Removed/Recovered) are commonly used to model diseases in populations. In this report, we use a modified SIR-model called a HIZD-model (Human,Infected, Zombie, Decayed) to model a potential zombie apocalypse. The aim of the report is to determine the effect of some vital parameters, such as the infection risk when encountering a zombie, the incubation time for an infected human, on the survival of the human and zombie populations.
+SIR-models (Susceptible, Infected, Removed/Recovered) are commonly used to model diseases in populations. In this report, we use a modified SIR-model called a HIZD-model (Human,Infected, Zombie, Decayed) to model a potential zombie apocalypse. The aim of the report is to determine the effect of some vital parameters, such as the infection risk when encountering a zombie, the incubation time for an infected human, on the survival of the human and zombie populations. In order to speed up the computation, the have used multi-threading and multi-core programming. We have run the simualtion on a Blue Gene Q.
 
 \section{Model}
 
@@ -55,20 +55,17 @@ Most of the humans' daily moving are within a kilometer. In our simulation, the 
 Zombies move slower than men. The probability for a zombie to travel more than 1 kilometer in one day is only 0.2. Zombies life is quite short : they decompose after about one months.
 
 \subsection{Infected humans}
-Infected humans become zombies after an incubation time of about 5 days. During the incubation period an infected cannot infect other humans. The behaviour of the infected is half-human, half-zombie : sometimes they move as quickly as humans, sometimes they are as slow as zombies.
-
-
-
-To speed up the calculations, the mesh is divided into several smaller meshes and run on a Blue Gene Q using mpi. Each smaller mesh also uses multithreading to speed up individual computations.
-
-
-
+Infected humans become zombies after an incubation time of about 5 days. During the incubation period an infected cannot infect other humans. The behaviour of the infected is half-human, half-zombie : sometimes they move as quickly as humans, sometimes they are as slow as zombies. However, the power of the zombie virus during the incubation time is so powerful that infected humans cannot die like humans, or decomposed like zombies.
 
 
 
 
 \section{Results}
 %% TODO graphs !!!!!!!!!!!!!
+
+%%% compare the evolution of the humans with and without the zombies
+%%%     compare the population growth
+
 
 %%% over the years, evolution of nb of humans, nb of zombies and infected
 %%% per year (average) : number of infected
