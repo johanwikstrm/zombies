@@ -303,7 +303,7 @@ void* Model::moveParallel(void* context) {
     // TODO send only the array (not all the matrix)
     uint32_t row1;
     uint32_t row2;
-    for (uint32_t n = 0; n < (model->width/NUM_THREADS); n++) {
+    for (uint32_t n = 0; n < NUM_THREADS * 3; n++) {
         row1 = model->randomizer[numThread]->randInt(model->width-1);
         row2 = model->randomizer[numThread]->randInt(model->width-1);
         uint32_t tmp = (*randomizedRowsNumbers)[row1][numThread];
