@@ -14,6 +14,7 @@ typedef struct inputMoveParallel {
     Model* model;
     Lock* locks;
     bool hasMoved;
+    uint32_t*** randomizedRows;
 } inputMoveParallel;
 
 Model::Model(int width,int height,int procRank,double naturalBirthProb, double naturalDeathRisk, double initialPopDensity, double
@@ -291,34 +292,60 @@ uint32_t Model::getHeight() {
 }
 
 void* Model::moveParallel(void* context) {
-
     inputMoveParallel* input = (inputMoveParallel*) context;
     uint32_t numThread = input->numThread;
-    //printf("Started thread with num %d\n",numThread );
     Model* model = input->model;
     Lock* locks = input->locks;
     bool hasMoved = input->hasMoved;
-    assert(model->getHeight() % NUM_THREADS == 0);
+    uint32_t*** randomizedRowsNumbers = input->randomizedRows;
+    // The thread randomized its row numbers
+    // TODO decide the number of iterations
+    // TODO send only the array (not all the matrix)
+    uint32_t row1;
+    uint32_t row2;
+    for (uint32_t n = 0; n < (model->width/NUM_THREADS); n++) {
+        row1 = model->randomizer[numThread]->randInt(model->width-1);
+        row2 = model->randomizer[numThread]->randInt(model->width-1);
+        uint32_t tmp = (*randomizedRowsNumbers)[row1][numThread];
+        (*randomizedRowsNumbers)[row1][numThread] = (*randomizedRowsNumbers)[row2][numThread]; 
+        (*randomizedRowsNumbers)[row2][numThread] = tmp;
+    } 
+
+    // compute the number of the columns the thread
+    // has to deal with (from firstColumn to lastColumn)
     uint32_t numColumns = model->getHeight() / NUM_THREADS;
-    
     uint32_t firstColumn = numThread*numColumns;
     uint32_t lastColumn = (numThread+1)*numColumns;
+    // The thread executes the movements for its columns
     for (uint32_t y = firstColumn; y < lastColumn; y++){
+        // locking : the considered column (y) and its two
+        // nearest neighbours
         locks->lock(y);
-        assert(locks->getValue(y));
         for (uint32_t x = 0; x < model->getWidth(); x++){
-            model->move(x, y, hasMoved, numThread);
+            model->move((*randomizedRowsNumbers)[x][numThread], 
+                        y, hasMoved, numThread);
         }
+        // unlocking the three columns
         locks->unlock(y);
     }
-    //printf("Ended thread with num %d\n",numThread );
     return (void*)0L;
 }
 
 
 void Model::moveAll_omp(uint32_t iterations) {
     initMoveFlags();
+    // Create an object Lock in order to have a locker for each column
+    // of the matrix
     Lock locks = Lock(height);
+    // Create the matrix for the randmized row numbers
+    // for each thread
+    uint32_t** randomizedRowNumbers = (uint32_t**)calloc(width, sizeof(uint32_t*));
+    for (uint32_t i = 0; i < width; i++) {
+        randomizedRowNumbers[i] = (uint32_t*)calloc(NUM_THREADS, sizeof(uint32_t));
+        for (uint32_t j = 0; j < NUM_THREADS; j++) {
+            randomizedRowNumbers[i][j] = i;
+        }
+    }
     for (uint32_t i = 0; i < iterations; i++) {
         bool hasMoved = (i % 2) == 1;
         void *status;
@@ -330,6 +357,7 @@ void Model::moveAll_omp(uint32_t iterations) {
             inputs[n]->model = this;
             inputs[n]->locks = &locks;
             inputs[n]->hasMoved = hasMoved;
+            inputs[n]->randomizedRows = &randomizedRowNumbers;
             pthread_create(&(threads[n]), NULL, Model::moveParallel, (void*)inputs[n]);
         } 
         // Wait for the end of every thread

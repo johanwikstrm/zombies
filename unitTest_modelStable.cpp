@@ -16,14 +16,14 @@ int main(int argc, char *argv[]){
     // Population density in Northern Territory
     double initialPopDensity = 0.17;
     // In Australia : 13.3 births per year per 1000 persons 
-    double naturalBirthProb = 13.3*initialPopDensity/(1000*366);
+    double naturalBirthProb = 13.3/(1000*366);
     // In Australia : 6.5 deaths per year per 1000 persons
-    double naturalDeathRisk = 6.5*initialPopDensity/(1000*366);
+    double naturalDeathRisk = 6.5/(1000*366);
     
-    double brainEatingProb = 1;
+    double brainEatingProb = 0.65;
     
     double infectedToZombieProb = 1.0/5.0;
-    double zombieDecompositionRisk = 1.0/60.0;
+    double zombieDecompositionRisk = 1.0/80.0;
     double humanMoveProb = 0.4;
     double zombieMoveProb = 0.2; 
     
