@@ -36,14 +36,16 @@ int main(int argc, char *argv[]){
     stats = m2.moveAll_mpi(10);
     assert(stats[0]->allAboveZero());
     // should create a model with a declining population of humans!!
-    Model m3 = Model(100,100,rank,0,0.1,0.1,0,0,1,0,0);
+    Model m3 = Model(100,100,rank,0.0001,0.0002,0.1,0,0,1,0,0,true);
     int prev = m3.getCount(HUMAN);
-    int accBefore;
-    m3.moveAll_mpi(1000);
+    m3.moveAll_mpi(1);
+    int after1 = m3.getCount(HUMAN);
+    m3.moveAll_mpi(999);
+    int after1000 = m3.getCount(HUMAN);
+    cout<<"prev == "<<prev<<" after 1 == "<<after1<<" after 1000 == "<<after1000<<endl<<flush;
     if (prev <= m3.getCount(HUMAN)){
-        cout<<"prev == "<<prev<<" after == "<<m3.getCount(HUMAN)<<endl<<flush;
+        
     }
-
     err = MPI_Finalize();
     assert(err == MPI_SUCCESS);    
 }

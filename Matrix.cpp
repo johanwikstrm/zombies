@@ -11,12 +11,12 @@ using namespace std;
 
 static pthread_mutex_t countsMutex = PTHREAD_MUTEX_INITIALIZER;
 
-
 // Intializing all cells to empty by default
-Matrix::Matrix(uint32_t h, uint32_t w):Array(h*w , EMPTY)
+Matrix::Matrix(uint32_t h, uint32_t w, bool mpi):Array(h*w , EMPTY)
 {
     height = h;
     width = w;
+    mpiEnabled = mpi;
     counts = new uint32_t[NKINDS];
     for (uint32_t i = 0; i < NKINDS; i++) {
         counts[i] = 0;
@@ -117,14 +117,16 @@ void Matrix::printMoveFlags() const
 void Matrix::set(uint32_t x, uint32_t y, uint32_t k, uint32_t sex) 
 {
     int previousKind = (*this)(x, y)->getKind();
-  
-    // begining of the critical section 
-    pthread_mutex_lock(&countsMutex);
-    counts[previousKind]--;
-    counts[k]++;
-    // end of the critical section 
-    pthread_mutex_unlock(&countsMutex);
     
+    // if mpi is not enabled, or if were not on any ghost cell, count it
+    if (!mpiEnabled || (x > 0 && x < width -2 && y > 0 && y < height-2)){
+        // begining of the critical section 
+        pthread_mutex_lock(&countsMutex);
+        counts[previousKind]--;
+        counts[k]++;
+        // end of the critical section 
+        pthread_mutex_unlock(&countsMutex);    
+    }
     Array::set(y*width+x, k, sex);
 }
 
@@ -233,7 +235,7 @@ Array* Matrix::extractRow(uint32_t r) {
 }
 
 // Returns the number of collisions
-int Matrix::insertColumnWithCollisions(Array * toInsert,uint32_t col){
+int Matrix::insertColumnWithCollisions(Array * toInsert,uint32_t col, bool overwrite){
     assert(toInsert->getSize() == height-2);
     int collisions = 0;
     for (uint32_t y = 1; y < height-1; y++) {
@@ -244,7 +246,8 @@ int Matrix::insertColumnWithCollisions(Array * toInsert,uint32_t col){
                 << " into cell with " << kindstr((*this)(col,y)->getKind()) << " in it at "
                 << col<<","<<y<<endl;*/
             collisions++;
-        }else if (oldKind == EMPTY){
+        }
+        if (overwrite || oldKind == EMPTY ){ // if overwrite, we can overwrite a filled cell with an empty one
             this->set(col,y,(*toInsert)(y-1)->getKind());    
             (*this)(col,y)->setMoveFlag((*toInsert)(y-1)->getMoveFlag());
         }    
@@ -253,7 +256,7 @@ int Matrix::insertColumnWithCollisions(Array * toInsert,uint32_t col){
 }
 
 // Returns the number of collisions
-int Matrix::insertRowWithCollisions(Array* toInsert, uint32_t row){
+int Matrix::insertRowWithCollisions(Array * toInsert,uint32_t row, bool overwrite){
     assert(toInsert->getSize() == width - 2);
     int collisions = 0;
     for (uint32_t x = 1; x < width-1; x++) {
@@ -264,7 +267,8 @@ int Matrix::insertRowWithCollisions(Array* toInsert, uint32_t row){
                 << " into cell with " << kindstr((*this)(x,row)->getKind()) << " in it at "
                 << x<<","<<row<<endl;*/
             collisions++;
-        }else if (oldKind == EMPTY){
+        }
+        if (overwrite || oldKind == EMPTY){
             this->set(x,row,newKind);    
             (*this)(x,row)->setMoveFlag((*toInsert)(x-1)->getMoveFlag());
         }    
@@ -303,10 +307,10 @@ int Matrix::insertWithCollisions(Array** toInsert, int offset){
     assert(toInsert[DOWN]->getSize() == width-2);
     assert(toInsert[LEFT]->getSize() == height-2);
     assert(toInsert[RIGHT]->getSize() == height-2);
-    int collisions = 0;
-    collisions += insertRowWithCollisions(toInsert[UP] , offset);
-    collisions += insertRowWithCollisions(toInsert[DOWN] , height-1-offset);
-    collisions += insertColumnWithCollisions(toInsert[LEFT] , offset);
-    collisions += insertColumnWithCollisions(toInsert[RIGHT] , width-1-offset);
+    int collisions =0;
+    collisions += insertRowWithCollisions(toInsert[UP] , offset, offset == 0);
+    collisions += insertRowWithCollisions(toInsert[DOWN] , height-1-offset, offset == 0);
+    collisions += insertColumnWithCollisions(toInsert[LEFT] , offset, offset == 0);
+    collisions += insertColumnWithCollisions(toInsert[RIGHT] , width-1-offset, offset == 0);
     return collisions;
 }

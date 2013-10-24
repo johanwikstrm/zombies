@@ -19,7 +19,7 @@ class Matrix : public Array
         uint32_t height;            /**< matrix height */
         uint32_t width;             /**< matrix width */
         uint32_t *counts;           /**< the statistics : number of HUMAN, INFECTED, ZOMBIE and EMPTY */
-
+        bool mpiEnabled;
         uint32_t kind(Cell* ptr);
 
     public :
@@ -36,7 +36,7 @@ class Matrix : public Array
          * @param       height
          * @param       width
          */
-        Matrix(uint32_t height, uint32_t width);
+        Matrix(uint32_t height, uint32_t width,bool mpiEnabled = false);
 
         /**
          * @brief       Copy constructor
@@ -186,10 +186,10 @@ class Matrix : public Array
         // TODO
         void insert(Array*[4]);
         
-        int insertColumnWithCollisions(Array * toInsert,uint32_t col);
+        int insertColumnWithCollisions(Array * toInsert,uint32_t col, bool overwrite);
 
         // Returns the number of collisions
-        int insertRowWithCollisions(Array * toInsert,uint32_t row);
+        int insertRowWithCollisions(Array * toInsert,uint32_t row, bool overwrite);
     
         /*  
             offset=0   offset=1
