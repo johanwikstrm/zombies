@@ -103,12 +103,12 @@ int main(int argc, char *argv[])
     matrix.set(1,1,HUMAN);
     matrix.set(4,4,INFECTED);
     /*
-        E E E E E E E       E E E E I E E
-        E H E E E E E       E H E E E E H
-        Z E E E E E E       Z E E E E Z E
-        E E E E E E E  ->   E E E E E E E
-        E E E E I E E       E E E E I E E
-        E E E E E E E       E H E E E E E
+        E E E E E E E       E E E E I E E     E E E E I E E
+        E H E E E E E       E H E E E E H     E E E E E E E
+        Z E E E E E E       Z E E E E Z E     Z H E E E Z H
+        E E E E E E E  ->   E E E E E E E --> E E E E E E E
+        E E E E I E E       E E E E I E E     E E E E I E E
+        E E E E E E E       E H E E E E E     E E E E E E E
     */
     assert(matrix.getCount(ZOMBIE) == 1);
     assert(matrix.getCount(HUMAN) == 1);
@@ -117,6 +117,17 @@ int main(int argc, char *argv[])
     assert(matrix.getCount(ZOMBIE) == 2);
     assert(matrix.getCount(HUMAN) == 3);
     assert(matrix.getCount(INFECTED) == 2);
+    // Human moving down
+    matrix.set(1,1,EMPTY);
+    matrix.set(1,2,HUMAN);
+    assert(matrix.getCount(HUMAN) == 3);
+    swapAll(nbours,matrix);
+    if (rank == 0){
+        matrix.print();
+    }
+    assert(matrix.getCount(HUMAN) == 2);
+
+
     // Trying to get seg fault by using a lot of collisions
     Matrix matrix2 = Matrix(4,4);
     matrix2.set(0,0,HUMAN);
