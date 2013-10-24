@@ -11,12 +11,12 @@ using namespace std;
 
 static pthread_mutex_t countsMutex = PTHREAD_MUTEX_INITIALIZER;
 
-
 // Intializing all cells to empty by default
-Matrix::Matrix(uint32_t h, uint32_t w):Array(h*w , EMPTY)
+Matrix::Matrix(uint32_t h, uint32_t w, bool mpi):Array(h*w , EMPTY)
 {
     height = h;
     width = w;
+    mpiEnabled = mpi;
     counts = new uint32_t[NKINDS];
     for (uint32_t i = 0; i < NKINDS; i++) {
         counts[i] = 0;
@@ -117,14 +117,16 @@ void Matrix::printMoveFlags() const
 void Matrix::set(uint32_t x, uint32_t y, uint32_t k, uint32_t sex) 
 {
     int previousKind = (*this)(x, y)->getKind();
-  
-    // begining of the critical section 
-    pthread_mutex_lock(&countsMutex);
-    counts[previousKind]--;
-    counts[k]++;
-    // end of the critical section 
-    pthread_mutex_unlock(&countsMutex);
     
+    // if mpi is not enabled, or if were not on any ghost cell, count it
+    if (!mpiEnabled || (x > 0 && x < width -2 && y > 0 && y < height-2)){
+        // begining of the critical section 
+        pthread_mutex_lock(&countsMutex);
+        counts[previousKind]--;
+        counts[k]++;
+        // end of the critical section 
+        pthread_mutex_unlock(&countsMutex);    
+    }
     Array::set(y*width+x, k, sex);
 }
 

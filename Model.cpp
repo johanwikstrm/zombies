@@ -40,7 +40,7 @@ Model::Model(int width,int height,int procRank,double naturalBirthProb, double n
     this->humanMoveProb = humanMoveProb;
     this->zombieMoveProb = zombieMoveProb;
 
-    matrix = Matrix(height, width);
+    matrix = Matrix(height, width,mpiEnabled);
     randomizer = new MersenneTwister*[NUM_THREADS]; 
     for (int i = 0; i < NUM_THREADS; i++) {
         randomizer[i] = new MersenneTwister(time(0) + i + procRank);
@@ -270,6 +270,7 @@ Statistic** Model::moveAll_mpi(uint32_t iterations){
     Statistic **stats;
     stats = (Statistic**)calloc(iterations,sizeof(Statistic*));
     for (uint32_t i = 0; i < iterations; i++){
+        swapAll(nbours, matrix); // must be done before the first iteration
         bool hasMoved = (i % 2) == 1;
         for (uint32_t y = 1; y < height-1; y++){
             for (uint32_t x = 1; x < width-1; x++){
@@ -278,7 +279,7 @@ Statistic** Model::moveAll_mpi(uint32_t iterations){
         }
         stats[i] = new Statistic(matrix);
         stats[i]->mpi_reduce();
-        swapAll(nbours, matrix);
+        
     }
     return stats;
 }
