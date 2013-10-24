@@ -8,8 +8,8 @@
 
 using namespace std;
 
-#define WIDTH 1000   
-#define HEIGHT 1500
+#define WIDTH 100
+#define HEIGHT 150
 
 // natural death rate for humans about once every 60 years
 #define NATURAL_DEATH_RISK (6.5/1000.0/365.25)

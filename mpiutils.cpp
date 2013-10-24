@@ -85,11 +85,7 @@ error recvFromAllNeighbours(int nbours[4],Buffer *to[4], MPI_Datatype dtype){
 	for (int direction = UP; direction <= LEFT; direction++){
 		error e;
 		e = recvFromNeighbour(nbours[direction],to[direction],dtype,direction);
-		/*if (nbours[UP] == 0)
-		cout << "Received data from " << dirstr((DIRECTION)direction)
-			<< "(rank == " << nbours[direction]
-			<< ") data[1] == " << (*(to[direction]->toArray()))(1)->getKind() << endl;
-			*/
+		//cout << nbours[LEFT]+1 << " <-- " << nbours[direction]<<"\n"<<flush;
 		if (e != MPI_SUCCESS){
 			err = e;
 		}
@@ -99,10 +95,20 @@ error recvFromAllNeighbours(int nbours[4],Buffer *to[4], MPI_Datatype dtype){
 
 void initBuffers(Matrix& matrix,Buffer ** send,Buffer ** recv, int offset){
 	Array ** edges = matrix.toSend(offset);
+	assert(edges[UP]->getSize() == matrix.getWidth()-2);
+	assert(edges[LEFT]->getSize() == matrix.getHeight()-2);
 	for (int i = 0; i < 4; i++){
         send[i] = new Buffer(*(edges[i]));
         recv[i] = new Buffer(edges[i]->getSize());
+        delete edges[i];
     }
+}
+
+void freeBuffers(Buffer ** send, Buffer ** recv){
+	for (int i = 0; i < 4; i++){
+		delete send[i];
+		delete recv[i];
+	}
 }
 
 Array ** buffersToArrays(Buffer **received){
@@ -112,7 +118,15 @@ Array ** buffersToArrays(Buffer **received){
 	}
 	return arrays;
 }
-
+/*
+	H X X X X X X H 
+	X H H H H H H X 
+	X H H H H H H X 
+	X H H H H H H X 
+	X H H H H H H X 
+	X H H H H H H X 
+	H X X X X X X H 
+*/
 // NOTE NOTE NOTE, this works because we do async sends and syncronous recvs.
 // If we want to do something "smarter" and time saving
 // we need to use MPI_TAG:s a lot more
@@ -128,25 +142,38 @@ int swapAll(int nbours[4],Matrix& matrix){
 	to = (Buffer**)calloc(4,sizeof(Buffer*));
 	from = (Buffer**)calloc(4,sizeof(Buffer*));
 	// Send my outer ones
+	
 	initBuffers(matrix,from,to,0);
+	/*cout << "1. "<<
+		nbours[UP]<<","<<
+		nbours[RIGHT]<<","<<
+		nbours[DOWN]<<","<<
+		nbours[LEFT]<<" <- "<<
+		nbours[LEFT]+1
+		<<"\n"<< flush;*/
 	err = sendToAllNeighbours(nbours,from,reqs,dtype);
 	assert(err == MPI_SUCCESS);
 	// (handle collisions?)
 	// Insert their outer ones into my inner ones 
 	err = recvFromAllNeighbours(nbours,to,dtype);
 	assert(err == MPI_SUCCESS);
+	assert(to[DOWN]->count() == matrix.getWidth()-2);
 	int collisions = matrix.insertWithCollisions(buffersToArrays(to),1);
+	//cout << "Collisons(first): " << collisions << endl << flush;
 	// Send my inner ones
 	initBuffers(matrix,from,to,1);
+	//cout << "Sending to all neighbours 2\n"<< flush;
 	err = sendToAllNeighbours(nbours,from,reqs,dtype);
 	assert(err == MPI_SUCCESS);
 	// Insert their inner ones into my outer ones(collisions should be 0 by now)
+	//cout << "recv from all neighbours 2\n"<< flush;
 	err = recvFromAllNeighbours(nbours,to,dtype);
 	assert(err == MPI_SUCCESS);
 	// TOOD insertWithoutCollisions
 	collisions += matrix.insertWithCollisions(buffersToArrays(to),0);
-
+	//cout << "Collisons(second): " << collisions << endl << flush;
 	// Giant memory leaks
+	freeBuffers(to,from);
 	free(to);
 	free(from);
 	return collisions;

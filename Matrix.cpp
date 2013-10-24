@@ -61,7 +61,7 @@ uint32_t Matrix::getWidth() const
 
 uint32_t Matrix::getCount(uint32_t kind) const
 {
-    // must assure that we get a correct read
+    // must assure that we get a correct read, is used in model
     pthread_mutex_lock(&countsMutex);
     int cnt = counts[kind];
     pthread_mutex_unlock(&countsMutex);
@@ -216,51 +216,51 @@ void Matrix::swap(Matrix& M)
     std::swap(this->counts, M.counts); 
 }
 
-Array* Matrix::extractColumn(uint32_t col, int offset) {
-    Array* column = new Array(height-offset*2);
-    for (uint32_t y = offset; y < height-offset; y++) {
-       	column->set(y-offset,(*this)(col, y)->getKind()); 
+Array* Matrix::extractColumn(uint32_t col) {
+    Array* column = new Array(height-2);
+    for (uint32_t y = 1; y < height-1; y++) {
+       	column->set(y-1,(*this)(col, y)->getKind()); 
     }
     return column;
 } 
 
-Array* Matrix::extractRow(uint32_t r, int offset) {
-    Array* row = new Array(width-2*offset);
-    for (uint32_t x = offset; x < width-offset; x++) {
-        row->set(x-offset,(*this)(x,r)->getKind()); 
+Array* Matrix::extractRow(uint32_t r) {
+    Array* row = new Array(width-2);
+    for (uint32_t x = 1; x < width-1; x++) {
+        row->set(x-1,(*this)(x,r)->getKind()); 
     }
     return row;
 }
 
 // Returns the number of collisions
-int Matrix::insertColumnWithCollisions(Array * toInsert,uint32_t col, int offset){
-    assert(toInsert->getSize() == height);
+int Matrix::insertColumnWithCollisions(Array * toInsert,uint32_t col){
+    assert(toInsert->getSize() == height-2);
     int collisions = 0;
-    for (uint32_t y = 0; y < height; y++) {
+    for (uint32_t y = 1; y < height-1; y++) {
         int oldKind = (*this)(col,y)->getKind();
-        int newKind = (*toInsert)(y)->getKind();
+        int newKind = (*toInsert)(y-1)->getKind();
         if (oldKind != EMPTY && newKind != EMPTY){
-            /*cout << "Collision inserting " << kindstr((*toInsert)(y)->getKind())
+            /*cout << "Collision inserting " << kindstr((*toInsert)(y-1)->getKind())
                 << " into cell with " << kindstr((*this)(col,y)->getKind()) << " in it at "
                 << col<<","<<y<<endl;*/
             collisions++;
         }else if (oldKind == EMPTY){
-            this->set(col,y,(*toInsert)(y)->getKind());    
-            (*this)(col,y)->setMoveFlag((*toInsert)(y)->getMoveFlag());
+            this->set(col,y,(*toInsert)(y-1)->getKind());    
+            (*this)(col,y)->setMoveFlag((*toInsert)(y-1)->getMoveFlag());
         }    
     }
     return collisions;  
 }
 
 // Returns the number of collisions
-int Matrix::insertRowWithCollisions(Array * toInsert,uint32_t row,int offset){
-    assert(toInsert->getSize() == width - 2*offset);
+int Matrix::insertRowWithCollisions(Array * toInsert,uint32_t row){
+    assert(toInsert->getSize() == width - 2);
     int collisions = 0;
-    for (uint32_t x = offset; x < width-offset; x++) {
+    for (uint32_t x = 1; x < width-1; x++) {
         int oldKind = (*this)(x,row)->getKind();
-        int newKind = (*toInsert)(x-offset)->getKind();
+        int newKind = (*toInsert)(x-1)->getKind();
         if (oldKind != EMPTY && newKind != EMPTY){
-            /*cout << "Collision inserting " << kindstr((*toInsert)(x)->getKind())
+            /*cout << "Collision inserting " << kindstr((*toInsert)(x-1)->getKind())
                 << " into cell with " << kindstr((*this)(x,row)->getKind()) << " in it at "
                 << x<<","<<row<<endl;*/
             collisions++;
@@ -283,10 +283,11 @@ Array** Matrix::toSend(int offset){
     assert(width >=4 && height >= 4);// assuming a matrix that is at least 4x4
     assert(offset == 1 || offset == 0);
     Array **toRet = (Array**)calloc(4,sizeof(Array*));
-    toRet[UP] = extractRow(offset,offset);
-    toRet[DOWN] = extractRow(height-1-offset,offset);
-    toRet[LEFT] = extractColumn(offset,offset);
-    toRet[RIGHT] = extractColumn(width-1-offset,offset);
+    toRet[UP] = extractRow(offset);
+    assert(toRet[UP]->getSize() == width-2);
+    toRet[DOWN] = extractRow(height-1-offset);
+    toRet[LEFT] = extractColumn(offset);
+    toRet[RIGHT] = extractColumn(width-1-offset);
     return toRet;
 }
 
@@ -299,14 +300,14 @@ Array** Matrix::toSend(int offset){
 int Matrix::insertWithCollisions(Array** toInsert, int offset){
     assert(offset == 1 || offset == 0);
     assert(width >=4 && height >= 4);// assuming a matrix that is at least 4x4
-    assert(toInsert[UP]->getSize() == width-2*offset);
-    assert(toInsert[DOWN]->getSize() == width-2*offset);
-    assert(toInsert[LEFT]->getSize() == height-2*offset);
-    assert(toInsert[RIGHT]->getSize() == height-2*offset);
+    assert(toInsert[UP]->getSize() == width-2);
+    assert(toInsert[DOWN]->getSize() == width-2);
+    assert(toInsert[LEFT]->getSize() == height-2);
+    assert(toInsert[RIGHT]->getSize() == height-2);
     int collisions =0;
-    collisions += insertRowWithCollisions(toInsert[UP] , offset,offset);
-    collisions += insertRowWithCollisions(toInsert[DOWN] , height-1-offset,offset);
-    collisions += insertColumnWithCollisions(toInsert[LEFT] , offset,offset);
-    collisions += insertColumnWithCollisions(toInsert[RIGHT] , width-1-offset,offset);
+    collisions += insertRowWithCollisions(toInsert[UP] , offset);
+    collisions += insertRowWithCollisions(toInsert[DOWN] , height-1-offset);
+    collisions += insertColumnWithCollisions(toInsert[LEFT] , offset);
+    collisions += insertColumnWithCollisions(toInsert[RIGHT] , width-1-offset);
     return collisions;
 }

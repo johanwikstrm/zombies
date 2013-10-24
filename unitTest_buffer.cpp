@@ -1,7 +1,7 @@
 using namespace std;
 #include <iostream>
 #include <cassert>
-#include "stdlib.h"
+#include <stdlib.h>
 #include "Buffer.h"
 #include "Matrix.h"
 #include "constants.h"
@@ -163,11 +163,40 @@ int main(int argc, char *argv[])
     assert(matrix3.getCount(ZOMBIE) == 1);
     int collisions = swapAll(nbours,matrix3);
     
-    cout << "Collisions " << collisions << endl << flush;
-    matrix3.print();
+    //cout << "Collisions " << collisions << endl << flush;
+    //matrix3.print();
     //assert(collisions == 1);
     //assert(matrix3.getCount(INFECTED) == 3);
     //assert(matrix3.getCount(ZOMBIE) == 2);
+    
+    Matrix matrix4 = Matrix(100,100);
+    if (rank == 0){
+        cout << "looking for deadlocks\n"<<flush;    
+    }
+    for (int i = 0; i < 10000; i++){
+        if (rank == 0 && i % 10 == 0 ){
+            cout << "iteration "<<i<<endl<<flush;
+        }
+        for (int x = 0; x < 100; x++){
+            for (int y = 0; y < 100; y++){
+                double r = drand48();
+                if (r < 0.25){
+                    matrix4.set(x,y,HUMAN);
+                }else if(r < 0.5){
+                    matrix4.set(x,y,ZOMBIE);
+                }
+                else if(r < 0.75){
+                    matrix4.set(x,y,INFECTED);
+                }else{
+                    matrix4.set(x,y,EMPTY);
+                }
+            }
+        }
+        // might deadlock, who knows
+        swapAll(nbours,matrix4);
+    }
+
+
     err = MPI_Finalize();
 	assert(err == MPI_SUCCESS);    
 }

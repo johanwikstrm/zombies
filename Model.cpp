@@ -402,6 +402,7 @@ Statistic** Model::moveAll_omp_mpi(uint32_t iterations){
     for (uint32_t i = 0; i < iterations; i++) {
         bool hasMoved = (i % 2) == 1;
         void *status;
+        cout << "Iteration " << i <<endl << flush;
         inputMoveParallel* inputs[NUM_THREADS];
         pthread_t threads[NUM_THREADS];
         for (uint32_t n = 0; n < NUM_THREADS; n++) {

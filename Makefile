@@ -6,7 +6,7 @@ OBJETS = Array.o Matrix.o Model.o Cell.o Buffer.o Coord.o Lock.o mpiutils.o cons
 
 CXX = mpic++ 
 #g++
-CXXFLAGS = -g -qsmp
+CXXFLAGS = -g -Wall -pedantic
 
 all : $(TESTS) main
 

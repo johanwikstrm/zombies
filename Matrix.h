@@ -169,7 +169,7 @@ class Matrix : public Array
          *
          * @return  an array containing the column number col of the matrix
          */
-        Array* extractColumn(uint32_t col, int offset);
+        Array* extractColumn(uint32_t col);
 
         /**
          * @brief   Extract a row from the matrix
@@ -178,7 +178,7 @@ class Matrix : public Array
          *
          * @return  an array containing the row number r of the matrix
          */
-        Array* extractRow(uint32_t r, int offset);
+        Array* extractRow(uint32_t r);
 
         // TODO
         Array** toSend();
@@ -186,10 +186,10 @@ class Matrix : public Array
         // TODO
         void insert(Array*[4]);
         
-        int insertColumnWithCollisions(Array * toInsert,uint32_t col,int offset);
+        int insertColumnWithCollisions(Array * toInsert,uint32_t col);
 
         // Returns the number of collisions
-        int insertRowWithCollisions(Array * toInsert,uint32_t row,int offset);
+        int insertRowWithCollisions(Array * toInsert,uint32_t row);
     
         /*  
             offset=0   offset=1
@@ -206,7 +206,7 @@ class Matrix : public Array
             X E E E X  X X X X X
             X X X X X  E X E X E
         */
-        int insertWithCollisions(Array** toInsert, int offset);
+        int insertWithCollisions(Array** toInsert,int offset);
 
 
 

@@ -35,7 +35,15 @@ int main(int argc, char *argv[]){
     }
     stats = m2.moveAll_mpi(10);
     assert(stats[0]->allAboveZero());
-    
+    // should create a model with a declining population of humans!!
+    Model m3 = Model(100,100,rank,0,0.1,0.1,0,0,1,0,0);
+    int prev = m3.getCount(HUMAN);
+    int accBefore;
+    m3.moveAll_mpi(1000);
+    if (prev <= m3.getCount(HUMAN)){
+        cout<<"prev == "<<prev<<" after == "<<m3.getCount(HUMAN)<<endl<<flush;
+    }
+
     err = MPI_Finalize();
     assert(err == MPI_SUCCESS);    
 }

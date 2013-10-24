@@ -14,7 +14,7 @@ zombies = getColumn("out.csv",2)[1:]
 infected = getColumn("out.csv",3)[1:]
 days = range(len(humans))
 
-#plt.figure("Populations")
+plt.figure("Populations")
 plt.xlabel('Days')
 plt.ylabel('Population')
 plt.plot(days,humans,label='Humans')
