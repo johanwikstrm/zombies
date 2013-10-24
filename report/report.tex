@@ -23,23 +23,19 @@
 \tableofcontents
 
 \section{Problem description}	
-SIR-models (susceptible, infected, removed/recovered) are commonly used to model diseases in populations. In this report, we use a modified SIR-model called a HIZD-model (human,infected,zombie,decayed) to model a potential zombie apocalypse. The aim of the report is determining the effect of some vital parameters, such as the infection risk when encountering a zombie, on the survival of the human and zombie populations.
-
-\section{Model}
-As a model of a geographical area we use a mesh of 1*1 km squares. Each square can be inhabited or empty and there are three types of inhabitants: humans, infected and zombies. This is a sparsely populated area but in the case of a zombie apocalypse, the authors believe that many areas will become sparsely populated rather quickly.
-
-The time granularity is days and the modeled inhabitants may choose to move one square in a random direction or stay at the square they are inhabiting.
-
-To speed up the calculations, the mesh is divided into several smaller meshes and run on a Blue Gene Q using mpi. Each smaller mesh also uses multithreading to speed up individual computations.
-
 
 \paragraph{}
-In our model we have considered three kinds of agents : \emph{humans}, \emph{infected humans}, and \emph{zombies}. These agents are described in the following subsections.
+SIR-models (Susceptible, Infected, Removed/Recovered) are commonly used to model diseases in populations. In this report, we use a modified SIR-model called a HIZD-model (Human,Infected, Zombie, Decayed) to model a potential zombie apocalypse. The aim of the report is to determine the effect of some vital parameters, such as the infection risk when encountering a zombie, the incubation time for an infected human, on the survival of the human and zombie populations. In order to speed up the computation, the have used multi-threading and multi-core programming. We have run the simualtion on a Blue Gene Q.
+
+\section{Model}
+
+\paragraph{}
+The simulation takes place in the Northern Territory in Australia. In order to model this geographical area we use a 1500*1000 mesh where each square represents 1 km\textsuperscript{2}. Each square can be inhabited or empty. There are three types of inhabitants : \emph{humans}, \emph{infected} and \emph{zombies}. This is a sparsely populated area but it is the case in the Northern Territory where the density is only 0.17/km\textsuperscript{2}. In our model, the time granularity is days. 
 
 \subsection{Humans}
 \paragraph{}
-As the simulation takes place in the Northern Territory, in Australia, we have used the demographic data of this area (figure~\ref{AustralianData}).
-\begin{figure}[!h]
+To model the humans' behaviour, we have used the Northern Territory demographic data (table~\ref{AustralianData}).
+\begin{table}[!h]
     \begin{tabular}{|l|l|}
       \hline
         Density    & 0.17/km\textsuperscript{2} \\
@@ -50,25 +46,26 @@ As the simulation takes place in the Northern Territory, in Australia, we have u
       \hline
 \end{tabular}
 \caption{Northern Territory demographic data}\label{AustralianData}
-\end{figure}
+\end{table}
 
 \paragraph{}
-Most of the humans' daily moving are within a kilometer. In our simulation, the probability for a human to travel more than 1 kilometer in one day is 0.4.
-
-When a human encounters a zombie, or an infected human, it may become infected with the probability ....... %%TODO
-
-\subsection{Infected humans}
-An infected human becomes a zombie after an incubation period of about ............. days. %% TODO
+Most of the humans' daily moving are within a kilometer. In our simulation, the probability for a human to travel more than 1 kilometer in one day is 0.4. When a human encounters a zombie, it may become infected with the probability of 0.65.
 
 \subsection{Zombies}
-Zombies move slower than men. The probability for a zombie to travel more than 1 kilometer in one day is 0.2.
-Zombies life is quite short : they decompose after about one months.
+Zombies move slower than men. The probability for a zombie to travel more than 1 kilometer in one day is only 0.2. Zombies life is quite short : they decompose after about one months.
+
+\subsection{Infected humans}
+Infected humans become zombies after an incubation time of about 5 days. During the incubation period an infected cannot infect other humans. The behaviour of the infected is half-human, half-zombie : sometimes they move as quickly as humans, sometimes they are as slow as zombies. However, the power of the zombie virus during the incubation time is so powerful that infected humans cannot die like humans, or decomposed like zombies.
 
 
 
 
 \section{Results}
 %% TODO graphs !!!!!!!!!!!!!
+
+%%% compare the evolution of the humans with and without the zombies
+%%%     compare the population growth
+
 
 %%% over the years, evolution of nb of humans, nb of zombies and infected
 %%% per year (average) : number of infected

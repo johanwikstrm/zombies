@@ -7,14 +7,23 @@ zombies = stats$V3
 empty = stats$V4
 total = stats$V5
 
+humanZombie = rbind(humans, zombies)
+
+
 postscript("zombies.ps")
-plot(zombies)
+    plot(zombies)
 dev.off()
 
 postscript("humans.ps")
-plot(humans)
+    plot(humans)
+dev.off()
+
+postscript("humansZombies.ps")
+    matplot(t(humanZombie))
 dev.off()
 
 postscript("infected.ps")
-plot(infected)
+    plot(infected)
 dev.off()
+
+
