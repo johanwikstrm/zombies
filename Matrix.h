@@ -186,10 +186,10 @@ class Matrix : public Array
         // TODO
         void insert(Array*[4]);
         
-        int insertColumnWithCollisions(Array * toInsert,uint32_t col);
+        int insertColumnWithCollisions(Array * toInsert,uint32_t col, bool overwrite);
 
         // Returns the number of collisions
-        int insertRowWithCollisions(Array * toInsert,uint32_t row);
+        int insertRowWithCollisions(Array * toInsert,uint32_t row, bool overwrite);
     
         /*  
             offset=0   offset=1
