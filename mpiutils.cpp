@@ -52,14 +52,15 @@ int toY(int rank){
 
 error recvFromNeighbour(int from,Buffer* to,MPI_Datatype dtype,int tag){
 	MPI_Status status;
-	return MPI_Recv(to->rawData(), to->count(), dtype, from, tag ,MPI_COMM_WORLD, &status);
+	return MPI_Recv(to->rawData(), to->count(), dtype, from, tag , 
+                        MPI_COMM_WORLD, &status);
 }
 
-error sendToNeighbour(int dest, Buffer *data,MPI_Request *request, MPI_Datatype dtype, int tag){
-	return MPI_Isend(data->rawData(), data->count(), dtype , dest, tag,MPI_COMM_WORLD, request);
+error sendToNeighbour(int dest, Buffer *data, MPI_Request *request, MPI_Datatype dtype, int tag){
+	return MPI_Isend(data->rawData(), data->count(), dtype , dest, tag, MPI_COMM_WORLD, request);
 }
 
-error sendToAllNeighbours(int nbours[4],Buffer *data[4],MPI_Request reqs[4], MPI_Datatype dtype){
+error sendToAllNeighbours(int nbours[4], Buffer *data[4], MPI_Request reqs[4], MPI_Datatype dtype){
 	int direction;
 	error err = MPI_SUCCESS;
 	for (direction = UP; direction <= LEFT; direction++){
@@ -72,7 +73,9 @@ error sendToAllNeighbours(int nbours[4],Buffer *data[4],MPI_Request reqs[4], MPI
 		// As tag I am sending the direction that the receiver should expect to receive the message from
 		// i.e. if I am sending to the RIGHT the receiver should expect this message from the LEFT
 		// Without this tag, sometimes we can't separate messages sent from the left and messages sent from the right
-		e = sendToNeighbour(nbours[direction],data[direction],&reqs[direction],dtype,opposite((DIRECTION)direction));
+		e = sendToNeighbour(nbours[direction], data[direction], 
+                                    &reqs[direction], dtype, 
+                                    opposite((DIRECTION)direction));
 		if (e != MPI_SUCCESS){
 			err = e;
 		}
@@ -80,7 +83,7 @@ error sendToAllNeighbours(int nbours[4],Buffer *data[4],MPI_Request reqs[4], MPI
 	return err;
 }
 
-error recvFromAllNeighbours(int nbours[4],Buffer *to[4], MPI_Datatype dtype){
+error recvFromAllNeighbours(int nbours[4], Buffer *to[4], MPI_Datatype dtype){
 	error err = MPI_SUCCESS;
 	for (int direction = UP; direction <= LEFT; direction++){
 		error e;
@@ -97,15 +100,17 @@ error recvFromAllNeighbours(int nbours[4],Buffer *to[4], MPI_Datatype dtype){
 	return err;
 }
 
-void initBuffers(Matrix& matrix,Buffer ** send,Buffer ** recv, int offset){
-	Array ** edges = matrix.toSend(offset);
+void initBuffers(Matrix& matrix, Buffer** send, Buffer** recv, int offset){
+	Array** edges = matrix.toSend(offset);
 	assert(edges[UP]->getSize() == matrix.getWidth()-2);
 	assert(edges[LEFT]->getSize() == matrix.getHeight()-2);
 	for (int i = 0; i < 4; i++){
-        send[i] = new Buffer(*(edges[i]));
-        recv[i] = new Buffer(edges[i]->getSize());
-        delete edges[i];
-    }
+            // Copy the edges arrays
+            send[i] = new Buffer(*(edges[i]));
+            // initialise
+            recv[i] = new Buffer(edges[i]->getSize());
+            delete edges[i];
+        }
 }
 
 void freeBuffers(Buffer ** send, Buffer ** recv){
@@ -161,7 +166,7 @@ int swapAll(int nbours[4], Matrix& matrix){
 	err = recvFromAllNeighbours(nbours, to, dtype);
 	assert(err == MPI_SUCCESS);
 	assert(to[DOWN]->count() == matrix.getWidth()-2);
-	int collisions = matrix.insertWithCollisions(buffersToArrays(to),1);
+	int collisions = matrix.insertWithCollisions(buffersToArrays(to), 1);
 	//cout << "Collisons(first): " << collisions << endl << flush;
 	// Send my inner ones
 	initBuffers(matrix,from,to,1);

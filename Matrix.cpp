@@ -288,7 +288,6 @@ Array** Matrix::toSend(int offset){
     assert(offset == 1 || offset == 0);
     Array **toRet = (Array**)calloc(4,sizeof(Array*));
     toRet[UP] = extractRow(offset);
-    assert(toRet[UP]->getSize() == width-2);
     toRet[DOWN] = extractRow(height-1-offset);
     toRet[LEFT] = extractColumn(offset);
     toRet[RIGHT] = extractColumn(width-1-offset);
