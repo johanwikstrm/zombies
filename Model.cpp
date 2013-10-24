@@ -338,7 +338,7 @@ void Model::moveAll_omp(uint32_t iterations) {
             free(inputs[n]);
             if (status != (void*)0) {
                 printf("Error in the execution");
-            } 
+            }
         }
     print();
     }
