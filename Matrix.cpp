@@ -253,7 +253,7 @@ int Matrix::insertColumnWithCollisions(Array * toInsert,uint32_t col){
 }
 
 // Returns the number of collisions
-int Matrix::insertRowWithCollisions(Array * toInsert,uint32_t row){
+int Matrix::insertRowWithCollisions(Array* toInsert, uint32_t row){
     assert(toInsert->getSize() == width - 2);
     int collisions = 0;
     for (uint32_t x = 1; x < width-1; x++) {
@@ -284,7 +284,6 @@ Array** Matrix::toSend(int offset){
     assert(offset == 1 || offset == 0);
     Array **toRet = (Array**)calloc(4,sizeof(Array*));
     toRet[UP] = extractRow(offset);
-    assert(toRet[UP]->getSize() == width-2);
     toRet[DOWN] = extractRow(height-1-offset);
     toRet[LEFT] = extractColumn(offset);
     toRet[RIGHT] = extractColumn(width-1-offset);
@@ -304,7 +303,7 @@ int Matrix::insertWithCollisions(Array** toInsert, int offset){
     assert(toInsert[DOWN]->getSize() == width-2);
     assert(toInsert[LEFT]->getSize() == height-2);
     assert(toInsert[RIGHT]->getSize() == height-2);
-    int collisions =0;
+    int collisions = 0;
     collisions += insertRowWithCollisions(toInsert[UP] , offset);
     collisions += insertRowWithCollisions(toInsert[DOWN] , height-1-offset);
     collisions += insertColumnWithCollisions(toInsert[LEFT] , offset);
