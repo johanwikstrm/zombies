@@ -126,7 +126,7 @@ int main ()
     assert(matrix_4.insertColumnWithCollisions(insCol,1,false) == 1);
 /*  
     E E E E E 
-    E ? E E E 
+    E Z E E E 
     E I E E E 
     E E E E E 
 */
@@ -136,16 +136,16 @@ int main ()
     assert(matrix_4.insertRowWithCollisions(insCol,3,false) == 0);
 /*  
     E E E E E 
-    E ? E E E 
+    E Z E E E 
     E I E E E 
     E I E E E 
 */
     assert(matrix_4(1,3)->getKind() == INFECTED);
-    assert(matrix_4.insertRowWithCollisions(insCol,1,false) == 1);
+    assert(matrix_4.insertRowWithCollisions(insCol,1,false) == 0);
 /*  
     E E E E E 
-    E ? E E E 
-    E ? E E E 
+    E Z I E E 
+    E I E E E 
     E I E E E 
 */
 

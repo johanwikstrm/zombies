@@ -18,7 +18,7 @@ using namespace std;
 
 #define POP_DENSITY 0.1
 // Probabiblity of getting your brain eaten when encountering a zombie
-#define BRAIN_EATING_PROB 0.0
+#define BRAIN_EATING_PROB 0.7
 #define INFECTED_TO_ZOMBIE_PROB (1.0/20.0)
 #define ZOMBIE_DECOMPOSITION_RISK 0.03
 #define HUMAN_MOVE_PROB 0.5
@@ -37,12 +37,9 @@ int main(int argc, char *argv[])
     uint32_t nbIterations = 1000;
     
     // Moving 
-    Statistic** stats = m.moveAll_mpi(nbIterations);
+    //Statistic** stats = m.moveAll_mpi(nbIterations);
     //Statistic** stats = m.moveAll(nbIterations);
-    //Statistic** stats = m.moveAll_omp_mpi(nbIterations);
-    
-    // Printing
-    // 
+    Statistic** stats = m.moveAll_omp_mpi(nbIterations);
     
     if (rank == ROOT_NODE){
         printStatsCsv(stats,nbIterations);

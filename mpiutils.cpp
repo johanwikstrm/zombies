@@ -162,26 +162,24 @@ int swapAll(int nbours[4], Matrix& matrix, bool moveFlag){
 		<<"\n"<< flush;*/
 	err = sendToAllNeighbours(nbours,from,reqs,dtype);
 	assert(err == MPI_SUCCESS);
-	// (handle collisions?)
 	// Insert their outer ones into my inner ones 
 	err = recvFromAllNeighbours(nbours, to, dtype);
 	assert(err == MPI_SUCCESS);
 	assert(to[DOWN]->count() == matrix.getWidth()-2);
 	int collisions = matrix.insertWithCollisions(buffersToArrays(to), 1);
-	//cout << "Collisons(first): " << collisions << endl << flush;
 	// Send my inner ones
 	initBuffers(matrix,from,to,1,moveFlag);
 	//cout << "Sending to all neighbours 2\n"<< flush;
 	err = sendToAllNeighbours(nbours,from,reqs,dtype);
 	assert(err == MPI_SUCCESS);
-	// Insert their inner ones into my outer ones(collisions should be 0 by now)
-	//cout << "recv from all neighbours 2\n"<< flush;
+	// Insert their inner ones into my outer ones we don't care about collisons here
+	// we just assume that the outer ones can be overwritten and that they fixed all
+	// collisions on their end.
 	err = recvFromAllNeighbours(nbours,to,dtype);
 	assert(err == MPI_SUCCESS);
-	// TODO insertWithoutCollisions
-	collisions += matrix.insertWithCollisions(buffersToArrays(to), 0);
+	matrix.insertWithCollisions(buffersToArrays(to), 0);
 
-	// Giant memory leaks
+	// memory leaks? Yup, most likely
 	freeBuffers(to,from);
 	free(to);
 	free(from);

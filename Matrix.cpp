@@ -242,40 +242,60 @@ Array* Matrix::extractRow(uint32_t r,bool moveFlag) {
 }
 
 // Returns the number of collisions
-int Matrix::insertColumnWithCollisions(Array * toInsert,uint32_t col, bool overwrite){
+int Matrix::insertColumnWithCollisions(Array * toInsert,uint32_t col, bool ignoreCollisions){
     assert(toInsert->getSize() == height-2);
     int collisions = 0;
     for (uint32_t y = 1; y < height-1; y++) {
         int oldKind = (*this)(col,y)->getKind();
         int newKind = (*toInsert)(y-1)->getKind();
-        if (oldKind != EMPTY && newKind != EMPTY){
-            /*cout << "Collision inserting " << kindstr((*toInsert)(y-1)->getKind())
-                << " into cell with " << kindstr((*this)(col,y)->getKind()) << " in it at "
-                << col<<","<<y<<endl;*/
-            collisions++;
-        }
-        if (overwrite || oldKind == EMPTY ){ // if overwrite, we can overwrite a filled cell with an empty one
-            this->set(col,y,(*toInsert)(y-1)->getKind());    
+        if (ignoreCollisions == false && oldKind != EMPTY){
+            if (newKind != EMPTY){ // we have a collision to handle
+                // Is there space above?
+                if (y > 1 && this->operator()(col,y-1)->getKind() == EMPTY){
+                    this->set(col,y-1,newKind);    
+                    (*this)(col,y-1)->setMoveFlag((*toInsert)(y-1)->getMoveFlag());
+                }// is there space below?
+                else if(y < height-2 && this->operator()(col,y+1)->getKind() == EMPTY){
+                    this->set(col,y+1,newKind);    
+                    (*this)(col,y+1)->setMoveFlag((*toInsert)(y-1)->getMoveFlag());
+                }else{ // nope, I guess we have to let them collide and one of them dies
+                    collisions++;
+                }
+            }// else, leave whatever was there untouched because newkind is EMPTY anyways
+        }else{
+            // if ignoreCollisions==true we just overwrite what was there before
+            // if oldKind == EMPTY we only add stuff, we don't empty any cells
+            this->set(col,y,newKind);    
             (*this)(col,y)->setMoveFlag((*toInsert)(y-1)->getMoveFlag());
-        }    
+        }
     }
-    return collisions;  
+    return collisions;
 }
 
 // Returns the number of collisions
-int Matrix::insertRowWithCollisions(Array * toInsert,uint32_t row, bool overwrite){
+int Matrix::insertRowWithCollisions(Array * toInsert,uint32_t row, bool ignoreCollisions){
     assert(toInsert->getSize() == width - 2);
     int collisions = 0;
     for (uint32_t x = 1; x < width-1; x++) {
         int oldKind = (*this)(x,row)->getKind();
         int newKind = (*toInsert)(x-1)->getKind();
-        if (oldKind != EMPTY && newKind != EMPTY){
-            /*cout << "Collision inserting " << kindstr((*toInsert)(x-1)->getKind())
-                << " into cell with " << kindstr((*this)(x,row)->getKind()) << " in it at "
-                << x<<","<<row<<endl;*/
-            collisions++;
-        }
-        if (overwrite || oldKind == EMPTY){
+        if (ignoreCollisions == false && oldKind != EMPTY){
+            if (newKind != EMPTY){ // we have a collision to handle
+                // Is there space to the left?
+                if (x > 1 && this->operator()(x-1,row)->getKind() == EMPTY){
+                    this->set(x-1,row,newKind);    
+                    (*this)(x-1,row)->setMoveFlag((*toInsert)(x-1)->getMoveFlag());
+                }// is there space to the right?
+                else if(x < width-2 && this->operator()(x+1,row)->getKind() == EMPTY){
+                    this->set(x+1,row,newKind);    
+                    (*this)(x+1,row)->setMoveFlag((*toInsert)(x-1)->getMoveFlag());
+                }else{ // nope, I guess we have to let them collide and one of them dies
+                    collisions++;
+                }
+            }// else, leave whatever was there untouched because newkind is EMPTY anyways
+        }else{
+            // if ignoreCollisions==true we just overwrite what was there before
+            // otherwise we only add stuff, we don't empty any cells
             this->set(x,row,newKind);    
             (*this)(x,row)->setMoveFlag((*toInsert)(x-1)->getMoveFlag());
         }    

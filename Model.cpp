@@ -409,8 +409,11 @@ Statistic** Model::moveAll_omp_mpi(uint32_t iterations){
         // some ghost cells may have moveflag!=hasMoved
         // in that case they should not be sent to the other processes 
         // to avoid duplication of humans, zombies and infected
-        swapAll(nbours,matrix,hasMoved);
-        cout << "Iteration " << i <<endl << flush;
+        int collisions = swapAll(nbours,matrix,hasMoved);
+        
+        cout<<"collisions: "<<collisions<<endl<<flush;   
+        
+        //cout << "Iteration " << i <<endl << flush;
         inputMoveParallel* inputs[NUM_THREADS];
         pthread_t threads[NUM_THREADS];
         for (uint32_t n = 0; n < NUM_THREADS; n++) {

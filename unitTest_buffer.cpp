@@ -129,11 +129,11 @@ int main(int argc, char *argv[])
     matrix(5,2)->setMoveFlag(true);
     assert(matrix.getCount(HUMAN) == 3);
     if (rank == 0){
-        matrix.printMoveFlags();
+        //matrix.printMoveFlags();
     }
     swapAll(nbours,matrix,true);
     if (rank == 0){
-        matrix.printMoveFlags();
+        //matrix.printMoveFlags();
     }
     assert(matrix.getCount(HUMAN) == 2);
 
