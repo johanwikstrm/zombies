@@ -2,15 +2,16 @@ SRC_TESTS = $(wildcard unitTest_*.cpp)
 ## All the executable for the tests
 TESTS = $(SRC_TESTS:.cpp=)
 
-OBJETS = Array.o Matrix.o Model.o Cell.o Buffer.o Coord.o Lock.o mpiutils.o Statistic.o
+OBJETS = Array.o Matrix.o Model.o Cell.o Buffer.o Coord.o Lock.o mpiutils.o constants.o Statistic.o
 
-CXX = mpiCC 
-
-CXXFLAGS = -Wall -g -pedantic 
-##-fopenmp
-LDLIBS+=-lpthread
+CXX = mpic++ 
+#g++
+CXXFLAGS = -g -qsmp
 
 all : $(TESTS) main
+
+unitTest_buffer : $(OBJETS) unitTest_buffer.o
+	$(CXX) $(CXXFLAGS) -o $@ $^
 
 unitTest_% : $(OBJETS) unitTest_%.o
 	$(CXX) $(CXXFLAGS) -o $@ $^
