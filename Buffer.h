@@ -12,8 +12,8 @@ class Buffer {
         explicit Buffer(uint32_t count);
         explicit Buffer(Array& array);
         ~Buffer();
-        void * rawData();
-        Array * toArray();
+        void* rawData();
+        Array* toArray();
         int count();
         // NOTE: uncommitted datatype
         static error datatype(MPI_Datatype *type);

@@ -279,7 +279,6 @@ Statistic** Model::moveAll_mpi(uint32_t iterations){
         stats[i] = new Statistic(matrix);
         stats[i]->mpi_reduce();
         swapAll(nbours, matrix);
-
     }
     return stats;
 }

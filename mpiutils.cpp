@@ -115,36 +115,36 @@ Array ** buffersToArrays(Buffer **received){
 
 // NOTE NOTE NOTE, this works because we do async sends and syncronous recvs.
 // If we want to do something "smarter" and time saving
-// we need to use MPI_TAG:s a lot more
-int swapAll(int nbours[4],Matrix& matrix){
+// we need to use MPI_TAGs a lot more
+int swapAll(int nbours[4], Matrix& matrix){
 	error err;
 	MPI_Datatype dtype;
 	MPI_Request reqs[4];
 	err = Buffer::datatype(&dtype);
 	assert(err == MPI_SUCCESS);
 	err = MPI_Type_commit(&dtype);
-    assert(err== MPI_SUCCESS);
-	Buffer ** to,**from;
+        assert(err== MPI_SUCCESS);
+	Buffer **to, **from;
 	to = (Buffer**)calloc(4,sizeof(Buffer*));
 	from = (Buffer**)calloc(4,sizeof(Buffer*));
 	// Send my outer ones
-	initBuffers(matrix,from,to,0);
-	err = sendToAllNeighbours(nbours,from,reqs,dtype);
+	initBuffers(matrix, from, to, 0);
+	err = sendToAllNeighbours(nbours, from, reqs, dtype);
 	assert(err == MPI_SUCCESS);
 	// (handle collisions?)
 	// Insert their outer ones into my inner ones 
-	err = recvFromAllNeighbours(nbours,to,dtype);
+	err = recvFromAllNeighbours(nbours, to, dtype);
 	assert(err == MPI_SUCCESS);
-	int collisions = matrix.insertWithCollisions(buffersToArrays(to),1);
+	int collisions = matrix.insertWithCollisions(buffersToArrays(to), 1);
 	// Send my inner ones
-	initBuffers(matrix,from,to,1);
-	err = sendToAllNeighbours(nbours,from,reqs,dtype);
+	initBuffers(matrix, from, to, 1);
+	err = sendToAllNeighbours(nbours, from, reqs, dtype);
 	assert(err == MPI_SUCCESS);
 	// Insert their inner ones into my outer ones(collisions should be 0 by now)
-	err = recvFromAllNeighbours(nbours,to,dtype);
+	err = recvFromAllNeighbours(nbours, to, dtype);
 	assert(err == MPI_SUCCESS);
-	// TOOD insertWithoutCollisions
-	collisions += matrix.insertWithCollisions(buffersToArrays(to),0);
+	// TODO insertWithoutCollisions
+	collisions += matrix.insertWithCollisions(buffersToArrays(to), 0);
 
 	// Giant memory leaks
 	free(to);
