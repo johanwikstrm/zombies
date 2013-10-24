@@ -100,8 +100,9 @@ error recvFromAllNeighbours(int nbours[4], Buffer *to[4], MPI_Datatype dtype){
 	return err;
 }
 
-void initBuffers(Matrix& matrix, Buffer** send, Buffer** recv, int offset){
-	Array** edges = matrix.toSend(offset);
+// Only cells with moveflag==moveflag will be sent
+void initBuffers(Matrix& matrix, Buffer** send, Buffer** recv, int offset, bool moveFlag){
+	Array** edges = matrix.toSend(offset,moveFlag);
 	assert(edges[UP]->getSize() == matrix.getWidth()-2);
 	assert(edges[LEFT]->getSize() == matrix.getHeight()-2);
 	for (int i = 0; i < 4; i++){
@@ -139,7 +140,7 @@ Array ** buffersToArrays(Buffer **received){
 // NOTE NOTE NOTE, this works because we do async sends and syncronous recvs.
 // If we want to do something "smarter" and time saving
 // we need to use MPI_TAGs a lot more
-int swapAll(int nbours[4], Matrix& matrix){
+int swapAll(int nbours[4], Matrix& matrix, bool moveFlag){
 	error err;
 	MPI_Datatype dtype;
 	MPI_Request reqs[4];
@@ -151,7 +152,7 @@ int swapAll(int nbours[4], Matrix& matrix){
 	to = (Buffer**)calloc(4,sizeof(Buffer*));
 	from = (Buffer**)calloc(4,sizeof(Buffer*));
 	// Send my outer ones
-	initBuffers(matrix,from,to,0);
+	initBuffers(matrix,from,to,0,moveFlag);
 	/*cout << "1. "<<
 		nbours[UP]<<","<<
 		nbours[RIGHT]<<","<<
@@ -169,7 +170,7 @@ int swapAll(int nbours[4], Matrix& matrix){
 	int collisions = matrix.insertWithCollisions(buffersToArrays(to), 1);
 	//cout << "Collisons(first): " << collisions << endl << flush;
 	// Send my inner ones
-	initBuffers(matrix,from,to,1);
+	initBuffers(matrix,from,to,1,moveFlag);
 	//cout << "Sending to all neighbours 2\n"<< flush;
 	err = sendToAllNeighbours(nbours,from,reqs,dtype);
 	assert(err == MPI_SUCCESS);

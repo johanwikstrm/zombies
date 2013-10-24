@@ -17,13 +17,14 @@ Buffer::Buffer(Array& array){
 
 Array * Buffer::toArray(){
 	Array* a = new Array(cellCount);
+	Cell *c = (Cell*)malloc(sizeof(Cell));
 	for (uint32_t i = 0; i < cellCount; i++){
 		// TODO: copy constructor
-		Cell *c = (Cell*)malloc(sizeof(Cell));
 		memcpy(c,cells+i,sizeof(Cell));
 		a->set(i,c->getKind(),c->getSex());
-		free(c);
+		a->operator()(i)->setMoveFlag(c->getMoveFlag());
 	}
+	free(c);
 	return a;
 }
 

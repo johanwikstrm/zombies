@@ -70,7 +70,7 @@ int main(int argc, char *argv[])
 
     neighbours(toX(rank),toY(rank),PROC_WIDTH,PROC_HEIGHT,nbours);
     //neighbours(nbours);
-    Array **toSend = myMatr.toSend(1);
+    Array **toSend = myMatr.toSend(1,false);
     assert(toSend[UP]->getSize() == 2);
     assert((*(toSend[UP]))(0)->getKind() == HUMAN);
     assert((*(toSend[DOWN]))(1)->getKind() == ZOMBIE);
@@ -113,17 +113,27 @@ int main(int argc, char *argv[])
     assert(matrix.getCount(ZOMBIE) == 1);
     assert(matrix.getCount(HUMAN) == 1);
     assert(matrix.getCount(INFECTED) == 1);
-    swapAll(nbours,matrix);
+    swapAll(nbours,matrix,false);
     assert(matrix.getCount(ZOMBIE) == 2);
     assert(matrix.getCount(HUMAN) == 3);
     assert(matrix.getCount(INFECTED) == 2);
     // Human moving down
     matrix.set(1,1,EMPTY);
     matrix.set(1,2,HUMAN);
+    matrix(1,2)->setMoveFlag(true);
+    // Infected moving left
+    matrix.set(4,4,EMPTY);
+    matrix.set(3,4,INFECTED);
+    matrix(3,4)->setMoveFlag(true);
+    // emulating that all of them move
+    matrix(5,2)->setMoveFlag(true);
     assert(matrix.getCount(HUMAN) == 3);
-    swapAll(nbours,matrix);
     if (rank == 0){
-        matrix.print();
+        matrix.printMoveFlags();
+    }
+    swapAll(nbours,matrix,true);
+    if (rank == 0){
+        matrix.printMoveFlags();
     }
     assert(matrix.getCount(HUMAN) == 2);
 
@@ -154,7 +164,7 @@ int main(int argc, char *argv[])
     */
     assert(matrix2.getCount(HUMAN) == 16);
     for (int i = 0; i < 100; i++){
-        swapAll(nbours,matrix);
+        swapAll(nbours,matrix,false);
     }
     assert(matrix2.getCount(HUMAN) == 16);
     // Handling collisions
@@ -172,7 +182,7 @@ int main(int argc, char *argv[])
     */
     assert(matrix3.getCount(INFECTED) == 1);
     assert(matrix3.getCount(ZOMBIE) == 1);
-    int collisions = swapAll(nbours,matrix3);
+    int collisions = swapAll(nbours,matrix3,false);
     
     //cout << "Collisions " << collisions << endl << flush;
     //matrix3.print();
@@ -182,11 +192,11 @@ int main(int argc, char *argv[])
     
     Matrix matrix4 = Matrix(100,100);
     if (rank == 0){
-        cout << "looking for deadlocks\n"<<flush;    
+        //cout << "looking for deadlocks\n"<<flush;    
     }
-    for (int i = 0; i < 10000; i++){
+    for (int i = 0; i < 100; i++){
         if (rank == 0 && i % 10 == 0 ){
-            cout << "iteration "<<i<<endl<<flush;
+            //cout << "iteration "<<i<<endl<<flush;
         }
         for (int x = 0; x < 100; x++){
             for (int y = 0; y < 100; y++){
@@ -204,7 +214,7 @@ int main(int argc, char *argv[])
             }
         }
         // might deadlock, who knows
-        swapAll(nbours,matrix4);
+        swapAll(nbours,matrix4,false);
     }
 
 

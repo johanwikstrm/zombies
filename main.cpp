@@ -12,9 +12,9 @@ using namespace std;
 #define HEIGHT 150
 
 // natural death rate for humans about once every 60 years
-#define NATURAL_DEATH_RISK (6.5/1000.0/365.25)
+#define NATURAL_DEATH_RISK (6.5/(1000.0*365.25))
 // simplest possible birth control mechanism
-#define NATURAL_BIRTH_PROB (13.3 / 365.25 / 1000.0)
+#define NATURAL_BIRTH_PROB (13.3 / (365.25 * 1000.0))
 
 #define POP_DENSITY 0.1
 // Probabiblity of getting your brain eaten when encountering a zombie
@@ -34,12 +34,12 @@ int main(int argc, char *argv[])
     Model m = Model(WIDTH,HEIGHT,rank,NATURAL_BIRTH_PROB,NATURAL_DEATH_RISK,POP_DENSITY, BRAIN_EATING_PROB,INFECTED_TO_ZOMBIE_PROB,
             ZOMBIE_DECOMPOSITION_RISK,HUMAN_MOVE_PROB,ZOMBIE_MOVE_PROB);
 
-    uint32_t nbIterations = 365*10;
+    uint32_t nbIterations = 1000;
     
     // Moving 
-    //Statistic** stats = m.moveAll_mpi(nbIterations);
+    Statistic** stats = m.moveAll_mpi(nbIterations);
     //Statistic** stats = m.moveAll(nbIterations);
-    Statistic** stats = m.moveAll_omp_mpi(nbIterations);
+    //Statistic** stats = m.moveAll_omp_mpi(nbIterations);
     
     // Printing
     // 

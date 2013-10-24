@@ -85,7 +85,7 @@ int main ()
     for (uint32_t i = 0; i < 4; i++) {
         matrix_2.set(0, i, i);
     }
-    Array* column0 = matrix_2.extractColumn(0);
+    Array* column0 = matrix_2.extractColumn(0,false);
     for (uint32_t i = 1; i < 3; i++) {
         assert((*column0)(i-1)->getKind() == i);
     }
@@ -94,7 +94,7 @@ int main ()
     for (uint32_t j = 0; j < 4; j++) {
         matrix_2.set(j,0, j);
     }
-    Array* row0 = matrix_2.extractRow(0);
+    Array* row0 = matrix_2.extractRow(0,false);
     for (uint32_t j = 1; j < 3; j++) {
         assert((*row0)(j-1)->getKind() == j);
     }

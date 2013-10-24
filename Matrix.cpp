@@ -218,18 +218,25 @@ void Matrix::swap(Matrix& M)
     std::swap(this->counts, M.counts); 
 }
 
-Array* Matrix::extractColumn(uint32_t col) {
-    Array* column = new Array(height-2);
+// Only cells with this moveflag will be extracted
+Array* Matrix::extractColumn(uint32_t col, bool moveFlag) {
+    Array* column = new Array(height-2,EMPTY);
     for (uint32_t y = 1; y < height-1; y++) {
-       	column->set(y-1,(*this)(col, y)->getKind()); 
+       	if (this->operator()(col,y)->getMoveFlag() == moveFlag){
+            column->set(y-1,(*this)(col, y)->getKind()); 
+            column->operator()(y-1)->setMoveFlag(this->operator()(col,y)->getMoveFlag());
+        }
     }
     return column;
 } 
 
-Array* Matrix::extractRow(uint32_t r) {
-    Array* row = new Array(width-2);
+Array* Matrix::extractRow(uint32_t r,bool moveFlag) {
+    Array* row = new Array(width-2,EMPTY);
     for (uint32_t x = 1; x < width-1; x++) {
-        row->set(x-1,(*this)(x,r)->getKind()); 
+        if (this->operator()(x,r)->getMoveFlag() == moveFlag){ // filter out those with wrong moveflag
+            row->set(x-1,(*this)(x,r)->getKind()); 
+            row->operator()(x-1)->setMoveFlag(this->operator()(x,r)->getMoveFlag());
+        }//else leave it empty
     }
     return row;
 }
@@ -283,14 +290,15 @@ int Matrix::insertRowWithCollisions(Array * toInsert,uint32_t row, bool overwrit
     X E E E X  X X X X X
     X X X X X  E X E X E
 */
-Array** Matrix::toSend(int offset){
+// Only cells with moveflag == moveFlag will be sent
+Array** Matrix::toSend(int offset, bool moveFlag){
     assert(width >=4 && height >= 4);// assuming a matrix that is at least 4x4
     assert(offset == 1 || offset == 0);
     Array **toRet = (Array**)calloc(4,sizeof(Array*));
-    toRet[UP] = extractRow(offset);
-    toRet[DOWN] = extractRow(height-1-offset);
-    toRet[LEFT] = extractColumn(offset);
-    toRet[RIGHT] = extractColumn(width-1-offset);
+    toRet[UP] = extractRow(offset,moveFlag);
+    toRet[DOWN] = extractRow(height-1-offset,moveFlag);
+    toRet[LEFT] = extractColumn(offset,moveFlag);
+    toRet[RIGHT] = extractColumn(width-1-offset,moveFlag);
     return toRet;
 }
 

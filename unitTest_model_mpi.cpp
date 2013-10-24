@@ -36,7 +36,7 @@ int main(int argc, char *argv[]){
     stats = m2.moveAll_mpi(10);
     assert(stats[0]->allAboveZero());
     // should create a model with a declining population of humans!!
-    Model m3 = Model(100,100,rank,0.0001,0.0002,0.1,0,0,1,0,0,true);
+    Model m3 = Model(100,100,rank,0.001,0.0005,0.1,0,0,1,0.5,0,true);
     int prev = m3.getCount(HUMAN);
     m3.moveAll_mpi(1);
     int after1 = m3.getCount(HUMAN);

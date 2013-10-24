@@ -270,8 +270,11 @@ Statistic** Model::moveAll_mpi(uint32_t iterations){
     Statistic **stats;
     stats = (Statistic**)calloc(iterations,sizeof(Statistic*));
     for (uint32_t i = 0; i < iterations; i++){
-        swapAll(nbours, matrix); // must be done before the first iteration
         bool hasMoved = (i % 2) == 1;
+        // All valid cells should have moveflag hasMoved by now
+        // some ghost cells may have the wrong moveflag, so they should not be exchanged 
+        // with the other processes, this is to prevent duplication
+        swapAll(nbours, matrix,hasMoved); // must be done before the first iteration
         for (uint32_t y = 1; y < height-1; y++){
             for (uint32_t x = 1; x < width-1; x++){
                 move(x, y, hasMoved, 0);
@@ -402,6 +405,11 @@ Statistic** Model::moveAll_omp_mpi(uint32_t iterations){
     for (uint32_t i = 0; i < iterations; i++) {
         bool hasMoved = (i % 2) == 1;
         void *status;
+        // All valid cells should have moveflag==hasMoved by now
+        // some ghost cells may have moveflag!=hasMoved
+        // in that case they should not be sent to the other processes 
+        // to avoid duplication of humans, zombies and infected
+        swapAll(nbours,matrix,hasMoved);
         cout << "Iteration " << i <<endl << flush;
         inputMoveParallel* inputs[NUM_THREADS];
         pthread_t threads[NUM_THREADS];
@@ -424,7 +432,7 @@ Statistic** Model::moveAll_omp_mpi(uint32_t iterations){
         }
         stats[i] = new Statistic(matrix);
         stats[i]->mpi_reduce();
-        swapAll(nbours,matrix);
+        
     }
     return stats ;  
 }
