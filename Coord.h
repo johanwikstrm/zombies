@@ -65,7 +65,9 @@ class Coord {
         uint32_t manhattanDist(Coord c1, Coord c2, uint32_t width, uint32_t height);
         
         /**
-         * @brief       Overloading the = operator (assignment) 
+         * @brief       Overloading the = operator (assignment)
+         *
+         * @param c     the coordinates for the comparaison 
          */
         Coord& operator=(const Coord& c);
 };

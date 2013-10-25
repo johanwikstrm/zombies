@@ -19,8 +19,8 @@ class Matrix : public Array
         uint32_t height;            /**< matrix height */
         uint32_t width;             /**< matrix width */
         uint32_t *counts;           /**< the statistics : number of HUMAN, INFECTED, ZOMBIE and EMPTY */
-        bool mpiEnabled;
-        uint32_t kind(Cell* ptr);
+        bool mpiEnabled;            /**< True iff the program is using MPI */
+        uint32_t kind(Cell* ptr);   /**< return the kind of a cell */
 
     public :
 
@@ -35,6 +35,7 @@ class Matrix : public Array
          *
          * @param       height
          * @param       width
+         * @param       mpiEnabled  whether the programm is using MPI or not
          */
         Matrix(uint32_t height, uint32_t width,bool mpiEnabled = false);
 
@@ -63,7 +64,7 @@ class Matrix : public Array
 
 
         /**
-         * @brief   
+         * @brief   return the number persons of a certain type  
          *
          * @param   kind    the kind (HUMAN, INFECTED, ZOMBIE, or EMPTY)
          * @return  the number of kind persons
@@ -74,6 +75,10 @@ class Matrix : public Array
          * @brief       Print the elements of the matrix 
          */
         void print() const;
+
+        /**
+         *  @brief      Print all the move flags of the matrix
+         */
         void printMoveFlags() const;
 
         /**
@@ -82,6 +87,7 @@ class Matrix : public Array
          *  @param  x   the abscissa
          *  @param  y   the ordinate
          *  @param  k   the new kind of the cell at the position (x, y)
+         *  @param  sex the nex sex of the cell at the position (x, y)
          */
         void set(uint32_t x, uint32_t y, uint32_t k, uint32_t sex = 0);
 
@@ -181,9 +187,6 @@ class Matrix : public Array
         Array* extractRow(uint32_t r,bool moveFlag);
 
         // TODO
-        //Array** toSend();
-
-        // TODO
         void insert(Array*[4]);
         
         int insertColumnWithCollisions(Array * toInsert,uint32_t col, bool overwrite);
@@ -207,8 +210,5 @@ class Matrix : public Array
             X X X X X  E X E X E
         */
         int insertWithCollisions(Array** toInsert,int offset);
-
-
-
 };
 #endif
