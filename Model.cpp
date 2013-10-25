@@ -86,7 +86,9 @@ void Model::init(){
 }
 
 bool Model::timeToDie(uint32_t numThread){
-    return randomizer[numThread]->rand() < naturalDeathRisk;
+    double empties = matrix.getCount(EMPTY);
+    double humans = matrix.getCount(HUMAN);
+    return randomizer[numThread]->rand() < (naturalDeathRisk*humans/empties);
 }
 
 bool Model::timeToDecompose(uint32_t numThread){
@@ -274,7 +276,7 @@ Statistic** Model::moveAll_mpi(uint32_t iterations){
         // All valid cells should have moveflag hasMoved by now
         // some ghost cells may have the wrong moveflag, so they should not be exchanged 
         // with the other processes, this is to prevent duplication
-        swapAll(nbours, matrix,hasMoved); // must be done before the first iteration
+        swapAll(nbours, matrix, hasMoved); // must be done before the first iteration
         for (uint32_t y = 1; y < height-1; y++){
             for (uint32_t x = 1; x < width-1; x++){
                 move(x, y, hasMoved, 0);
@@ -282,7 +284,6 @@ Statistic** Model::moveAll_mpi(uint32_t iterations){
         }
         stats[i] = new Statistic(matrix);
         stats[i]->mpi_reduce();
-        
     }
     return stats;
 }
@@ -363,6 +364,8 @@ void Model::moveAll_omp(uint32_t iterations) {
     Lock locks = Lock(height);
     // Create the matrix for the randmized row numbers
     // for each thread
+    // TODO randomized rows
+    /**
     uint32_t** randomizedRowNumbers = (uint32_t**)calloc(width, sizeof(uint32_t*));
     for (uint32_t i = 0; i < width; i++) {
         randomizedRowNumbers[i] = (uint32_t*)calloc(NUM_THREADS, sizeof(uint32_t));
@@ -370,6 +373,7 @@ void Model::moveAll_omp(uint32_t iterations) {
             randomizedRowNumbers[i][j] = i;
         }
     }
+    */
     for (uint32_t i = 0; i < iterations; i++) {
         bool hasMoved = (i % 2) == 1;
         void *status;
@@ -410,10 +414,6 @@ Statistic** Model::moveAll_omp_mpi(uint32_t iterations){
         // in that case they should not be sent to the other processes 
         // to avoid duplication of humans, zombies and infected
         int collisions = swapAll(nbours,matrix,hasMoved);
-        
-        cout<<"collisions: "<<collisions<<endl<<flush;   
-        
-        //cout << "Iteration " << i <<endl << flush;
         inputMoveParallel* inputs[NUM_THREADS];
         pthread_t threads[NUM_THREADS];
         for (uint32_t n = 0; n < NUM_THREADS; n++) {
