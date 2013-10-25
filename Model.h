@@ -13,22 +13,23 @@ class Model
                 , double brainEatingProb,double infectedToZombieProb,double zombieDecompositionRisk, double humanMoveProb
                 , double zombieMoveProb, bool mpiEnabled = false);
         ~Model();
-        Statistic ** moveAll(uint32_t iterations=1);
-        Statistic ** moveAll_mpi(uint32_t iterations=1);
+        Statistic** moveAll(uint32_t iterations=1);
+        Statistic** moveAll_mpi(uint32_t iterations=1);
         void moveAll_omp(uint32_t iterations=1);
-        Statistic ** moveAll_omp_mpi(uint32_t iterations);
+        Statistic** moveAll_omp_mpi(uint32_t iterations);
         void print();
         void printStats();
         int getCount(int kind);
         uint32_t getWidth();
         uint32_t getHeight();
         // Used for testing
-        Cell * at(int x, int y);
+        Cell* at(int x, int y);
 
     private:
         Matrix matrix;
         uint32_t width, height;
-        int *nbours;
+        int* nbours;
+        int rank;
 
         // a generator for each thread
         MersenneTwister** randomizer;

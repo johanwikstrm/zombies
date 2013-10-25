@@ -18,9 +18,9 @@ typedef struct inputMoveParallel {
     bool mpi;
 } inputMoveParallel;
 
-Model::Model(int width,int height,int procRank,double naturalBirthProb, double naturalDeathRisk, double initialPopDensity, double
-        brainEatingProb,double infectedToZombieProb,double zombieDecompositionRisk, double humanMoveProb
-        , double zombieMoveProb,bool mpiEnabled){
+Model::Model(int width, int height, int procRank, double naturalBirthProb, double naturalDeathRisk, double initialPopDensity, double
+        brainEatingProb, double infectedToZombieProb,double zombieDecompositionRisk, double humanMoveProb
+        , double zombieMoveProb, bool mpiEnabled){
     this->width = width;
     this->height = height;
     // finding my neighbours
