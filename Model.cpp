@@ -86,9 +86,7 @@ void Model::init(){
 }
 
 bool Model::timeToDie(uint32_t numThread){
-    double empties = matrix.getCount(EMPTY);
-    double humans = matrix.getCount(HUMAN);
-    return randomizer[numThread]->rand() < (naturalDeathRisk*humans/empties);
+    return randomizer[numThread]->rand() < naturalDeathRisk;
 }
 
 bool Model::timeToDecompose(uint32_t numThread){

@@ -10,8 +10,8 @@ int main(int argc, char *argv[]){
      
     int rank = 1;
    
-    uint32_t width = 1000;
-    uint32_t height = 1500;
+    uint32_t width = 100;
+    uint32_t height = 10000;
    
     // Population density in Northern Territory
     double initialPopDensity = 0.17;
@@ -20,12 +20,13 @@ int main(int argc, char *argv[]){
     // In Australia : 6.5 deaths per year per 1000 persons
     double naturalDeathRisk = 6.5/(1000*366);
     
-    double brainEatingProb = 0.7;
+    double brainEatingProb = 1.0;
+    //double brainEatingProb = 0.0;
    
     // Zombies die !!!
 
-    double infectedToZombieProb = 1.0/5.0;
-    double zombieDecompositionRisk = 1.0/75.0;
+    double infectedToZombieProb = 1.0/20.0;
+    double zombieDecompositionRisk = 1.0/50.0;
     double humanMoveProb = 0.4;
     double zombieMoveProb = 0.2; 
     
@@ -33,6 +34,6 @@ int main(int argc, char *argv[]){
                     initialPopDensity, brainEatingProb, infectedToZombieProb, 
                     zombieDecompositionRisk, humanMoveProb, zombieMoveProb, false);
     m.print();
-    m.moveAll_omp(360);
+    m.moveAll_omp(100);
     m.print();
 }
