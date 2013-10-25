@@ -6,13 +6,15 @@
 
 using namespace std;
 
+
+#define DEBUG_MPI false
 #define BUFFER_TAG 12345
 
 // determines your four neighbours in a coordinate system 
 // where y grows downwards and x grows to the right
 // The universe also wraps around
 // neighbours = [up,right,down,left]
-void neighbours(int x,int y, int width, int height, int nbours[4]){
+void neighbours(int x,int y, int width, int height,int nbours[4]){
 	nbours[UP] = ((y+height-1)%height)*width+x;
 	nbours[RIGHT] = y*width+(x+1)%width;
 	nbours[DOWN] = ((y+1)%height)*width+x;
@@ -60,7 +62,7 @@ error sendToNeighbour(int dest, Buffer *data, MPI_Request *request, MPI_Datatype
 	return MPI_Isend(data->rawData(), data->count(), dtype , dest, tag, MPI_COMM_WORLD, request);
 }
 
-error sendToAllNeighbours(int nbours[4], Buffer *data[4], MPI_Request reqs[4], MPI_Datatype dtype){
+error sendToAllNeighbours(const int nbours[4], Buffer *data[4], MPI_Request reqs[4], MPI_Datatype dtype){
 	int direction;
 	error err = MPI_SUCCESS;
 	for (direction = UP; direction <= LEFT; direction++){
@@ -83,16 +85,12 @@ error sendToAllNeighbours(int nbours[4], Buffer *data[4], MPI_Request reqs[4], M
 	return err;
 }
 
-error recvFromAllNeighbours(int nbours[4], Buffer *to[4], MPI_Datatype dtype){
+error recvFromAllNeighbours(const int *nbours, Buffer *to[4], MPI_Datatype dtype,int iteration,int myRank){
 	error err = MPI_SUCCESS;
 	for (int direction = UP; direction <= LEFT; direction++){
 		error e;
 		e = recvFromNeighbour(nbours[direction],to[direction],dtype,direction);
-		/*if (nbours[UP] == 0)
-		cout << "Received data from " << dirstr((DIRECTION)direction)
-			<< "(rank == " << nbours[direction]
-			<< ") data[1] == " << (*(to[direction]->toArray()))(1)->getKind() << endl;
-			*/
+		if (DEBUG_MPI) cout <<" ["<<iteration<<"]"<<myRank<< " <-- "<<nbours[direction]<<endl<<flush;
 		if (e != MPI_SUCCESS){
 			err = e;
 		}
@@ -140,8 +138,11 @@ Array ** buffersToArrays(Buffer **received){
 // NOTE NOTE NOTE, this works because we do async sends and syncronous recvs.
 // If we want to do something "smarter" and time saving
 // we need to use MPI_TAGs a lot more
-int swapAll(int nbours[4], Matrix& matrix, bool moveFlag){
+int swapAll(const int *nbours, Matrix& matrix, bool moveFlag,int iteration){
 	error err;
+	int rank;
+	err = MPI_Comm_rank(MPI_COMM_WORLD,&rank);
+	assert(err == MPI_SUCCESS);
 	MPI_Datatype dtype;
 	MPI_Request reqs[4];
 	err = Buffer::datatype(&dtype);
@@ -153,17 +154,18 @@ int swapAll(int nbours[4], Matrix& matrix, bool moveFlag){
 	from = (Buffer**)calloc(4,sizeof(Buffer*));
 	// Send my outer ones
 	initBuffers(matrix,from,to,0,moveFlag);
-	/*cout << "1. "<<
-		nbours[UP]<<","<<
-		nbours[RIGHT]<<","<<
-		nbours[DOWN]<<","<<
-		nbours[LEFT]<<" <- "<<
-		nbours[LEFT]+1
-		<<"\n"<< flush;*/
+	if (DEBUG_MPI)
+		cout << "["<<iteration<<"]"<<
+			nbours[UP]<<","<<
+			nbours[RIGHT]<<","<<
+			nbours[DOWN]<<","<<
+			nbours[LEFT]<<" <- "<<
+			rank
+			<<"\n"<< flush;
 	err = sendToAllNeighbours(nbours,from,reqs,dtype);
 	assert(err == MPI_SUCCESS);
 	// Insert their outer ones into my inner ones 
-	err = recvFromAllNeighbours(nbours, to, dtype);
+	err = recvFromAllNeighbours(nbours, to, dtype,iteration,rank);
 	assert(err == MPI_SUCCESS);
 	assert(to[DOWN]->count() == matrix.getWidth()-2);
 	int collisions = matrix.insertWithCollisions(buffersToArrays(to), 1);

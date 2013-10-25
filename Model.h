@@ -28,7 +28,8 @@ class Model
     private:
         Matrix matrix;
         uint32_t width, height;
-        int *nbours;
+        int * nbours;
+        int rank;
 
         // a generator for each thread
         MersenneTwister** randomizer;
