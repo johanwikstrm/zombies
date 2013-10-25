@@ -25,7 +25,8 @@ Model::Model(int width,int height,int procRank,double naturalBirthProb, double n
     this->height = height;
     // finding my neighbours
     nbours = new int[4];
-    neighbours(toX(procRank),toY(procRank),PROC_WIDTH,PROC_HEIGHT,nbours);
+    rank = procRank;
+    neighbours(toX(rank),toY(rank),PROC_WIDTH,PROC_HEIGHT,nbours);
     /*cout << "Proc "<<procRank << " has neighbours: "
         << nbours[UP] << ","
         << nbours[RIGHT] << ","
@@ -265,27 +266,6 @@ Statistic** Model::moveAll(uint32_t iterations){
     return stats;
 }
 
-Statistic** Model::moveAll_mpi(uint32_t iterations){
-    initMoveFlags();
-    Statistic **stats;
-    stats = (Statistic**)calloc(iterations,sizeof(Statistic*));
-    for (uint32_t i = 0; i < iterations; i++){
-        bool hasMoved = (i % 2) == 1;
-        // All valid cells should have moveflag hasMoved by now
-        // some ghost cells may have the wrong moveflag, so they should not be exchanged 
-        // with the other processes, this is to prevent duplication
-        swapAll(nbours, matrix, hasMoved); // must be done before the first iteration
-        for (uint32_t y = 1; y < height-1; y++){
-            for (uint32_t x = 1; x < width-1; x++){
-                move(x, y, hasMoved, 0);
-            }
-        }
-        stats[i] = new Statistic(matrix);
-        stats[i]->mpi_reduce();
-    }
-    return stats;
-}
-
 uint32_t Model::getWidth() {
     return width;
 }
@@ -399,6 +379,32 @@ void Model::moveAll_omp(uint32_t iterations) {
     }
 }
 
+Statistic** Model::moveAll_mpi(uint32_t iterations){
+    initMoveFlags();
+    Statistic **stats;
+    stats = (Statistic**)calloc(iterations,sizeof(Statistic*));
+    for (uint32_t i = 0; i < iterations; i++){
+        // Not cool
+        neighbours(toX(rank),toY(rank),PROC_WIDTH,PROC_HEIGHT,nbours);
+        bool hasMoved = (i % 2) == 1;
+        // All valid cells should have moveflag hasMoved by now
+        // some ghost cells may have the wrong moveflag, so they should not be exchanged 
+        // with the other processes, this is to prevent duplication
+        if (nbours[RIGHT] == 1){
+            cout <<" Iteration: "<<i<<endl<<flush;
+        }
+        swapAll(nbours, matrix,hasMoved, i); // must be done before the first iteration
+        for (uint32_t y = 1; y < height-1; y++){
+            for (uint32_t x = 1; x < width-1; x++){
+                move(x, y, hasMoved, 0);
+            }
+        }
+        stats[i] = new Statistic(matrix);
+        stats[i]->mpi_reduce();
+    }
+    return stats;
+}
+
 Statistic** Model::moveAll_omp_mpi(uint32_t iterations){
     Statistic **stats;
     stats = (Statistic**)calloc(iterations,sizeof(Statistic*));
@@ -411,7 +417,11 @@ Statistic** Model::moveAll_omp_mpi(uint32_t iterations){
         // some ghost cells may have moveflag!=hasMoved
         // in that case they should not be sent to the other processes 
         // to avoid duplication of humans, zombies and infected
-        int collisions = swapAll(nbours,matrix,hasMoved);
+        int collisions = swapAll(nbours,matrix,hasMoved,i);
+        
+        cout<<"collisions: "<<collisions<<endl<<flush;   
+        
+        //cout << "Iteration " << i <<endl << flush;
         inputMoveParallel* inputs[NUM_THREADS];
         pthread_t threads[NUM_THREADS];
         for (uint32_t n = 0; n < NUM_THREADS; n++) {
