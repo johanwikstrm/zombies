@@ -87,7 +87,9 @@ void Model::init(){
 }
 
 bool Model::timeToDie(uint32_t numThread){
-    return randomizer[numThread]->rand() < naturalDeathRisk;
+    double empties = matrix.getCount(EMPTY);
+    double humans = matrix.getCount(HUMAN);
+    return randomizer[numThread]->rand() < (naturalDeathRisk*humans/empties);
 }
 
 bool Model::timeToDecompose(uint32_t numThread){
@@ -266,8 +268,6 @@ Statistic** Model::moveAll(uint32_t iterations){
     return stats;
 }
 
-
-
 uint32_t Model::getWidth() {
     return width;
 }
@@ -344,6 +344,8 @@ void Model::moveAll_omp(uint32_t iterations) {
     Lock locks = Lock(height);
     // Create the matrix for the randmized row numbers
     // for each thread
+    // TODO randomized rows
+    /**
     uint32_t** randomizedRowNumbers = (uint32_t**)calloc(width, sizeof(uint32_t*));
     for (uint32_t i = 0; i < width; i++) {
         randomizedRowNumbers[i] = (uint32_t*)calloc(NUM_THREADS, sizeof(uint32_t));
@@ -351,6 +353,7 @@ void Model::moveAll_omp(uint32_t iterations) {
             randomizedRowNumbers[i][j] = i;
         }
     }
+    */
     for (uint32_t i = 0; i < iterations; i++) {
         bool hasMoved = (i % 2) == 1;
         void *status;
