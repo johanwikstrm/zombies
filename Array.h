@@ -15,8 +15,10 @@ class Array
 
     protected :
         uint32_t size;          /**< the array size */
-        Cell** array;           /**< the array containing the data */
-        Cell * dummy;
+        Cell** array;           /**< the array containing the data 
+                                     the data may be a NULL pointer*/
+        Cell* dummy;            /**< cell returned instead of a NULL pointer 
+                                      (if there is no data)*/
     public :
 
         /**
@@ -26,10 +28,9 @@ class Array
 
         /**
          * @brief       Constructor with parameters
-         *
          * @param       s       size of the array 
          * @param       kind    kind of the initial cells (HUMAN, INFECTED, ZOMBIE, or EMPTY)
-         *                      by default EMPTY 
+         *                      by default EMPTY(0) 
          */
         explicit Array(uint32_t s, uint32_t kind = 0);
 
@@ -68,9 +69,21 @@ class Array
          */
         Cell*& operator()(uint32_t i) ;
 
+        /**
+         * @brief       Set the kind and the sex of the cell at the index x
+         *
+         * @param       x   the index in the array
+         * @param       k   the new kind
+         * @param       sex the new sex
+         *
+         */
         void set(uint32_t x, uint32_t k, uint32_t sex = 0);
+
+
         /**
          * @brief       Overloading the = operator (assignment) 
+         *
+         * @param       P   the new array
          */
         Array& operator=(const Array& P);
 
