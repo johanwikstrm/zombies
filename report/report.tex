@@ -25,16 +25,18 @@
 \section{Problem description}	
 
 \paragraph{}
-SIR-models (Susceptible, Infected, Removed/Recovered) are commonly used to model diseases in populations. In this report, we use a modified SIR-model called a HIZD-model (Human,Infected, Zombie, Decayed) to model a potential zombie apocalypse. The aim of the report is to determine the effect of some vital parameters, such as the infection risk when encountering a zombie, the incubation time for an infected human, on the survival of the human and zombie populations. In order to speed up the computation, the have used multi-threading and multi-core programming. We have run the simualtion on a Blue Gene Q.
+SIR-models (Susceptible, Infected, Removed/Recovered) are commonly used to model diseases in populations. In this report, we use a modified SIR-model called a HIZD-model (Human,Infected, Zombie, Decayed) to model a potential zombie apocalypse. The aim of the report is to determine the effect of some vital parameters, such as the infection risk when encountering a zombie, the incubation time for an infected human, on the survival of the human and zombie populations. In order to speed up the computation, the have used multi-threading and multi-core programming. We have run the simulation on an IBM iDataplex x86 system.
 
 \section{Model}
 
 \paragraph{}
 The simulation takes place in the Northern Territory in Australia. In order to model this geographical area we use a 1500*1000 mesh where each square represents 1 km\textsuperscript{2}. Each square can be inhabited or empty. There are three types of inhabitants : \emph{humans}, \emph{infected} and \emph{zombies}. This is a sparsely populated area but it is the case in the Northern Territory where the density is only 0.17/km\textsuperscript{2}. In our model, the time granularity is days. 
 
+In our model we have a number of variable factors, some relatively known and some unknown that can be changed to model different outcomes of the zombie apocalypse.
+
 \subsection{Humans}
 \paragraph{}
-To model the humans' behaviour, we have used the Northern Territory demographic data (table~\ref{AustralianData}).
+The initial population statistics of our humans were based  (table~\ref{AustralianData}).
 \begin{table}[!h]
     \begin{tabular}{|l|l|}
       \hline
