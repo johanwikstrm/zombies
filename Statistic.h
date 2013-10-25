@@ -7,15 +7,14 @@ using namespace std;
 
 class Statistic
 {
-public:
-Statistic();
-Statistic(Matrix& m);
-void mpi_reduce();
-string toCsv();
-int sum();
-bool allAboveZero();
-int nZombies,nEmpty,nHumans,nInfected;
-private:
+    public:
+        Statistic();
+        Statistic(Matrix& m);
+        void mpi_reduce();
+        string toCsv();
+        int sum();
+        bool allAboveZero();
+        int nZombies,nEmpty,nHumans,nInfected;
 };
 
 void printStatsCsv(Statistic ** stats, int n);

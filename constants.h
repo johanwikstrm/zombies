@@ -6,11 +6,12 @@
 #define PROC_WIDTH 2
 #define PROC_HEIGHT 2
 
-// Number of OMP threads
+// Number of threads
 #define NUM_THREADS 10
 
+// The number of types of cell
 #define NKINDS 4
-
+// The kinds of cell
 #define EMPTY 0
 #define HUMAN 1
 #define INFECTED 2
