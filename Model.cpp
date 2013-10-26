@@ -404,6 +404,9 @@ void Model::moveAll_multiThreading(uint32_t iterations) {
     }
 }
 
+
+// NOTE NOTE NOTE: May only be called once due to the moveflags. If they are out of 
+// order we're screwed
 Statistic** Model::moveAll_mpi(uint32_t iterations){
     initMoveFlags();
     Statistic **stats;
@@ -415,8 +418,8 @@ Statistic** Model::moveAll_mpi(uint32_t iterations){
         // All valid cells should have moveflag hasMoved by now
         // some ghost cells may have the wrong moveflag, so they should not be exchanged 
         // with the other processes, this is to prevent duplication
-        if (nbours[RIGHT] == 1){
-            cout <<" Iteration: "<<i<<endl<<flush;
+        if (rank == ROOT_NODE){
+            //cout <<" Iteration: "<<i<<endl<<flush;
         }
         swapAll(nbours, matrix,hasMoved, i); // must be done before the first iteration
         for (uint32_t y = 1; y < height-1; y++){
@@ -426,6 +429,9 @@ Statistic** Model::moveAll_mpi(uint32_t iterations){
         }
         stats[i] = new Statistic(matrix);
         stats[i]->mpi_reduce();
+        if (rank == ROOT_NODE){
+            //cout << stats[i]->toCsv()<<" sum: "<<stats[i]->sum()<<endl<<flush;
+        }
     }
     return stats;
 }
