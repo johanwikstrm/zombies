@@ -5,11 +5,8 @@ using namespace std;
 #include <iostream>
 #include <stdlib.h>
 #include <string.h>
-
 #include "Matrix.h"
 #include "constants.h"
-
-static pthread_mutex_t countsMutex = PTHREAD_MUTEX_INITIALIZER;
 
 // Intializing all cells to empty by default
 Matrix::Matrix(uint32_t h, uint32_t w, bool mpi):Array(h*w , EMPTY)
@@ -17,6 +14,7 @@ Matrix::Matrix(uint32_t h, uint32_t w, bool mpi):Array(h*w , EMPTY)
     height = h;
     width = w;
     mpiEnabled = mpi;
+    // Create the array for the statistics
     counts = new uint32_t[NKINDS];
     for (uint32_t i = 0; i < NKINDS; i++) {
         counts[i] = 0;
@@ -25,6 +23,15 @@ Matrix::Matrix(uint32_t h, uint32_t w, bool mpi):Array(h*w , EMPTY)
         counts[EMPTY] = (h-2)*(w-2);    
     }else{
         counts[EMPTY] = h*w;
+    }
+    // Create the array for the partial statistics 
+    // One row for each thread
+    partialCounts = new int32_t*[NUM_THREADS];
+    for (uint32_t i = 0; i < NUM_THREADS; i++) {
+        partialCounts[i] = new int32_t[NKINDS];
+        for (uint32_t k = 0; k < NKINDS; k++) {
+            partialCounts[i][k] = 0;
+        }
     }
     
 }
@@ -37,6 +44,13 @@ Matrix::Matrix(const Matrix& P):Array(P)
     for (int i = 0; i < NKINDS; i++) {
         counts[i] = P.counts[i];
     }
+    partialCounts = new int32_t*[NUM_THREADS];
+    for (uint32_t i = 0; i < NUM_THREADS; i++) {
+        partialCounts[i] = new int32_t[NKINDS];
+        for (uint32_t k = 0; k < NKINDS; k++) {
+            partialCounts[i][k] = P.partialCounts[i][k];
+        }
+    }
 }
 
 Matrix::Matrix():Array()
@@ -46,6 +60,13 @@ Matrix::Matrix():Array()
     counts = new uint32_t[NKINDS];
     for (uint32_t i = 0; i < NKINDS; i++) {
         counts[i] = 0;
+    }
+    partialCounts = new int32_t*[NUM_THREADS];
+    for (uint32_t i = 0; i < NUM_THREADS; i++) {
+        partialCounts[i] = new int32_t[NKINDS];
+        for (uint32_t k = 0; k < NKINDS; k++) {
+            partialCounts[i][k] = 0;
+        }
     }
 }
 
@@ -66,11 +87,18 @@ uint32_t Matrix::getWidth() const
 
 uint32_t Matrix::getCount(uint32_t kind) const
 {
-    // must assure that we get a correct read, is used in model
-    pthread_mutex_lock(&countsMutex);
-    int cnt = counts[kind];
-    pthread_mutex_unlock(&countsMutex);
-    return cnt;
+    return counts[kind];
+}
+
+void Matrix::computeGlobalStatistics()
+{
+    for (uint32_t k = 0; k < NKINDS; k++) {
+        for (uint32_t n = 0; n < NUM_THREADS; n++) {
+            counts[k] = counts[k] + partialCounts[n][k];
+            partialCounts[n][k] = 0;
+        }
+    }
+    
 }
 
 void Matrix::print() const
@@ -119,18 +147,18 @@ void Matrix::printMoveFlags() const
 }
 
 
-void Matrix::set(uint32_t x, uint32_t y, uint32_t k, uint32_t sex) 
+void Matrix::set(uint32_t x, uint32_t y, uint32_t k, uint32_t* numThread, uint32_t sex) 
 {
     int previousKind = (*this)(x, y)->getKind();
-    
     // if mpi is not enabled, or if were not on any ghost cell, count it
-    if (!mpiEnabled || (x > 0 && x < width -2 && y > 0 && y < height-2)){
-        // begining of the critical section 
-        pthread_mutex_lock(&countsMutex);
-        counts[previousKind]--;
-        counts[k]++;
-        // end of the critical section 
-        pthread_mutex_unlock(&countsMutex);    
+    if (!mpiEnabled || (x > 0 && x < width -2 && y > 0 && y < height-2)) {
+        if (numThread != NULL) {
+            partialCounts[*numThread][previousKind]--;
+            partialCounts[*numThread][k]++;
+        } else {
+            counts[previousKind]--;
+            counts[k]++;
+        }
     }
     Array::set(y*width+x, k, sex);
 }
@@ -151,22 +179,20 @@ void Matrix::move(uint32_t oldX, uint32_t oldY, uint32_t newX, uint32_t newY)
 }
 
 // Only a HUMAN or an INFECTED can get INFECTED
-void Matrix::getInfected(uint32_t x, uint32_t y) {
+void Matrix::getInfected(uint32_t x, uint32_t y, uint32_t* numThread) {
     
     Cell* person = this->operator()(x, y);
     assert(person->getKind() == HUMAN || person->getKind() == INFECTED);
     int oldkind = person->getKind();
-    
-    
     person->setKind(INFECTED);
-    // begining of the critical section 
-    pthread_mutex_lock(&countsMutex);
-    counts[oldkind]--;
-    counts[INFECTED]++; 
-    // end of the critical section 
-    pthread_mutex_unlock(&countsMutex);
+    if (numThread != NULL) {
+        partialCounts[*numThread][oldkind]--;
+        partialCounts[*numThread][INFECTED]++; 
+    } else {
+        counts[oldkind]--;
+        counts[INFECTED]++; 
+    }
 }
-
 
 Cell* Matrix::operator()(uint32_t x, uint32_t y) const {
     assert(y>=0 && y<height && x>=0 && x<width);
@@ -257,11 +283,11 @@ int Matrix::insertColumnWithCollisions(Array * toInsert,uint32_t col, bool ignor
             if (newKind != EMPTY){ // we have a collision to handle
                 // Is there space above?
                 if (y > 1 && this->operator()(col,y-1)->getKind() == EMPTY){
-                    this->set(col,y-1,newKind);    
+                    this->set(col,y-1,newKind, NULL);    
                     (*this)(col,y-1)->setMoveFlag((*toInsert)(y-1)->getMoveFlag());
                 }// is there space below?
                 else if(y < height-2 && this->operator()(col,y+1)->getKind() == EMPTY){
-                    this->set(col,y+1,newKind);    
+                    this->set(col,y+1,newKind, NULL);    
                     (*this)(col,y+1)->setMoveFlag((*toInsert)(y-1)->getMoveFlag());
                 }else{ // nope, I guess we have to let them collide and one of them dies
                     collisions++;
@@ -270,7 +296,7 @@ int Matrix::insertColumnWithCollisions(Array * toInsert,uint32_t col, bool ignor
         }else{
             // if ignoreCollisions==true we just overwrite what was there before
             // if oldKind == EMPTY we only add stuff, we don't empty any cells
-            this->set(col,y,newKind);    
+            this->set(col,y,newKind,NULL);    
             (*this)(col,y)->setMoveFlag((*toInsert)(y-1)->getMoveFlag());
         }
     }
@@ -288,11 +314,11 @@ int Matrix::insertRowWithCollisions(Array * toInsert,uint32_t row, bool ignoreCo
             if (newKind != EMPTY){ // we have a collision to handle
                 // Is there space to the left?
                 if (x > 1 && this->operator()(x-1,row)->getKind() == EMPTY){
-                    this->set(x-1,row,newKind);    
+                    this->set(x-1,row,newKind,NULL);    
                     (*this)(x-1,row)->setMoveFlag((*toInsert)(x-1)->getMoveFlag());
                 }// is there space to the right?
                 else if(x < width-2 && this->operator()(x+1,row)->getKind() == EMPTY){
-                    this->set(x+1,row,newKind);    
+                    this->set(x+1,row,newKind,NULL);    
                     (*this)(x+1,row)->setMoveFlag((*toInsert)(x-1)->getMoveFlag());
                 }else{ // nope, I guess we have to let them collide and one of them dies
                     collisions++;
@@ -301,7 +327,7 @@ int Matrix::insertRowWithCollisions(Array * toInsert,uint32_t row, bool ignoreCo
         }else{
             // if ignoreCollisions==true we just overwrite what was there before
             // otherwise we only add stuff, we don't empty any cells
-            this->set(x,row,newKind);    
+            this->set(x,row,newKind,NULL);    
             (*this)(x,row)->setMoveFlag((*toInsert)(x-1)->getMoveFlag());
         }    
     }

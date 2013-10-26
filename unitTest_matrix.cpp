@@ -33,21 +33,21 @@ int main ()
     {
         for (uint32_t j = 0; j < 4; j++)
         {
-            matrix_1.set(i,j, 1);
+            matrix_1.set(i,j, 1, NULL);
         }
     }
 
     // Test set (and count update)
-    matrix_1.set(0, 0, 0);
+    matrix_1.set(0, 0, 0, NULL);
     assert(matrix_1(0,0)->getKind() == 0);
     assert(matrix_1.getCount(1) == 15);
     assert(matrix_1.getCount(0) == 1);
-    matrix_1.set(1, 1, 0);
+    matrix_1.set(1, 1, 0, NULL);
     assert(matrix_1.getCount(1) == 14);
     assert(matrix_1.getCount(0) == 2);
     assert(matrix_1.getCount(2) == 0);
     assert(matrix_1.getCount(3) == 0);
-    matrix_1.set(1, 1, 2);
+    matrix_1.set(1, 1, 2, NULL);
     assert(matrix_1(1,1)->getKind() == 2);
     assert(matrix_1.getCount(1) == 14);
     assert(matrix_1.getCount(0) == 1);
@@ -57,7 +57,7 @@ int main ()
     // Test swap
     Matrix matrix_2 = Matrix(4,4);
     Matrix matrix_3 = Matrix(4,4);
-    matrix_2.set(1,1, 2);
+    matrix_2.set(1,1, 2, NULL);
     Matrix oldMatrix_2 = matrix_2;
     Matrix oldMatrix_3 = matrix_3;
     matrix_2.swap(matrix_3);
@@ -83,7 +83,7 @@ int main ()
 
     // Extract column
     for (uint32_t i = 0; i < 4; i++) {
-        matrix_2.set(0, i, i);
+        matrix_2.set(0, i, i, NULL);
     }
     Array* column0 = matrix_2.extractColumn(0,false);
     for (uint32_t i = 1; i < 3; i++) {
@@ -92,7 +92,7 @@ int main ()
     delete column0;
     // Extract row
     for (uint32_t j = 0; j < 4; j++) {
-        matrix_2.set(j,0, j);
+        matrix_2.set(j, 0, j, NULL);
     }
     Array* row0 = matrix_2.extractRow(0,false);
     for (uint32_t j = 1; j < 3; j++) {
@@ -102,7 +102,7 @@ int main ()
     
     // testing insertion of columns
     Matrix matrix_4 = Matrix(4,5);
-    matrix_4.set(1,2,INFECTED);
+    matrix_4.set(1, 2, INFECTED, NULL);
 /*  
     E E E E E 
     E E E E E 

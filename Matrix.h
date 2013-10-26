@@ -18,7 +18,8 @@ class Matrix : public Array
 
         uint32_t height;            /**< matrix height */
         uint32_t width;             /**< matrix width */
-        uint32_t *counts;           /**< the statistics : number of HUMAN, INFECTED, ZOMBIE and EMPTY */
+        uint32_t* counts;           /**< the statistics : number of HUMAN, INFECTED, ZOMBIE and EMPTY */
+        int32_t** partialCounts; 
         bool mpiEnabled;            /**< True iff the program is using MPI */
         uint32_t kind(Cell* ptr);   /**< return the kind of a cell */
 
@@ -37,7 +38,7 @@ class Matrix : public Array
          * @param       width
          * @param       mpiEnabled  whether the programm is using MPI or not
          */
-        Matrix(uint32_t height, uint32_t width,bool mpiEnabled = false);
+        Matrix(uint32_t height, uint32_t width, bool mpiEnabled = false);
 
         /**
          * @brief       Copy constructor
@@ -71,6 +72,8 @@ class Matrix : public Array
          */
         uint32_t getCount(uint32_t kind) const;
 
+        void computeGlobalStatistics();
+
         /**
          * @brief       Print the elements of the matrix 
          */
@@ -89,7 +92,7 @@ class Matrix : public Array
          *  @param  k   the new kind of the cell at the position (x, y)
          *  @param  sex the nex sex of the cell at the position (x, y)
          */
-        void set(uint32_t x, uint32_t y, uint32_t k, uint32_t sex = 0);
+        void set(uint32_t x, uint32_t y, uint32_t k, uint32_t* numThread, uint32_t sex = 0);
 
         /**
          * @brief       Move a person
@@ -108,7 +111,7 @@ class Matrix : public Array
          * @param       the abscissa of the person
          * @param       the ordinate of the person
          */
-        void getInfected(uint32_t x, uint32_t y);
+        void getInfected(uint32_t x, uint32_t y, uint32_t* numThread);
 
         /**
          * @brief       Overloading the () operator to access the elements of the matrix (read only) 
