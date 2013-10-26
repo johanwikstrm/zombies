@@ -10,8 +10,8 @@ int main(int argc, char *argv[]){
      
     int rank = 1;
    
-    uint32_t width = 100;
-    uint32_t height = 10000;
+    uint32_t width = 10;
+    uint32_t height = 10;
    
     // Population density in Northern Territory
     double initialPopDensity = 0.17;
@@ -33,7 +33,5 @@ int main(int argc, char *argv[]){
     Model m = Model(width, height, rank, naturalBirthProb, naturalDeathRisk, 
                     initialPopDensity, brainEatingProb, infectedToZombieProb, 
                     zombieDecompositionRisk, humanMoveProb, zombieMoveProb, false);
-    m.print();
-    m.moveAll_multiThreading(100);
-    m.print();
+    m.moveAll_multiThreading_2(100);
 }

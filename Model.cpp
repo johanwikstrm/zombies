@@ -1,6 +1,7 @@
 #include "Model.h"
 #include "Lock.h"
 #include <pthread.h>
+#include <omp.h>
 #include <iostream>
 #include <stdlib.h>
 #include <assert.h>
@@ -367,12 +368,15 @@ void Model::moveAll_multiThreading_2(uint32_t iterations) {
         } 
     */
         bool hasMoved = (i % 2) == 1;
+#pragma omp parallel for default(shared)
         for (uint32_t y = 0; y < height; y++) {
+            locks.lock(y);
             for (uint32_t x = 0; x < width; x++) {
                 move(x, y, hasMoved, 0);
             }
+            locks.lock(y);
         }
-        print();
+        //print();
     }
 }
 
@@ -422,7 +426,7 @@ void Model::moveAll_multiThreading(uint32_t iterations) {
                 printf("Error in the execution");
             }
         }
-        print();
+        //print();
     }
 }
 
