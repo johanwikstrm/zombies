@@ -16,7 +16,7 @@ zombies = getColumn(filename,2)[2:]
 infected = getColumn(filename,3)[2:]
 days = range(len(humans))
 
-plt.figure("Populations")
+plt.figure(filename)
 plt.xlabel('Days')
 plt.ylabel('Population')
 plt.plot(days,humans,label='Humans')
