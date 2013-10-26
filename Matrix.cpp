@@ -40,6 +40,7 @@ Matrix::Matrix(const Matrix& P):Array(P)
 {
     width = P.width;
     height = P.height;
+    mpiEnabled = P.mpiEnabled;
     counts = new uint32_t[NKINDS];
     for (int i = 0; i < NKINDS; i++) {
         counts[i] = P.counts[i];
@@ -73,6 +74,10 @@ Matrix::Matrix():Array()
 Matrix::~Matrix()
 {
     delete[] counts;
+    for (uint32_t i = 0; i < NUM_THREADS; i++) {
+        delete[] partialCounts[i];
+    }
+    delete[] partialCounts;
 }
 
 uint32_t Matrix::getHeight() const
@@ -237,6 +242,7 @@ Matrix& Matrix::operator=(const Matrix& P)
     Array::operator=(P);
     width = P.width;
     height = P.height;
+    mpiEnabled = P.mpiEnabled;
     memcpy(counts, P.counts, NKINDS*sizeof(int));
     return *this;
 }
