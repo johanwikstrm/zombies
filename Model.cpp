@@ -133,7 +133,7 @@ void Model::printStats(){
 
 void Model::print(){
     printStats();
-    //matrix.print();
+    matrix.print();
 }
 
 Coord Model::moveZombie(int x,int y, uint32_t numThread){

@@ -17,18 +17,19 @@ int main(int argc, char *argv[]){
     int rank;
     err = MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     assert(err == MPI_SUCCESS);
-    Model m1 = Model(3,3,rank,0,0,0, 1,0,0,1,0,true);
+    Model m1 = Model(5,5,rank,0,0,0,1,0,0,1,0,true);
     // should have only 2 zombies in it
     assert(m1.getCount(ZOMBIE)==2);
     assert(m1.getCount(HUMAN)==0);
     assert(m1.getCount(INFECTED)==0);
+    cout <<m1.getCount(EMPTY)<<endl<<flush; 
     assert(m1.getCount(EMPTY)==7);
 
     Model m2 = Model(10,5,rank,0,0,1,1,0.5,0,0.5,0.5,true);
 
     Statistic ** stats = m2.moveAll_mpi(1);
     assert(stats[0]->allAboveZero());
-    if (rank == ROOT_NODE && stats[0]->sum() != 10*5*4){
+    if (rank == ROOT_NODE && stats[0]->sum() != 8*3*4){
         cout << "Expected sum to be " << 10*5*4 <<" got "<<stats[0]->sum()<<endl<<flush;
         m2.print();
         assert(false);

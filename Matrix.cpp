@@ -21,7 +21,12 @@ Matrix::Matrix(uint32_t h, uint32_t w, bool mpi):Array(h*w , EMPTY)
     for (uint32_t i = 0; i < NKINDS; i++) {
         counts[i] = 0;
     }
-    counts[EMPTY] = h*w;
+    if (mpiEnabled){
+        counts[EMPTY] = (h-2)*(w-2);    
+    }else{
+        counts[EMPTY] = h*w;
+    }
+    
 }
 
 Matrix::Matrix(const Matrix& P):Array(P)
