@@ -40,6 +40,7 @@ Matrix::Matrix(const Matrix& P):Array(P)
 {
     width = P.width;
     height = P.height;
+    mpiEnabled = P.mpiEnabled;
     counts = new uint32_t[NKINDS];
     for (int i = 0; i < NKINDS; i++) {
         counts[i] = P.counts[i];
@@ -241,6 +242,7 @@ Matrix& Matrix::operator=(const Matrix& P)
     Array::operator=(P);
     width = P.width;
     height = P.height;
+    mpiEnabled = P.mpiEnabled;
     memcpy(counts, P.counts, NKINDS*sizeof(int));
     return *this;
 }

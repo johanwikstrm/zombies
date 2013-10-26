@@ -50,7 +50,7 @@ Model::Model(int width, int height, int procRank, double naturalBirthProb,
     this->humanMoveProb = humanMoveProb;
     this->zombieMoveProb = zombieMoveProb;
     // Creation of the mesh
-    matrix = Matrix(height, width,mpiEnabled);
+    matrix = Matrix(height, width, mpiEnabled);
     // Creation of the randomizer (one for each thread)
     randomizer = new MersenneTwister*[NUM_THREADS]; 
     // Seed each random number generator
@@ -98,7 +98,7 @@ void Model::init(){
             if (randomizer[0]->rand() < initialPopDensity) {
                 // Initially we can set directly the global statistics
                 // there is only one thread
-                matrix.set(x,y,HUMAN, NULL);
+                matrix.set(x, y, HUMAN, NULL);
             }
         }
     }
