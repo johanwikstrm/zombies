@@ -54,6 +54,12 @@ class Model
         void init();
         void init_mpi();
         void initMoveFlags();
+
+        void initialiseRandomizedArray(uint32_t** randomized);
+        void randomized(uint32_t** randomized);
+
+
+            
 };
 
 #endif

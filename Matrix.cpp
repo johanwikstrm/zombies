@@ -73,6 +73,10 @@ Matrix::Matrix():Array()
 Matrix::~Matrix()
 {
     delete[] counts;
+    for (uint32_t i = 0; i < NUM_THREADS; i++) {
+        delete[] partialCounts[i];
+    }
+    delete[] partialCounts;
 }
 
 uint32_t Matrix::getHeight() const

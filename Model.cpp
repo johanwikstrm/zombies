@@ -382,20 +382,10 @@ void Model::moveAll_multiThreading(uint32_t iterations) {
     Lock locks = Lock(height);
     // Create an array for the randmized column numbers
     uint32_t* randomizedRowNumbers = (uint32_t*)calloc(width, sizeof(uint32_t));
-    for (uint32_t i = 0; i < width; i++) {
-        randomizedRowNumbers[i] = i;
-    }
+    initialiseRandomizedArray(&randomizedRowNumbers);
     for (uint32_t i = 0; i < iterations; i++) {
         // For each iteration we change the order the columns are examined
-        uint32_t row1;
-        uint32_t row2;
-        for (uint32_t n = 0; n < width/2; n++) {
-            row1 = randomizer[0]->randInt(width-1);
-            row2 = randomizer[0]->randInt(width-1);
-            uint32_t tmp = randomizedRowNumbers[row1];
-            randomizedRowNumbers[row1] = randomizedRowNumbers[row2]; 
-            randomizedRowNumbers[row2] = tmp;
-        } 
+        randomized(&randomizedRowNumbers);
         bool hasMoved = (i % 2) == 1;
         void *status;
         inputMoveParallel* inputs[NUM_THREADS];
@@ -422,6 +412,7 @@ void Model::moveAll_multiThreading(uint32_t iterations) {
         // Need to reduce the results of each thread
         matrix.computeGlobalStatistics();
     }
+    free(randomizedRowNumbers);
 }
 
 Statistic** Model::moveAll_mpi(uint32_t iterations){
@@ -457,20 +448,10 @@ Statistic** Model::moveAll_multiThreading_mpi(uint32_t iterations){
     Lock locks = Lock(height);
     // Create an array for the randmized row numbers
     uint32_t* randomizedRowNumbers = (uint32_t*)calloc(width, sizeof(uint32_t));
-    for (uint32_t i = 0; i < width; i++) {
-        randomizedRowNumbers[i] = i;
-    }
+    initialiseRandomizedArray(&randomizedRowNumbers);
     for (uint32_t i = 0; i < iterations; i++) {
         // For each iteration we change the order the rows are examined
-        uint32_t row1;
-        uint32_t row2;
-        for (uint32_t n = 0; n < width/2; n++) {
-            row1 = randomizer[0]->randInt(width-1);
-            row2 = randomizer[0]->randInt(width-1);
-            uint32_t tmp = randomizedRowNumbers[row1];
-            randomizedRowNumbers[row1] = randomizedRowNumbers[row2]; 
-            randomizedRowNumbers[row2] = tmp;
-        } 
+        randomized(&randomizedRowNumbers);
         bool hasMoved = (i % 2) == 1;
         void *status;
         // All valid cells should have moveflag==hasMoved by now
@@ -501,10 +482,11 @@ Statistic** Model::moveAll_multiThreading_mpi(uint32_t iterations){
         // The statistics are computed locally
         // Need to reduce the results of each thread
         matrix.computeGlobalStatistics();
-        
+
         stats[i] = new Statistic(matrix);
         stats[i]->mpi_reduce();
     }
+    free(randomizedRowNumbers);
     return stats ;  
 }
 
@@ -524,6 +506,24 @@ void Model::initMoveFlags() {
     }    
 }
 
-Cell * Model::at(int x, int y){
+Cell* Model::at(int x, int y){
     return matrix(x,y);
 }
+
+void Model::initialiseRandomizedArray(uint32_t** randomized) {
+    for (uint32_t i = 0; i < width; i++) {
+        (*randomized)[i] = i;
+    }
+} 
+
+void Model::randomized(uint32_t** randomized) {
+    uint32_t row1;
+    uint32_t row2;
+    for (uint32_t n = 0; n < width/2; n++) {
+        row1 = randomizer[0]->randInt(width-1);
+        row2 = randomizer[0]->randInt(width-1);
+        uint32_t tmp = (*randomized)[row1];
+        (*randomized)[row1] = (*randomized)[row2]; 
+        (*randomized)[row2] = tmp;
+    }
+} 
