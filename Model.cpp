@@ -374,7 +374,7 @@ void Model::moveAll_multiThreading_2(uint32_t iterations) {
             for (uint32_t x = 0; x < width; x++) {
                 move(x, y, hasMoved, 0);
             }
-            locks.lock(y);
+            locks.unlock(y);
         }
         //print();
     }
