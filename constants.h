@@ -7,7 +7,7 @@
 #define PROC_HEIGHT 2
 
 // Number of threads
-#define NUM_THREADS 2
+#define NUM_THREADS 4
 
 // The number of types of cell
 #define NKINDS 4

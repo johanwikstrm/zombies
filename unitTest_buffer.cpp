@@ -63,8 +63,8 @@ int main(int argc, char *argv[])
     */
 
     Matrix myMatr = Matrix(5,4);
-    myMatr.set(1,1,HUMAN);
-    myMatr.set(2,3,ZOMBIE);
+    myMatr.set(1,1,HUMAN,NULL);
+    myMatr.set(2,3,ZOMBIE,NULL);
     int nbours[4];
     MPI_Request reqs[4];
 
@@ -99,9 +99,9 @@ int main(int argc, char *argv[])
 
     // Full test with matrix
     Matrix matrix = Matrix(6,7);
-    matrix.set(0,2,ZOMBIE);
-    matrix.set(1,1,HUMAN);
-    matrix.set(4,4,INFECTED);
+    matrix.set(0,2,ZOMBIE,NULL);
+    matrix.set(1,1,HUMAN,NULL);
+    matrix.set(4,4,INFECTED,NULL);
     /*
         E E E E E E E       E E E E I E E     E E E E I E E
         E H E E E E E       E H E E E E H     E E E E E E E
@@ -118,12 +118,12 @@ int main(int argc, char *argv[])
     assert(matrix.getCount(HUMAN) == 3);
     assert(matrix.getCount(INFECTED) == 2);
     // Human moving down
-    matrix.set(1,1,EMPTY);
-    matrix.set(1,2,HUMAN);
+    matrix.set(1,1,EMPTY,NULL);
+    matrix.set(1,2,HUMAN,NULL);
     matrix(1,2)->setMoveFlag(true);
     // Infected moving left
-    matrix.set(4,4,EMPTY);
-    matrix.set(3,4,INFECTED);
+    matrix.set(4,4,EMPTY,NULL);
+    matrix.set(3,4,INFECTED,NULL);
     matrix(3,4)->setMoveFlag(true);
     // emulating that all of them move
     matrix(5,2)->setMoveFlag(true);
@@ -140,22 +140,22 @@ int main(int argc, char *argv[])
 
     // Trying to get seg fault by using a lot of collisions
     Matrix matrix2 = Matrix(4,4);
-    matrix2.set(0,0,HUMAN);
-    matrix2.set(0,1,HUMAN);
-    matrix2.set(0,2,HUMAN);
-    matrix2.set(0,3,HUMAN);
-    matrix2.set(1,0,HUMAN);
-    matrix2.set(1,1,HUMAN);
-    matrix2.set(1,2,HUMAN);
-    matrix2.set(1,3,HUMAN);
-    matrix2.set(2,0,HUMAN);
-    matrix2.set(2,1,HUMAN);
-    matrix2.set(2,2,HUMAN);
-    matrix2.set(2,3,HUMAN);
-    matrix2.set(3,0,HUMAN);
-    matrix2.set(3,1,HUMAN);
-    matrix2.set(3,2,HUMAN);
-    matrix2.set(3,3,HUMAN);
+    matrix2.set(0,0,HUMAN,NULL);
+    matrix2.set(0,1,HUMAN,NULL);
+    matrix2.set(0,2,HUMAN,NULL);
+    matrix2.set(0,3,HUMAN,NULL);
+    matrix2.set(1,0,HUMAN,NULL);
+    matrix2.set(1,1,HUMAN,NULL);
+    matrix2.set(1,2,HUMAN,NULL);
+    matrix2.set(1,3,HUMAN,NULL);
+    matrix2.set(2,0,HUMAN,NULL);
+    matrix2.set(2,1,HUMAN,NULL);
+    matrix2.set(2,2,HUMAN,NULL);
+    matrix2.set(2,3,HUMAN,NULL);
+    matrix2.set(3,0,HUMAN,NULL);
+    matrix2.set(3,1,HUMAN,NULL);
+    matrix2.set(3,2,HUMAN,NULL);
+    matrix2.set(3,3,HUMAN,NULL);
     /*
         H H H H        H H H H
         H H H H        H H H H
@@ -170,8 +170,8 @@ int main(int argc, char *argv[])
     // Handling collisions
     Matrix matrix3 = Matrix(5,6);
     
-    matrix3.set(1,1,INFECTED);
-    matrix3.set(1,4,ZOMBIE);
+    matrix3.set(1,1,INFECTED,NULL);
+    matrix3.set(1,4,ZOMBIE,NULL);
     // Collision handling
     /*
         E E E E E E      E E E E E E
@@ -202,14 +202,14 @@ int main(int argc, char *argv[])
             for (int y = 0; y < 100; y++){
                 double r = drand48();
                 if (r < 0.25){
-                    matrix4.set(x,y,HUMAN);
+                    matrix4.set(x,y,HUMAN,NULL);
                 }else if(r < 0.5){
-                    matrix4.set(x,y,ZOMBIE);
+                    matrix4.set(x,y,ZOMBIE, NULL);
                 }
                 else if(r < 0.75){
-                    matrix4.set(x,y,INFECTED);
+                    matrix4.set(x,y,INFECTED, NULL);
                 }else{
-                    matrix4.set(x,y,EMPTY);
+                    matrix4.set(x,y,EMPTY, NULL);
                 }
             }
         }
