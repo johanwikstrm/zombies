@@ -421,7 +421,6 @@ void Model::moveAll_multiThreading(uint32_t iterations) {
         // The statistics are computed locally
         // Need to reduce the results of each thread
         matrix.computeGlobalStatistics();
-        //printStats();
     }
 }
 
@@ -456,17 +455,29 @@ Statistic** Model::moveAll_multiThreading_mpi(uint32_t iterations){
     stats = (Statistic**)calloc(iterations,sizeof(Statistic*));
     initMoveFlags();
     Lock locks = Lock(height);
+    // Create an array for the randmized row numbers
+    uint32_t* randomizedRowNumbers = (uint32_t*)calloc(width, sizeof(uint32_t));
+    for (uint32_t i = 0; i < width; i++) {
+        randomizedRowNumbers[i] = i;
+    }
     for (uint32_t i = 0; i < iterations; i++) {
+        // For each iteration we change the order the rows are examined
+        uint32_t row1;
+        uint32_t row2;
+        for (uint32_t n = 0; n < width/2; n++) {
+            row1 = randomizer[0]->randInt(width-1);
+            row2 = randomizer[0]->randInt(width-1);
+            uint32_t tmp = randomizedRowNumbers[row1];
+            randomizedRowNumbers[row1] = randomizedRowNumbers[row2]; 
+            randomizedRowNumbers[row2] = tmp;
+        } 
         bool hasMoved = (i % 2) == 1;
         void *status;
         // All valid cells should have moveflag==hasMoved by now
         // some ghost cells may have moveflag!=hasMoved
         // in that case they should not be sent to the other processes 
         // to avoid duplication of humans, zombies and infected
-        int collisions = swapAll(nbours,matrix,hasMoved,i);
-
-        // TODO randomizedRows
-        
+        swapAll(nbours,matrix,hasMoved,i);
         inputMoveParallel* inputs[NUM_THREADS];
         pthread_t threads[NUM_THREADS];
         for (uint32_t n = 0; n < NUM_THREADS; n++) {
@@ -475,6 +486,7 @@ Statistic** Model::moveAll_multiThreading_mpi(uint32_t iterations){
             inputs[n]->model = this;
             inputs[n]->locks = &locks;
             inputs[n]->hasMoved = hasMoved;
+            inputs[n]->randomizedRows = &randomizedRowNumbers;
             inputs[n]->mpi = true;
             pthread_create(&(threads[n]), NULL, Model::moveParallel, (void*)inputs[n]);
         } 
@@ -486,6 +498,10 @@ Statistic** Model::moveAll_multiThreading_mpi(uint32_t iterations){
                 printf("Error in the execution");
             } 
         }
+        // The statistics are computed locally
+        // Need to reduce the results of each thread
+        matrix.computeGlobalStatistics();
+        
         stats[i] = new Statistic(matrix);
         stats[i]->mpi_reduce();
     }
