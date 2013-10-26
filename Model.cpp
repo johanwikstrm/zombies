@@ -23,16 +23,16 @@ typedef struct inputMoveParallel {
     // the randomzied columns
     // in order to a bias, the columns are not always examined 
     // in the same order
-    uint32_t*** randomizedRows;
+    uint32_t** randomizedColumns;
     // true iff mpi is used
     bool mpi;
 } inputMoveParallel;
 
 Model::Model(int width, int height, int procRank, double naturalBirthProb, 
-             double naturalDeathRisk, double initialPopDensity, 
-             double brainEatingProb, double infectedToZombieProb,
-             double zombieDecompositionRisk, double humanMoveProb, 
-             double zombieMoveProb, bool mpiEnabled) {
+        double naturalDeathRisk, double initialPopDensity, 
+        double brainEatingProb, double infectedToZombieProb,
+        double zombieDecompositionRisk, double humanMoveProb, 
+        double zombieMoveProb, bool mpiEnabled) {
     // The dimension of the mesh
     this->width = width;
     this->height = height;
@@ -157,7 +157,7 @@ Coord Model::moveZombie(int x,int y, uint32_t numThread){
     // Decomposition of the zombie
     if (timeToDecompose(numThread)) {
         matrix.set(x, y, EMPTY);
-    // The zombie moves 
+        // The zombie moves 
     } else if(timeToMoveZombie(numThread)) {
         Coord crd2 = getSquareToMoveTo(x, y, numThread);
         int destKind = matrix(crd2)->getKind();
@@ -167,17 +167,17 @@ Coord Model::moveZombie(int x,int y, uint32_t numThread){
             // nothing happens
             case INFECTED :
                 break;
-            // If the square where the zombie wants to move
-            // is inhabited by a human,
-            // the human will get infected
+                // If the square where the zombie wants to move
+                // is inhabited by a human,
+                // the human will get infected
             case HUMAN :
                 if (timeToEatBrain(numThread)) {
                     // mmmm brains....
                     matrix.getInfected(crd2.getX(), crd2.getY()); 
                 }
                 break;
-            // If the square where the zombie wants to move
-            // is empty, the zombie moves
+                // If the square where the zombie wants to move
+                // is empty, the zombie moves
             case EMPTY :
                 matrix.move(x, y, crd2.getX(), crd2.getY());
                 crd = crd2;
@@ -195,8 +195,8 @@ Coord Model::moveInfected(int x,int y, uint32_t numThread){
     if (timeToBecomeZombie(numThread)) {
         matrix.set(x, y, ZOMBIE);
         crd = moveZombie(x, y, numThread);
-    // The infected behave as humans during the incubation period
-    // The may die like humans, and move like them
+        // The infected behave as humans during the incubation period
+        // The may die like humans, and move like them
     } else {
         crd = moveHuman(x, y, numThread);
     }
@@ -208,7 +208,7 @@ Coord Model::moveHuman(int x,int y, uint32_t numThread){
     // Death of the human
     if (timeToDie(numThread)) {	
         matrix.set(x, y, EMPTY);
-    // The human moves
+        // The human moves
     } else if(timeToMoveHuman(numThread)) {
         Coord crd2 = getSquareToMoveTo(x, y, numThread);
         if (matrix(crd2)->getKind() == ZOMBIE && timeToEatBrain(numThread)) { 
@@ -243,8 +243,7 @@ Coord Model::getSquareToMoveTo(int fromX,int fromY, uint32_t numThread){
     return crd;
 }
 
-void Model::move(int x,int y, bool hasMoved, uint32_t numThread){
-
+void Model::move(int x,int y, bool hasMoved, uint32_t numThread) {
     int kind = matrix(x,y)->getKind();
     // If the cell is empty
     // a human may be born
@@ -252,7 +251,7 @@ void Model::move(int x,int y, bool hasMoved, uint32_t numThread){
         if (timeToBeBorn(numThread)) {
             matrix.set(x, y, HUMAN);
         }
-    // Otherwise, the person in the cell moves
+        // Otherwise, the person in the cell moves
     } else if (matrix(x,y)->getMoveFlag() == hasMoved) {
         Coord crd = Coord(x, y);
         switch(kind){
@@ -266,8 +265,7 @@ void Model::move(int x,int y, bool hasMoved, uint32_t numThread){
                 crd = moveZombie(x, y, numThread);
                 break;
         }
-
-        // Update moveFlags
+        // Update moveFlags for the non-empty cells only
         // Very important when multi-threading (because of the dummy)
         if (matrix(x,y)->getKind() != EMPTY) {
             // The square (x, y) has been considered 
@@ -285,11 +283,11 @@ Statistic** Model::moveAll(uint32_t iterations){
     initMoveFlags();
     Statistic **stats;
     stats = (Statistic**)calloc(iterations,sizeof(Statistic*));
-    for (uint32_t i = 0; i < iterations; i++){
+    for (uint32_t i = 0; i < iterations; i++) {
         // For each iteration each person in the cell tries to move
         bool hasMoved = (i % 2) == 1;
-        for (uint32_t y = 0; y < height; y++){
-            for (uint32_t x = 0; x < width; x++){
+        for (uint32_t y = 0; y < height; y++) {
+            for (uint32_t x = 0; x < width; x++) {
                 move(x, y, hasMoved, 0);
             }
         }
@@ -298,29 +296,14 @@ Statistic** Model::moveAll(uint32_t iterations){
     return stats;
 }
 
-
 void* Model::moveParallel(void* context) {
     inputMoveParallel* input = (inputMoveParallel*) context;
     uint32_t numThread = input->numThread;
     Model* model = input->model;
     Lock* locks = input->locks;
     bool hasMoved = input->hasMoved;
-    uint32_t*** randomizedRowsNumbers = input->randomizedRows;
+    //uint32_t** randomizedColumnsNumbers = input->randomizedColumns;
     bool mpi = input->mpi;
-    // The thread randomized its row numbers
-    // TODO decide the number of iterations
-    // TODO send only the array (not all the matrix)
-    /**
-    uint32_t row1;
-    uint32_t row2;
-    for (uint32_t n = 0; n < NUM_THREADS * 3; n++) {
-        row1 = model->randomizer[numThread]->randInt(model->width-1);
-        row2 = model->randomizer[numThread]->randInt(model->width-1);
-        uint32_t tmp = (*randomizedRowsNumbers)[row1][numThread];
-        (*randomizedRowsNumbers)[row1][numThread] = (*randomizedRowsNumbers)[row2][numThread]; 
-        (*randomizedRowsNumbers)[row2][numThread] = tmp;
-    } 
-    */
 
     uint32_t height = model->getHeight();
     uint32_t width = model->getWidth();
@@ -359,25 +342,64 @@ void* Model::moveParallel(void* context) {
     return (void*)0L;
 }
 
+void Model::moveAll_multiThreading_2(uint32_t iterations) {
+    initMoveFlags();
+    // Create an object Lock in order to have a locker for each column
+    // of the matrix
+    Lock locks = Lock(height);
+    // Create an array for the randmized column numbers
+    uint32_t* randomizedColumnNumbers = (uint32_t*)calloc(width, sizeof(uint32_t));
+    for (uint32_t i = 0; i < width; i++) {
+        randomizedColumnNumbers[i] = i;
+    }
+    for (uint32_t i = 0; i < iterations; i++) {
+        // For each iteration we change the order the columns are examined
+        // TODO
+        /**
+        uint32_t row1;
+        uint32_t row2;
+        for (uint32_t n = 0; n < width/2; n++) {
+            row1 = randomizer[0]->randInt(width-1);
+            row2 = randomizer[0]->randInt(width-1);
+            uint32_t tmp = randomizedColumnNumbers[row1];
+            randomizedColumnNumbers[row1] = randomizedColumnNumbers[row2]; 
+            randomizedColumnNumbers[row2] = tmp;
+        } 
+    */
+        bool hasMoved = (i % 2) == 1;
+        for (uint32_t y = 0; y < height; y++) {
+            for (uint32_t x = 0; x < width; x++) {
+                move(x, y, hasMoved, 0);
+            }
+        }
+        print();
+    }
+}
 
 void Model::moveAll_multiThreading(uint32_t iterations) {
     initMoveFlags();
     // Create an object Lock in order to have a locker for each column
     // of the matrix
     Lock locks = Lock(height);
-    // Create the matrix for the randmized row numbers
-    // for each thread
-    // TODO randomized rows
-    /**
-    uint32_t** randomizedRowNumbers = (uint32_t**)calloc(width, sizeof(uint32_t*));
+    // Create an array for the randmized column numbers
+    uint32_t* randomizedColumnNumbers = (uint32_t*)calloc(width, sizeof(uint32_t));
     for (uint32_t i = 0; i < width; i++) {
-        randomizedRowNumbers[i] = (uint32_t*)calloc(NUM_THREADS, sizeof(uint32_t));
-        for (uint32_t j = 0; j < NUM_THREADS; j++) {
-            randomizedRowNumbers[i][j] = i;
-        }
+        randomizedColumnNumbers[i] = i;
     }
-    */
     for (uint32_t i = 0; i < iterations; i++) {
+        // For each iteration we change the order the columns are examined
+        // TODO
+        /**
+        uint32_t row1;
+        uint32_t row2;
+        for (uint32_t n = 0; n < width/2; n++) {
+            row1 = randomizer[0]->randInt(width-1);
+            row2 = randomizer[0]->randInt(width-1);
+            uint32_t tmp = randomizedColumnNumbers[row1];
+            randomizedColumnNumbers[row1] = randomizedColumnNumbers[row2]; 
+            randomizedColumnNumbers[row2] = tmp;
+        } 
+    */
         bool hasMoved = (i % 2) == 1;
         void *status;
         inputMoveParallel* inputs[NUM_THREADS];
@@ -388,7 +410,7 @@ void Model::moveAll_multiThreading(uint32_t iterations) {
             inputs[n]->model = this;
             inputs[n]->locks = &locks;
             inputs[n]->hasMoved = hasMoved;
-            //inputs[n]->randomizedRows = &randomizedRowNumbers;
+            //inputs[n]->randomizedColumns = &randomizedColumnNumbers;
             inputs[n]->mpi = false;
             pthread_create(&(threads[n]), NULL, Model::moveParallel, (void*)inputs[n]);
         } 
@@ -400,7 +422,7 @@ void Model::moveAll_multiThreading(uint32_t iterations) {
                 printf("Error in the execution");
             }
         }
-    print();
+        print();
     }
 }
 
@@ -443,9 +465,9 @@ Statistic** Model::moveAll_multiThreading_mpi(uint32_t iterations){
         // in that case they should not be sent to the other processes 
         // to avoid duplication of humans, zombies and infected
         int collisions = swapAll(nbours,matrix,hasMoved,i);
-        
+
         cout<<"collisions: "<<collisions<<endl<<flush;   
-        
+
         //cout << "Iteration " << i <<endl << flush;
         inputMoveParallel* inputs[NUM_THREADS];
         pthread_t threads[NUM_THREADS];

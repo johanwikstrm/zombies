@@ -16,6 +16,7 @@ class Model
         Statistic ** moveAll(uint32_t iterations=1);
         Statistic ** moveAll_mpi(uint32_t iterations=1);
         void moveAll_multiThreading(uint32_t iterations=1);
+        void moveAll_multiThreading_2(uint32_t iterations=1);
         Statistic ** moveAll_multiThreading_mpi(uint32_t iterations);
         void print();
         void printStats();
