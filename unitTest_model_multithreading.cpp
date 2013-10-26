@@ -30,6 +30,6 @@ int main(int argc, char *argv[]){
                     initialPopDensity, brainEatingProb, infectedToZombieProb, 
                     zombieDecompositionRisk, humanMoveProb, zombieMoveProb);
     m.print();
-    m.moveAll_omp(100);
+    m.moveAll_multiThreading(100);
     m.print();
 }

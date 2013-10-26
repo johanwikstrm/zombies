@@ -9,29 +9,38 @@
 
 using namespace std;
 
+// struct create for the argument of the function 
+// executed by pthread_create
 typedef struct inputMoveParallel {
+    // the number of the thread (between 0 and NUM_THREAD-1)
     uint32_t numThread;
+    // the model
     Model* model;
+    // the locks (one for each row)
     Lock* locks;
+    // the initial state of the moveFlags
     bool hasMoved;
+    // the randomzied columns
+    // in order to a bias, the columns are not always examined 
+    // in the same order
     uint32_t*** randomizedRows;
+    // true iff mpi is used
     bool mpi;
 } inputMoveParallel;
 
-Model::Model(int width, int height, int procRank, double naturalBirthProb, double naturalDeathRisk, double initialPopDensity, double
-        brainEatingProb, double infectedToZombieProb,double zombieDecompositionRisk, double humanMoveProb
-        , double zombieMoveProb, bool mpiEnabled){
+Model::Model(int width, int height, int procRank, double naturalBirthProb, 
+             double naturalDeathRisk, double initialPopDensity, 
+             double brainEatingProb, double infectedToZombieProb,
+             double zombieDecompositionRisk, double humanMoveProb, 
+             double zombieMoveProb, bool mpiEnabled) {
+    // The dimension of the mesh
     this->width = width;
     this->height = height;
     // finding my neighbours
     nbours = new int[4];
     rank = procRank;
     neighbours(toX(rank),toY(rank),PROC_WIDTH,PROC_HEIGHT,nbours);
-    /*cout << "Proc "<<procRank << " has neighbours: "
-        << nbours[UP] << ","
-        << nbours[RIGHT] << ","
-        << nbours[DOWN] << ","
-        << nbours[LEFT] << "\n"<<flush;*/
+    // the parameters of the model
     this->naturalBirthProb = naturalBirthProb;
     this->naturalDeathRisk = naturalDeathRisk;
     this->initialPopDensity = initialPopDensity;
@@ -40,13 +49,16 @@ Model::Model(int width, int height, int procRank, double naturalBirthProb, doubl
     this->zombieDecompositionRisk = zombieDecompositionRisk;
     this->humanMoveProb = humanMoveProb;
     this->zombieMoveProb = zombieMoveProb;
-
+    // Creation of the mesh
     matrix = Matrix(height, width,mpiEnabled);
+    // Creation of the randomizer (one for each thread)
     randomizer = new MersenneTwister*[NUM_THREADS]; 
+    // Seed each random number generator
     for (int i = 0; i < NUM_THREADS; i++) {
         randomizer[i] = new MersenneTwister(time(0) + i + procRank);
     }
-
+    // Initialisation of the mesh (insert humans and zombies in the mesh)
+    // With MPI we need to consider the ghost cells
     if (mpiEnabled) {
         init_mpi();
     } else {
@@ -55,6 +67,7 @@ Model::Model(int width, int height, int procRank, double naturalBirthProb, doubl
 }
 
 Model::~Model(){
+    // Free all the memory allocated
     delete[] nbours;
     for (int i = 0; i < NUM_THREADS; i++) {
         delete randomizer[i];
@@ -63,6 +76,9 @@ Model::~Model(){
 }
 
 void Model::init_mpi(){
+    // With MPI there are ghost cells
+    // the columns 0 and width-1 are not considered
+    // the rows 0 and height-1 are not considered
     for (uint32_t y = 1; y < height-1; y++) {
         for (uint32_t x = 1; x < width-1; x++) {
             if (randomizer[0]->rand() < initialPopDensity) {
@@ -138,20 +154,30 @@ void Model::print(){
 
 Coord Model::moveZombie(int x,int y, uint32_t numThread){
     Coord crd = Coord(x, y);
-
+    // Decomposition of the zombie
     if (timeToDecompose(numThread)) {
         matrix.set(x, y, EMPTY);
+    // The zombie moves 
     } else if(timeToMoveZombie(numThread)) {
         Coord crd2 = getSquareToMoveTo(x, y, numThread);
         int destKind = matrix(crd2)->getKind();
         switch(destKind){
-            case HUMAN :
+            // If the square where the zombie wants to move
+            // is inhabited by an infected
+            // nothing happens
             case INFECTED :
+                break;
+            // If the square where the zombie wants to move
+            // is inhabited by a human,
+            // the human will get infected
+            case HUMAN :
                 if (timeToEatBrain(numThread)) {
                     // mmmm brains....
                     matrix.getInfected(crd2.getX(), crd2.getY()); 
                 }
                 break;
+            // If the square where the zombie wants to move
+            // is empty, the zombie moves
             case EMPTY :
                 matrix.move(x, y, crd2.getX(), crd2.getY());
                 crd = crd2;
@@ -163,46 +189,33 @@ Coord Model::moveZombie(int x,int y, uint32_t numThread){
 
 Coord Model::moveInfected(int x,int y, uint32_t numThread){
     Coord crd;
+    // The incubation time is finished
+    // The infected becomes a zombie
+    // and move as a zombie
     if (timeToBecomeZombie(numThread)) {
         matrix.set(x, y, ZOMBIE);
         crd = moveZombie(x, y, numThread);
+    // The infected behave as humans during the incubation period
+    // The may die like humans, and move like them
     } else {
         crd = moveHuman(x, y, numThread);
     }
     return crd;
 }
 
-Coord Model::getSquareToMoveTo(int fromX,int fromY, uint32_t numThread){
-    
-    double r = randomizer[numThread]->rand();
-
-    Coord crd = Coord(fromX, fromY);
-    if (r < 0.25) // left
-    {
-        crd.setX((fromX-1+width)%width);
-    }else if (r < 0.5) // right
-    {
-        crd.setX((fromX+1)%width);
-    }else if (r < 0.75) // up
-    {
-        crd.setY((fromY-1+height)%height);
-    }else// down
-    {
-        crd.setY((fromY+1)%height);
-    }
-    return crd;
-}
-
 Coord Model::moveHuman(int x,int y, uint32_t numThread){
     Coord crd = Coord(x, y);
+    // Death of the human
     if (timeToDie(numThread)) {	
         matrix.set(x, y, EMPTY);
+    // The human moves
     } else if(timeToMoveHuman(numThread)) {
         Coord crd2 = getSquareToMoveTo(x, y, numThread);
-        if (matrix(crd2)->getKind() == ZOMBIE && timeToEatBrain(numThread)){ // zombie encounter!!
+        if (matrix(crd2)->getKind() == ZOMBIE && timeToEatBrain(numThread)) { 
+            // zombie encounter!!
             // brain eaten, infected, doesn't move;
             matrix.getInfected(x, y); 
-        }else if(matrix(crd2)->getKind() == EMPTY){
+        } else if(matrix(crd2)->getKind() == EMPTY){
             matrix.move(x, y, crd2.getX(), crd2.getY());
             crd = crd2;
         }
@@ -210,13 +223,36 @@ Coord Model::moveHuman(int x,int y, uint32_t numThread){
     return crd;
 }
 
+Coord Model::getSquareToMoveTo(int fromX,int fromY, uint32_t numThread){
+    double r = randomizer[numThread]->rand();
+    // all the directions have the same probability (0.25)
+    Coord crd = Coord(fromX, fromY);
+    if (r < 0.25) {
+        // move left
+        crd.setX((fromX-1+width)%width);
+    } else if (r < 0.5) {
+        // move right
+        crd.setX((fromX+1)%width);
+    } else if (r < 0.75) {
+        // move up
+        crd.setY((fromY-1+height)%height);
+    } else {
+        // move down
+        crd.setY((fromY+1)%height);
+    }
+    return crd;
+}
+
 void Model::move(int x,int y, bool hasMoved, uint32_t numThread){
 
     int kind = matrix(x,y)->getKind();
+    // If the cell is empty
+    // a human may be born
     if (kind == EMPTY) {
         if (timeToBeBorn(numThread)) {
             matrix.set(x, y, HUMAN);
         }
+    // Otherwise, the person in the cell moves
     } else if (matrix(x,y)->getMoveFlag() == hasMoved) {
         Coord crd = Coord(x, y);
         switch(kind){
@@ -231,6 +267,7 @@ void Model::move(int x,int y, bool hasMoved, uint32_t numThread){
                 break;
         }
 
+        // Update moveFlags
         // Very important when multi-threading (because of the dummy)
         if (matrix(x,y)->getKind() != EMPTY) {
             // The square (x, y) has been considered 
@@ -241,20 +278,15 @@ void Model::move(int x,int y, bool hasMoved, uint32_t numThread){
             matrix(crd.getX(), crd.getY())->setMoveFlag(!hasMoved);
         }
     }
-    //int sum = matrix.getCount(HUMAN)+matrix.getCount(ZOMBIE)+matrix.getCount(INFECTED)+matrix.getCount(EMPTY);
-    /*if (sum != width*height){
-        cout << matrix.getCount(HUMAN)+matrix.getCount(ZOMBIE)+matrix.getCount(INFECTED)+matrix.getCount(EMPTY) <<
-         " == "<< width*height << " == " << sum << endl << flush;
-    }*/
-    //assert(matrix.getCount(HUMAN)+matrix.getCount(ZOMBIE)+matrix.getCount(INFECTED)+matrix.getCount(EMPTY) == width*height);
-    
 }
 
 Statistic** Model::moveAll(uint32_t iterations){
+    // Initialisation of the moveFlags
     initMoveFlags();
     Statistic **stats;
     stats = (Statistic**)calloc(iterations,sizeof(Statistic*));
     for (uint32_t i = 0; i < iterations; i++){
+        // For each iteration each person in the cell tries to move
         bool hasMoved = (i % 2) == 1;
         for (uint32_t y = 0; y < height; y++){
             for (uint32_t x = 0; x < width; x++){
@@ -266,13 +298,6 @@ Statistic** Model::moveAll(uint32_t iterations){
     return stats;
 }
 
-uint32_t Model::getWidth() {
-    return width;
-}
-
-uint32_t Model::getHeight() {
-    return height;
-}
 
 void* Model::moveParallel(void* context) {
     inputMoveParallel* input = (inputMoveParallel*) context;
@@ -335,7 +360,7 @@ void* Model::moveParallel(void* context) {
 }
 
 
-void Model::moveAll_omp(uint32_t iterations) {
+void Model::moveAll_multiThreading(uint32_t iterations) {
     initMoveFlags();
     // Create an object Lock in order to have a locker for each column
     // of the matrix
@@ -405,7 +430,7 @@ Statistic** Model::moveAll_mpi(uint32_t iterations){
     return stats;
 }
 
-Statistic** Model::moveAll_omp_mpi(uint32_t iterations){
+Statistic** Model::moveAll_multiThreading_mpi(uint32_t iterations){
     Statistic **stats;
     stats = (Statistic**)calloc(iterations,sizeof(Statistic*));
     initMoveFlags();
@@ -443,11 +468,17 @@ Statistic** Model::moveAll_omp_mpi(uint32_t iterations){
         }
         stats[i] = new Statistic(matrix);
         stats[i]->mpi_reduce();
-        
     }
     return stats ;  
 }
 
+uint32_t Model::getWidth() {
+    return width;
+}
+
+uint32_t Model::getHeight() {
+    return height;
+}
 
 void Model::initMoveFlags() {
     for (uint32_t x = 0; x < width; x++) {
