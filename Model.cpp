@@ -425,7 +425,7 @@ void Model::moveAll_multiThreading(uint32_t iterations) {
         // The statistics are computed locally
         // Need to reduce the results of each thread
         matrix.computeGlobalStatistics();
-        printStats();
+        //printStats();
     }
 }
 

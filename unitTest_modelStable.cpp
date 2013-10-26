@@ -1,13 +1,17 @@
 #include <cassert>
-#include "Model.h"
+#include <ctime>
 #include <iostream>
+#include "Model.h"
 
 using namespace std;
 
 int main(int argc, char *argv[]){
     //Model(int width,int height, int rank, double naturalBirthProb, double naturalDeathRisk, double initialPopDensity, double
     //brainEatingProb,double infectedToZombieProb,double zombieDecompositionRisk, double humanMoveProb, double zombieMoveProb);
-     
+    
+    time_t start;
+    time(&start); 
+
     int rank = 1;
    
     uint32_t width = 100;
@@ -33,4 +37,9 @@ int main(int argc, char *argv[]){
                     initialPopDensity, brainEatingProb, infectedToZombieProb, 
                     zombieDecompositionRisk, humanMoveProb, zombieMoveProb, false);
     m.moveAll_multiThreading(3650);
+
+    time_t end;
+    time(&end);
+
+    cout <<"Time : " <<difftime(end, start) <<endl;
 }
