@@ -72,8 +72,6 @@ int main(int argc, char *argv[])
         printStatsCsv(stats,nbIterations);
         
     }
-    
-    
 
     err = MPI_Finalize();
     assert(err == MPI_SUCCESS);    
