@@ -242,7 +242,8 @@ Coord Model::moveInfected(int x,int y, uint32_t* numThread){
 Coord Model::moveHuman(int x,int y, uint32_t* numThread){
     Coord crd = Coord(x, y);
     // Death of the human
-    if (timeToDie(numThread)) {	
+    // An infected human cannot die (power of the virus)
+    if (matrix(crd)->getKind() != INFECTED && timeToDie(numThread)) {	
         matrix.set(x, y, EMPTY, numThread);
         // The human moves
     } else if(timeToMoveHuman(numThread)) {
