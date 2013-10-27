@@ -13,11 +13,11 @@ class Model
                 , double brainEatingProb,double infectedToZombieProb,double zombieDecompositionRisk, double humanMoveProb
                 , double zombieMoveProb, bool mpiEnabled = false);
         ~Model();
-        Statistic ** moveAll(uint32_t iterations=1);
-        Statistic ** moveAll_mpi(uint32_t iterations=1);
+        Statistic** moveAll(uint32_t iterations=1);
+        Statistic** moveAll_mpi(uint32_t iterations=1);
         void moveAll_multiThreading(uint32_t iterations=1);
         void moveAll_multiThreading_2(uint32_t iterations=1);
-        Statistic ** moveAll_multiThreading_mpi(uint32_t iterations);
+        Statistic** moveAll_multiThreading_mpi(uint32_t iterations);
         void print();
         void printStats();
         int getCount(int kind);
@@ -27,21 +27,31 @@ class Model
         Cell* at(int x, int y);
 
     private:
-        Matrix matrix;
-        uint32_t width, height;
-        int * nbours;
-        int rank;
-
-        // a generator for each thread
-        MersenneTwister** randomizer;
         
-        static void* moveParallel(void* context);
+        // The matrix representing the geographical area where the simulation takes place
+        Matrix matrix;
+        // the dimensions of the area
+        uint32_t width, height;
+        
+        ////// the model parameters
         double naturalBirthProb, naturalDeathRisk, initialPopDensity, brainEatingProb, infectedToZombieProb;
         double zombieDecompositionRisk,humanMoveProb,zombieMoveProb;
+
+        ////// MPI parameters
+        // the neighbours of the current processor
+        int * nbours;
+        // the rank of the current processor
+        int rank;
+
+        // a random number generator per thread
+        MersenneTwister** randomizer;
+       
         void move(int x, int y, bool hasMoved, uint32_t* numThread);
         Coord moveHuman(int x, int y, uint32_t* numThread);
         Coord moveInfected(int x, int y, uint32_t* numThread);
         Coord moveZombie(int x, int y, uint32_t* numThread);
+        static void* moveParallel(void* context);
+        
         Coord getSquareToMoveTo(int fromX, int fromY, uint32_t* numThread);
 
         bool timeToDie(uint32_t* numThread);
@@ -55,7 +65,20 @@ class Model
         void init_mpi();
         void initMoveFlags();
 
+        /**
+         * @brief Initialise an array with the row numbers
+         *        With out any randomization
+         *        The order is simply the numbers from 0 to width-1
+         *
+         * @param   randomized (out parameter)
+         */
         void initialiseRandomizedArray(uint32_t** randomized);
+       
+        /**
+         *  @brief  Randomized the input array doing width/2 swaps
+         *
+         *  @param randomized (in/out parameter)
+         */ 
         void randomized(uint32_t** randomized);
         
         /**
