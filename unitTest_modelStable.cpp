@@ -25,9 +25,6 @@ int main(int argc, char *argv[]){
     double naturalDeathRisk = 6.5/(1000*366);
     
     double brainEatingProb = 0.7;
-   
-    // Zombies die !!!
-
     double infectedToZombieProb = 1.0/20.0;
     double zombieDecompositionRisk = 1.0/50.0;
     double humanMoveProb = 0.4;
@@ -36,7 +33,7 @@ int main(int argc, char *argv[]){
     Model m = Model(width, height, rank, naturalBirthProb, naturalDeathRisk, 
                     initialPopDensity, brainEatingProb, infectedToZombieProb, 
                     zombieDecompositionRisk, humanMoveProb, zombieMoveProb, false);
-    m.moveAll_multiThreading(360);
+    m.moveAll_multiThreading(10);
 
     time_t end;
     time(&end);

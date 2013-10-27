@@ -168,7 +168,7 @@ void Matrix::set(uint32_t x, uint32_t y, uint32_t k, uint32_t* numThread, uint32
     Array::set(y*width+x, k, sex);
 }
 
-void Matrix::move(uint32_t oldX, uint32_t oldY, uint32_t newX, uint32_t newY)
+void Matrix::move(uint32_t oldX, uint32_t oldY, uint32_t newX, uint32_t newY, uint32_t* numThread)
 {
     uint32_t person = (*this)(oldX, oldY)->getKind();
     uint32_t destination = (*this)(newX, newY)->getKind();
@@ -179,8 +179,13 @@ void Matrix::move(uint32_t oldX, uint32_t oldY, uint32_t newX, uint32_t newY)
     assert(destination == EMPTY);
    
     // The move
-    Array::set(oldY*width+oldX, EMPTY);
-    Array::set(newY*width+newX, person);
+    if (newX == 0 || newX == width-1 || newY == 0 || newY == height-1){// can be problematic, better let set handle it
+        set(oldX,oldY,EMPTY,numThread);
+        set(newX,newY,person,numThread);
+    }else{
+        Array::set(oldY*width+oldX, EMPTY);
+        Array::set(newY*width+newX, person);
+    }
 }
 
 // Only a HUMAN or an INFECTED can get INFECTED
