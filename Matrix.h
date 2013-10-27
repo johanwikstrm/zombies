@@ -116,7 +116,7 @@ class Matrix : public Array
          * @param   newY        the ordinate of destination
          *
          */
-        void move(uint32_t oldX, uint32_t oldY, uint32_t newX, uint32_t newY);
+        void move(uint32_t oldX, uint32_t oldY, uint32_t newX, uint32_t newY, uint32_t* numThread);
 
         /**
          * @brief       The person (HUMAN or INFECTED) get infected

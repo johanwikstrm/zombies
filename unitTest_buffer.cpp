@@ -43,17 +43,20 @@ int main(int argc, char *argv[])
     assert(err== MPI_SUCCESS);
     err = MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     assert(err == MPI_SUCCESS);
-    if (rank == 0){
+    if (PROC_HEIGHT*PROC_WIDTH>1){
+        if (rank == 0){
         err = sendToNeighbour(1,&from,&request,dtype,123);
-    	//err = MPI_Isend(from.rawData(), from.count(), dtype, 1, MPI_TAG ,MPI_COMM_WORLD, &request);
-    	assert(err == MPI_SUCCESS);	
-    }else if (rank == 1){
-		err = recvFromNeighbour(0,&to,dtype,123);
-        //err = MPI_Recv(to.rawData(), to.count(), dtype, 0, MPI_TAG,MPI_COMM_WORLD, &status);
-		assert(err == MPI_SUCCESS);
-		assert((*to.toArray())(0)->getKind() == ZOMBIE);
-		assert((*to.toArray())(1)->getKind() == EMPTY);
+        //err = MPI_Isend(from.rawData(), from.count(), dtype, 1, MPI_TAG ,MPI_COMM_WORLD, &request);
+        assert(err == MPI_SUCCESS); 
+        }else if (rank == 1){
+            err = recvFromNeighbour(0,&to,dtype,123);
+            //err = MPI_Recv(to.rawData(), to.count(), dtype, 0, MPI_TAG,MPI_COMM_WORLD, &status);
+            assert(err == MPI_SUCCESS);
+            assert((*to.toArray())(0)->getKind() == ZOMBIE);
+            assert((*to.toArray())(1)->getKind() == EMPTY);
+        }    
     }
+    
     /* this is what all matrices should do
         E E E E      E E Z E
         E H E E      E H E H

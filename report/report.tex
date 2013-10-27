@@ -46,8 +46,9 @@ In our model we have a number of variable factors, some relatively known and som
 
 \subsection{Humans}
 \paragraph{}
-The initial population statistics of our humans were based on actual Australian population data (table~\ref{AustralianData}). The humans in our model move in random directions, much like real humans do in a crisis, and this assumption has also been made in earlier works\cite{munz}. Humans can only move at a maximum pace of one square per day and they can only move in the directions up, down, left and right. When a human moves into a square inhabited by a zombie there is a probability that the human gets bitten and then becomes infected.
+The initial population statistics of our humans were based on actual Australian population data (table~\ref{AustralianData}). The humans in our model move in random directions, much like real humans do in a crisis, and this assumption has also been made in earlier works\cite{munz}. Humans can only move at a maximum pace of one square per day and they can only move in the directions up, down, left and right. When a human moves into a square inhabited by a zombie there is a probability that the human gets bitten and becomes infected. The probability of infection when in the same area as a zombie is currently unknown and in the model, we experiment with different values for this probability. In case of a zombie apocalypse, the authors recommend determining this parameter through empirical studies, placing a human and a zombie in the same square kilometer and measuring the time to infection.
 \begin{table}[!h]
+\centering
     \begin{tabular}{|l|l|}
       \hline
         Density    & 0.17/km\textsuperscript{2} \\
@@ -65,11 +66,30 @@ Most of the humans' daily moving are within a kilometer. In our simulation, the 
 
 \subsection{Zombies}
 \paragraph{}
-The life of the zombie is largely unknown. We do not know how fast they move, how long before they decompose or how long the zombie incubation time is. For this reason, several parameters in out model can be adjusted to 
+The life of the zombie is largely unknown. We do not know how fast they move, how long before they decompose or how long the zombie incubation time is. For this reason, several parameters in out model can be adjusted to fit different apocalyptic scenarios.
 
 \subsection{Infected humans}
 \paragraph{}
-Infected humans become zombies after an incubation time of about 5 days. During the incubation period an infected cannot infect other humans. The behaviour of the infected is mostly human : they move as quickly as humans and they may die.
+The incubation time of the zombie virus is also largely unknown so this parameter is also variable in our model. During the incubation period an infected cannot infect other humans. However, the power of the zombie virus during the incubation time is so powerful that infected humans cannot die like humans, or decomposed like zombies. Judging by our sources\cite{deadheads}, a person bitten by a zombie gets a radically lowered risk of dying, almost always surviving until the point of zombiefication. After that, point however, the risk of dying by headshot is radically increased.
+
+\subsection{Parallelisation of the model}
+\subsubsection{MPI}
+The model is divided into several small meshes that are on the order of 60000 cells big. Each of these small meshes are connected to four neighbours and the universe wraps around. Before each timestep, the outer cells of each mesh are exchanged with the neighbouring meshes which allows for inhabitants to move between meshes. This can create collisions if two inhabitants from two different meshes move into the same cell but this is mostly resolved with a very simple mechanism. If a collision is detected, two other nearby cells are examined and if any of these is empty, one of the colliding parties are moved. This may still lead to collisions if the populations density is very high but in a small experiment, this simple solution reduced collisions with over 99\% which was deemed enough for this application\ref{collisions}
+
+\begin{table}
+\centering
+\begin{tabular}{|l|l|}
+\hline
+& Collisions\\
+\hline
+Before & 675\\
+\hline
+After & 6\\
+\hline
+\end{tabular}
+\caption{The number of collisions per 1000 timesteps on four 98x98 grids before and after collision handling}
+\label{collsions}
+\end{table}
 
 
 
@@ -91,5 +111,7 @@ Infected humans become zombies after an incubation time of about 5 days. During 
 Open MPI: Goals, Concept, and Design of a Next Generation MPI Implementation. Edgar Gabriel, Graham E. Fagg, George Bosilca, Thara Angskun, Jack J. Dongarra, Jeffrey M. Squyres, Vishal Sahay, Prabhanjan Kambadur, Brian Barrett, Andrew Lumsdaine, Ralph H. Castain, David J. Daniel, Richard L. Graham, and Timothy S. Woodall. In Proceedings, 11th European PVM/MPI Users' Group Meeting, Budapest, Hungary, September 2004
 \bibitem{munz}
 Munz, Philip, et al. "When zombies attack!: mathematical modelling of an outbreak of zombie infection." Infectious Disease Modelling Research Progress 4 (2009): 133-150.
+\bibitem{deadheads}
+Deadheads, 2011
 \end{thebibliography}
 \end{document}
