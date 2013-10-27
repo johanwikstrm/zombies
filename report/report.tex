@@ -72,12 +72,8 @@ The incubation time of the zombie virus is also largely unknown so this paramete
 \paragraph{}
 The model is divided into several small meshes that are on the order of 60000 cells big. Each of these small meshes are connected to four neighbors and the universe wraps around. Before each timestep, the outer cells of each mesh are exchanged with the neighboring meshes which allows for inhabitants to move between meshes. This can create collisions if two inhabitants from two different meshes move into the same cell but this is mostly resolved with a very simple mechanism. If a collision is detected, two other nearby cells are examined and if any of these is empty, one of the colliding parties are moved. This may still lead to collisions if the populations density is very high but in a small experiment, this simple solution reduced collisions with over 99\% which was deemed enough for this application, as shown in Tab.~\ref{collisions}.
 
-\subsubsection{Multi-threading}
-\paragraph{}
-In order to do the computation on each small mesh we use multi-threading. Each thread do the computation for some columns of the mesh. As the computation requires the closest neighbours, when a thread works on the column $j$, the columns $j-1$ and $j+1$ cannot be used by other threads. In order to make sure there is no confict, we use \emph{locking}.
-\paragraph{}
-We had to deal with another conflict during the computation of the statistics. In order to save time, we update the statistics after each event (birth, death, getting infected, etc $\cdots$), instead of computing the statistics at the end of each iteration. However, with this method, two threads may update the statistics at the same time. In order to avoid this kind of conflict, a first solution was locking. However, there are so many events which require to upadte the statistics, that the locking is really too time consuming when the number of threads increase. The second solution, the one we are using, is each thread computes its local statistics and at the end of each iteration the main thread computes the global statistics thanks to the local ones.
- 
+The performance of the application was not negatively affected by increasing the  number of MPI processes, as shown in Tab.~\ref{mpiperformance}. This implies that the overhead of MPI is small compared to the calculations performed by the simulation.
+
 \begin{table}
 \centering
 \begin{tabular}{|l|l|}
@@ -93,6 +89,33 @@ After & 6\\
 \label{collisions}
 \end{table}
 
+\begin{table}
+\centering
+\begin{tabular}{|l|l|}
+\hline
+\# MPI processes& Time(s) \\
+\hline
+16 & 16.6\\
+\hline
+64 & 17.5\\
+\hline
+128 & 18.5\\
+\hline
+256 & 16.5\\
+\hline
+\end{tabular}
+\caption{Time to run 3650 iterations on a test set of meshes on an IBM iDataplex x86 system. There is one mesh per MPI process and before each iteration all MPI processes exchange information with four neighboring processes.}
+\label{mpiperformance}
+\end{table}
+
+\subsubsection{Multi-threading}
+\paragraph{}
+In order to do the computation on each small mesh we use multi-threading. Each thread do the computation for some columns of the mesh. As the computation requires the closest neighbours, when a thread works on the column $j$, the columns $j-1$ and $j+1$ cannot be used by other threads. In order to make sure there is no confict, we use \emph{locking}.
+\paragraph{}
+We had to deal with another conflict during the computation of the statistics. In order to save time, we update the statistics after each event (birth, death, getting infected, etc $\cdots$), instead of computing the statistics at the end of each iteration. However, with this method, two threads may update the statistics at the same time. In order to avoid this kind of conflict, a first solution was locking. However, there are so many events which require to upadte the statistics, that the locking is really too time consuming when the number of threads increase. The second solution, the one we are using, is each thread computes its local statistics and at the end of each iteration the main thread computes the global statistics thanks to the local ones.
+ 
+
+
 
 
 
@@ -102,9 +125,9 @@ After & 6\\
 %%% compare the evolution of the humans with and without the zombies
 %%%     compare the population growth
 
-Without the zombies, the human population growth is slow and steady, about 1\% per year as seen in Fig.~\ref{withoutzombies}. But with zombies, the population dynamics vary considerably as can be seen in Fig.~\ref{zombiesstable}. One thing we noticed very early was that it is not easy to achieve a world where zombies and humans could coexist. If we made the zombies too ferocious (increased their movement, decreased their decomposition rate and increased the brain eating probability) they quickly wiped out much of the human population but were the wiped out themselves since there were not enough humans left to sustain a zombie population. This is shown in Fig.~\ref{zombieswipedout}.
+Without the zombies, the human population growth is slow and steady, about 1\% per year as seen in Fig.~\ref{withoutzombies}. But with zombies, the population dynamics vary considerably as can be seen in Fig.~\ref{zombiesstablezoomed}. One thing we noticed very early was that it is not easy to achieve a world where zombies and humans could coexist. If we made the zombies too ferocious (increased their movement, decreased their decomposition rate and increased the brain eating probability) they quickly wiped out much of the human population but were the wiped out themselves since there were not enough humans left to sustain a zombie population. This is shown in Fig.~\ref{zombieswipedout}.
 
-The best way to sustain a zombie population seems to be having a very small zombie population since even a small zombie population has a large impact on the human population as seen in Fig.~\ref{zombiesstable} and Fig.~\ref{zombiesstablezoomed}.
+The best way to sustain a zombie population seems to be having a very small zombie population since even a small zombie population has a large impact on the human population as seen in Fig.~\ref{zombiesstable} and Fig.~\ref{zombiesstablezoomed}. If the zombie population is more aggressive (has higher brain eating probability or higher movement probability) the model generally becomes unstable and wipes out the zombies.
 
 \begin{figure}
 \includegraphics[width=350pt]{plots/withoutzombies}
@@ -118,12 +141,12 @@ The best way to sustain a zombie population seems to be having a very small zomb
 \end{figure}
 \begin{figure}
 \includegraphics[width=350pt]{plots/zombiesstable}
-\caption{An example of the big fluctuations caused by a small relatively stable zombie population. A zoomed in graph of the zombie population can be seen in Fig.~\ref{zombiesstablezoomed}}
+\caption{An example of the big fluctuations caused by a small relatively stable zombie population. A zoomed-in graph of the zombie population can be seen in Fig.~\ref{zombiesstablezoomed}}
 \label{zombiesstable}
 \end{figure}
 \begin{figure}
 \includegraphics[width=350pt]{plots/zombiesstablezoomed}
-\caption{The zombie population corresponding to the run in Fig.~\ref{zombiesstable}. Notice how the increas in zombies correspond to a sharp drop in humans.}
+\caption{The zombie population corresponding to the run in Fig.~\ref{zombiesstable}. Notice how the increase in zombies correspond to a sharp drop in humans.}
 \label{zombiesstablezoomed}
 \end{figure}
 
@@ -133,7 +156,7 @@ The best way to sustain a zombie population seems to be having a very small zomb
 %%% per year (average) : number of infected
 
 \section{Conclusions}
-In conclusion, we are pretty safe from the zombie apocalypse. Even aggressive zombies will eventually thin down the number of humans to very small levels and bring their own destruction. To achieve a stable population, the zombies need to be relatively non-aggressive (having a brain eating probability of 0.2, and a decomposition risk of 0.01) but probably quite agile (having a probability of moving one km\textsuperscript{2} of 0.7). This
+In conclusion, we are pretty safe from the zombie apocalypse. Even aggressive zombies will eventually thin down the number of humans to very small levels and bring their own destruction. To achieve a stable population, the zombies need to be relatively non-aggressive (having a brain eating probability of 0.2, and a decomposition risk of 0.01) but probably quite agile (having a probability of moving one km\textsuperscript{2} of 0.7). In the unlikely event that the zombies of the zombie apocalypse show all the traits needed for a stable model, the authors suggest that we alter some of the zombies characteristics slightly to make the model unstable. We can, for example, speed up global warming to increase the decomposition rate of the zombies since our experiments show that almost all parameters are advantageous for humans and not for zombies.
 
 \begin{thebibliography}{99}
 \bibitem{openmpi}
