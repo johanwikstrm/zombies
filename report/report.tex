@@ -1,4 +1,4 @@
-\documentclass{report}
+\documentclass{article}
 \usepackage[utf8]{inputenc}
 \usepackage{amsmath}
 \usepackage{amsfonts}
@@ -15,17 +15,18 @@
 \fancyhead[L]{Johan Wikström - Anaël Bonneton}
 \fancyfoot{}
 
-\begin{document}
 \title{Modeling the zombie apocalypse using a HIZD-model and HPC}
 \author{Johan Wikström - 645714 \\
         Anaël Bonneton - 646275}
+
+\begin{document}
 \maketitle
 \tableofcontents
 
 \section{Problem description}	
 
 \paragraph{}
-SIR-models (Susceptible, Infected, Removed/Recovered) are commonly used to model diseases in populations. In this report, we use a modified SIR-model called a HIZD-model (Human,Infected, Zombie, Decayed) to model a potential zombie apocalypse. The aim of the report is to determine the effect of some vital parameters, such as the infection risk when encountering a zombie, the incubation time for an infected human, on the survival of the human and zombie populations. In order to speed up the computation, we have used multi-threading and MPI\cite{openmpi}. We have run the simulation on an IBM iDataplex x86 system with up to 256 MPI processes.
+SIR-models (Susceptible, Infected, Removed/Recovered) are commonly used to model diseases in populations. In this report, we use a modified SIR-model called a HIZD-model (Human, Infected, Zombie, Decayed) to model a potential zombie apocalypse. The aim of the report is to determine the effect of some vital parameters, such as the infection risk when encountering a zombie, the incubation time for an infected human, on the survival of the human and zombie populations. In order to speed up the computation, we have used multi-threading and MPI\cite{openmpi}. We have run the simulation on an IBM iDataplex x86 system with up to 256 MPI processes.
 
 \section{Model}
 
@@ -45,7 +46,7 @@ In our model we have a number of variable factors, some relatively known and som
 
 \subsection{Humans}
 \paragraph{}
-The initial population statistics of our humans were based on actual Australian population data (table~\ref{AustralianData}). The humans in our model move in random directions, much like real humans do in a crisis, and this assumption has also been made in earlier works\cite{munz}. Humans can only move at a maximum pace of one square per day and they can only move in the directions up, down, left and right. When a human moves into a square inhabited by a zombie there is a probability that the human gets bitten and turns into a zombie.
+The initial population statistics of our humans were based on actual Australian population data (table~\ref{AustralianData}). The humans in our model move in random directions, much like real humans do in a crisis, and this assumption has also been made in earlier works\cite{munz}. Humans can only move at a maximum pace of one square per day and they can only move in the directions up, down, left and right. When a human moves into a square inhabited by a zombie there is a probability that the human gets bitten and then becomes infected.
 \begin{table}[!h]
     \begin{tabular}{|l|l|}
       \hline
@@ -63,10 +64,12 @@ The initial population statistics of our humans were based on actual Australian 
 Most of the humans' daily moving are within a kilometer. In our simulation, the probability for a human to travel more than 1 kilometer in one day is 0.4. When a human encounters a zombie, it may become infected with the probability of 0.65.
 
 \subsection{Zombies}
+\paragraph{}
 The life of the zombie is largely unknown. We do not know how fast they move, how long before they decompose or how long the zombie incubation time is. For this reason, several parameters in out model can be adjusted to 
 
 \subsection{Infected humans}
-Infected humans become zombies after an incubation time of about 5 days. During the incubation period an infected cannot infect other humans. The behaviour of the infected is half-human, half-zombie : sometimes they move as quickly as humans, sometimes they are as slow as zombies. However, the power of the zombie virus during the incubation time is so powerful that infected humans cannot die like humans, or decomposed like zombies.
+\paragraph{}
+Infected humans become zombies after an incubation time of about 5 days. During the incubation period an infected cannot infect other humans. The behaviour of the infected is mostly human : they move as quickly as humans and they may die.
 
 
 

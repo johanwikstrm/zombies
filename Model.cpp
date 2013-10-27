@@ -88,6 +88,7 @@ void Model::init_mpi(){
             }
         }
     }
+    // Initially there are two zombies in each local mesh
     matrix.set(width/2, height/2, ZOMBIE, NULL);
     matrix.set(width/2+1,height/2+1, ZOMBIE, NULL);
 }
@@ -102,6 +103,7 @@ void Model::init(){
             }
         }
     }
+    // Initially there are two zombies
     matrix.set(width/2, height/2, ZOMBIE, NULL);
     matrix.set(width/2+1,height/2+1, ZOMBIE, NULL);
 }
@@ -129,6 +131,8 @@ bool Model::timeToBeBorn(uint32_t* numThread) {
     }
     double empties = matrix.getCount(EMPTY);
     double humans = matrix.getCount(HUMAN);
+    // As a human may be born in each empty cell
+    // we need to do a normalization
     return randomizer[n]->rand() < (naturalBirthProb*humans/empties);
 }
 
@@ -534,7 +538,6 @@ void Model::randomized(uint32_t** randomized) {
     }
 }
 
-
 void Model::computeColumnNumbers(uint32_t height, uint32_t numThread, uint32_t* firstColumn, uint32_t* lastColumn) {
     uint32_t numColumns = height / NUM_THREADS;
     uint32_t k = height % NUM_THREADS;
@@ -551,4 +554,3 @@ void Model::computeColumnNumbers(uint32_t height, uint32_t numThread, uint32_t* 
         }
     }
 }
-
