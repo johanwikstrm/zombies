@@ -33,7 +33,7 @@ int main(int argc, char *argv[]){
     Model m = Model(width, height, rank, naturalBirthProb, naturalDeathRisk, 
                     initialPopDensity, brainEatingProb, infectedToZombieProb, 
                     zombieDecompositionRisk, humanMoveProb, zombieMoveProb, false);
-    m.moveAll_multiThreading(10);
+    m.moveAll_multiThreading(3650);
 
     time_t end;
     time(&end);

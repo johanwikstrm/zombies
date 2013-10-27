@@ -1,4 +1,4 @@
-\documentclass{report}
+\documentclass{article}
 \usepackage[utf8]{inputenc}
 \usepackage{amsmath}
 \usepackage{amsfonts}
@@ -15,10 +15,11 @@
 \fancyhead[L]{Johan Wikström - Anaël Bonneton}
 \fancyfoot{}
 
-\begin{document}
 \title{Modeling the zombie apocalypse using a HIZD-model and HPC}
 \author{Johan Wikström - 645714 \\
         Anaël Bonneton - 646275}
+
+\begin{document}
 \maketitle
 \tableofcontents
 
@@ -30,7 +31,7 @@ SIR-models (Susceptible, Infected, Removed/Recovered) are commonly used to model
 \section{Model}
 
 \paragraph{}
-The simulation takes place in a fictional continent about the size of Australia, 8000000 km\textsuperscript{2}. In order to model this geographical area we use 128 250x250 meshes where each square represents 1 km\textsuperscript{2}. Each square can be inhabited or empty. There are three types of inhabitants : \emph{humans}, \emph{infected} and \emph{zombies}. This is a sparsely populated area as is the case in most sources regarding the zombie apocalypse\cite{zombieland}. In our model, the time granularity is days.
+The simulation takes place in a fictional continent about the size and shape of Australia, 8000000 km\textsuperscript{2}. In order to model this geographical area we use 128 250x250 meshes where each square represents 1 km\textsuperscript{2}. Each square can be inhabited or empty. There are three types of inhabitants : \emph{humans}, \emph{infected} and \emph{zombies}. This is a sparsely populated area as is the case in most sources regarding the zombie apocalypse\cite{zombieland}. In our model, the time granularity is days.
 
 In our model we have a number of variable factors, some relatively known and some unknown that can be changed to model different outcomes of the zombie apocalypse.
 
@@ -45,7 +46,7 @@ In our model we have a number of variable factors, some relatively known and som
 
 \subsection{Humans}
 \paragraph{}
-The initial population statistics of our humans were based on actual Australian population data (table~\ref{AustralianData}), but in this simulation we assume a very sparsely populated land mass which is more coherent with our sources on the matter\cite{zombieland} . The humans in our model move in random directions, much like real humans do in a crisis, and this assumption has also been made in earlier works\cite{munz}. Humans can only move at a maximum pace of one square kilometer per day and they can only move in the directions up, down, left and right. When a human moves into a square inhabited by a zombie there is a probability that the human gets bitten and turns into a zombie. The probability of infection when in the same area as a zombie is currently unknown and in the model, we experiment with different values for this probability. In case of a zombie apocalypse, the authors recommend determining this parameter through empirical studies, placing a human and a zombie in the same square kilometer, measuring the time to infection to estimate the brain eating probability.
+The initial population statistics of our humans were based on actual Australian population data (table~\ref{AustralianData}), but in this simulation we assume a very sparsely populated land mass which is more coherent with our sources on the matter\cite{zombieland} . The humans in our model move in random directions, much like real humans do in a crisis, and this assumption has also been made in earlier works\cite{munz}. Humans can only move at a maximum pace of one square kilometer per day and they can only move in the directions up, down, left and right. When a human moves into a square inhabited by a zombie there is a probability that the human gets bitten and becomes infected. The probability of infection when in the same area as a zombie is currently unknown and in the model, we experiment with different values for this probability. In case of a zombie apocalypse, the authors recommend determining this parameter through empirical studies, placing a human and a zombie in the same square kilometer, measuring the time to infection to estimate the brain eating probability.
 \begin{table}[!h]
 \centering
     \begin{tabular}{|l|l|}
@@ -62,9 +63,11 @@ The initial population statistics of our humans were based on actual Australian 
 Most of the humans' daily moving are within a kilometer. In our simulation, the probability for a human to travel more than 1 kilometer in one day is 0.4. When a human encounters a zombie, it may become infected with the probability of 0.65.
 
 \subsection{Zombies}
+\paragraph{}
 The life of the zombie is largely unknown. We do not know how fast they move, how long before they decompose or how long the zombie incubation time is. For this reason, several parameters in out model can be adjusted to fit different apocalyptic scenarios.
 
 \subsection{Infected humans}
+\paragraph{}
 The incubation time of the zombie virus is also largely unknown so this parameter is also variable in our model. During the incubation period an infected cannot infect other humans. However, the power of the zombie virus during the incubation time is so powerful that infected humans cannot die like humans, or decomposed like zombies. Judging by our sources\cite{deadheads}, a person bitten by a zombie gets a radically lowered risk of dying, almost always surviving until the point of zombiefication. After that, point however, the risk of dying by headshot is radically increased.
 
 \subsection{Parallelisation of the model}
