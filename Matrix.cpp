@@ -156,7 +156,7 @@ void Matrix::set(uint32_t x, uint32_t y, uint32_t k, uint32_t* numThread, uint32
 {
     int previousKind = (*this)(x, y)->getKind();
     // if mpi is not enabled, or if were not on any ghost cell, count it
-    if (!mpiEnabled || (x > 0 && x < width -2 && y > 0 && y < height-2)) {
+    if (!mpiEnabled || (x > 0 && x < width -1 && y > 0 && y < height-1)) {
         if (numThread != NULL) {
             partialCounts[*numThread][previousKind]--;
             partialCounts[*numThread][k]++;
