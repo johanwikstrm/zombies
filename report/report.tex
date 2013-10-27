@@ -28,12 +28,12 @@
 \section{Problem description}	
 
 \paragraph{}
-SIR-models (Susceptible, Infected, Removed/Recovered) are commonly used to model diseases in populations. In this report, we use a modified SIR-model called a HIZD-model (Human, Infected, Zombie, Decayed) to model a potential zombie apocalypse. The aim of the report is to determine the effect of some vital parameters, such as the infection risk when encountering a zombie, the incubation time for an infected human, on the survival of the human and zombie populations. In order to speed up the computation, we have used multi-threading and MPI\cite{openmpi}. We have run the simulation on an IBM iDataplex x86 system with up to 256 MPI processes.
+SIR-models (Susceptible, Infected, Removed/Recovered) are commonly used to model diseases in populations. In this report, we use a modified SIR-model called a HIZD-model (Human,Infected, Zombie, Decayed) to model a potential zombie apocalypse. The aim of the report is to determine the effect of some vital parameters, such as the infection risk when encountering a zombie, the incubation time for an infected human, on the survival of the human and zombie populations. In order to speed up the computation, we have used multi-threading and MPI\cite{openmpi}. We have run the simulation on an IBM iDataplex x86 system with up to 256 MPI processes at once.
 
 \section{Model}
 
 \paragraph{}
-The simulation takes place in the Northern Territory in Australia. In order to model this geographical area we use a 1500*1000 mesh where each square represents 1 km\textsuperscript{2}. Each square can be inhabited or empty. There are three types of inhabitants : \emph{humans}, \emph{infected} and \emph{zombies}. This is a sparsely populated area but it is the case in the Northern Territory where the density is only 0.17/km\textsuperscript{2}. In our model, the time granularity is days. 
+The simulation takes place in a fictional continent about the size and shape of Australia, 8000000 km\textsuperscript{2}. In order to model this geographical area we use 128 250x250 meshes where each square represents 1 km\textsuperscript{2}. Each square can be inhabited or empty. There are three types of inhabitants : \emph{humans}, \emph{infected} and \emph{zombies}. This is a sparsely populated area as is the case in most sources regarding the zombie apocalypse\cite{zombieland}. In our model, the time granularity is days.
 
 In our model we have a number of variable factors, some relatively known and some unknown that can be changed to model different outcomes of the zombie apocalypse.
 
@@ -48,12 +48,10 @@ In our model we have a number of variable factors, some relatively known and som
 
 \subsection{Humans}
 \paragraph{}
-The initial population statistics of our humans were based on actual Australian population data (table~\ref{AustralianData}). The humans in our model move in random directions, much like real humans do in a crisis, and this assumption has also been made in earlier works\cite{munz}. Humans can only move at a maximum pace of one square per day and they can only move in the directions up, down, left and right. When a human moves into a square inhabited by a zombie there is a probability that the human gets bitten and becomes infected. The probability of infection when in the same area as a zombie is currently unknown and in the model, we experiment with different values for this probability. In case of a zombie apocalypse, the authors recommend determining this parameter through empirical studies, placing a human and a zombie in the same square kilometer and measuring the time to infection.
+The initial population statistics of our humans were based on actual Australian population data (table~\ref{AustralianData}), but in this simulation we assume a very sparsely populated land mass which is more coherent with our sources on the matter\cite{zombieland} . The humans in our model move in random directions, much like real humans do in a crisis, and this assumption has also been made in earlier works\cite{munz}. Humans can only move at a maximum pace of one square kilometer per day and they can only move in the directions up, down, left and right. When a human moves into a square inhabited by a zombie there is a probability that the human gets bitten and becomes infected. The probability of infection when in the same area as a zombie is currently unknown and in the model, we experiment with different values for this probability. In case of a zombie apocalypse, the authors recommend determining this parameter through empirical studies, placing a human and a zombie in the same square kilometer, measuring the time to infection to estimate the brain eating probability.
 \begin{table}[!h]
 \centering
     \begin{tabular}{|l|l|}
-      \hline
-        Density    & 0.17/km\textsuperscript{2} \\
       \hline
         Birth rate & 13.3 per year per 1000 persons \\
       \hline
@@ -110,6 +108,8 @@ We had to deal with another confilt during the computation of the statistics. In
 %%% compare the evolution of the humans with and without the zombies
 %%%     compare the population growth
 
+Without the zombies, the human population growth is slow and steady, about 1\% per year. But with zombies, the population dynamics vary considerably as can be seen in Fig.~\ref{stable}.
+
 
 %%% over the years, evolution of nb of humans, nb of zombies and infected
 %%% per year (average) : number of infected
@@ -121,6 +121,8 @@ Open MPI: Goals, Concept, and Design of a Next Generation MPI Implementation. Ed
 \bibitem{munz}
 Munz, Philip, et al. "When zombies attack!: mathematical modelling of an outbreak of zombie infection." Infectious Disease Modelling Research Progress 4 (2009): 133-150.
 \bibitem{deadheads}
-Deadheads, 2011
+Brett Pierce, Drew T. Pirece(writers,directors), 2011, Deadheads
+\bibitem{zombieland}
+Fleischer, R., Reese R., Wernick P., 2009, Zombieland 
 \end{thebibliography}
 \end{document}
