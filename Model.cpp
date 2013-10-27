@@ -211,7 +211,7 @@ Coord Model::moveZombie(int x,int y, uint32_t* numThread){
                 // If the square where the zombie wants to move
                 // is empty, the zombie moves
             case EMPTY :
-                matrix.move(x, y, crd2.getX(), crd2.getY());
+                matrix.move(x, y, crd2.getX(), crd2.getY(),numThread);
                 crd = crd2;
                 break;
         }
@@ -248,7 +248,7 @@ Coord Model::moveHuman(int x,int y, uint32_t* numThread){
             // brain eaten, infected, doesn't move;
             matrix.getInfected(x, y, numThread); 
         } else if(matrix(crd2)->getKind() == EMPTY){
-            matrix.move(x, y, crd2.getX(), crd2.getY());
+            matrix.move(x, y, crd2.getX(), crd2.getY(),numThread);
             crd = crd2;
         }
     }
@@ -423,16 +423,16 @@ Statistic** Model::moveAll_mpi(uint32_t iterations){
     Statistic **stats;
     stats = (Statistic**)calloc(iterations,sizeof(Statistic*));
     for (uint32_t i = 0; i < iterations; i++){
-        // Not cool
-        neighbours(toX(rank),toY(rank),PROC_WIDTH,PROC_HEIGHT,nbours);
         bool hasMoved = (i % 2) == 1;
         // All valid cells should have moveflag hasMoved by now
         // some ghost cells may have the wrong moveflag, so they should not be exchanged 
         // with the other processes, this is to prevent duplication
-        if (rank == ROOT_NODE){
-            //cout <<" Iteration: "<<i<<endl<<flush;
-        }
+        //cout <<"iteration: "<<i<<" after move,before swap\n"<<flush;
+        //print();
         swapAll(nbours, matrix,hasMoved, i); // must be done before the first iteration
+        //cout <<"iteration: "<<i<<"after swap\n"<<flush;
+        //print();
+        //cout << flush;
         for (uint32_t y = 1; y < height-1; y++){
             for (uint32_t x = 1; x < width-1; x++){
                 move(x, y, hasMoved, NULL);
@@ -440,9 +440,6 @@ Statistic** Model::moveAll_mpi(uint32_t iterations){
         }
         stats[i] = new Statistic(matrix);
         stats[i]->mpi_reduce();
-        if (rank == ROOT_NODE){
-            //cout << stats[i]->toCsv()<<" sum: "<<stats[i]->sum()<<endl<<flush;
-        }
     }
     return stats;
 }
