@@ -8,6 +8,7 @@
 \usepackage{caption}
 \usepackage{url}
 \usepackage{fancyhdr}
+\usepackage{placeins}
 
 
 \pagestyle{fancy}
@@ -21,8 +22,8 @@
         Anaël Bonneton - 646275}
 \maketitle
 \tableofcontents
-\newpage
 
+\newpage
 \paragraph{}
 SIR-models (Susceptible, Infected, Removed/Recovered) are commonly used to model diseases in populations. In this report, we use a modified SIR-model called a HIZD-model (Human,Infected, Zombie, Decayed) to model a potential zombie apocalypse. The aim of the report is to determine the effect of some vital parameters, such as the infection risk when encountering a zombie, the incubation time for an infected human, on the survival of the human and zombie populations. In order to speed up the computation, we have used multi-threading and MPI\cite{openmpi}. We have run the simulation on an IBM iDataplex x86 system with up to 256 MPI processes at once. In the interest of animal protection, we aim to get a model where the zombies and humans both have stable populations.
 
@@ -65,7 +66,6 @@ The life of the zombie is largely unknown. We do not know how fast they move, ho
 \paragraph{}
 The incubation time of the zombie virus is also largely unknown so this parameter is variable in our model. During the incubation period an infected cannot infect other humans. However, the power of the zombie virus during the incubation time is so powerful that infected humans cannot die like humans, or decompose like zombies. Judging by our sources\cite{deadheads}, a person bitten by a zombie gets a radically lowered risk of dying, almost always surviving until the point of zombiefication. After that, point however, the risk of dying by headshot is radically increased.
 
-\newpage
 \section{Parallelisation of the computation}
 \subsection{MPI}
 \paragraph{}
@@ -74,7 +74,7 @@ The model is divided into several small meshes that are on the order of 60000 ce
 \paragraph{}
 The performance of the application was not negatively affected by increasing the  number of MPI processes, as shown in Tab.~\ref{mpiperformance}. This implies that the overhead of MPI is small compared to the calculations performed by the simulation.
 
-\begin{table}
+\begin{table}[h!]
 \centering
 \begin{tabular}{|l|l|}
 \hline
@@ -89,7 +89,7 @@ After & 6\\
 \label{collisions}
 \end{table}
 
-\begin{table}
+\begin{table}[h!]
 \centering
 \begin{tabular}{|l|l|}
 \hline
@@ -118,23 +118,21 @@ Thanks to multi-threading the computation time is significantly reduced (Fig.~\r
     \[
         \frac{t_1}{t_n} = c \cdot x^{0.5}
     \]
+where $t_1$ is the execution with one thread, and $t_n$ the execution time with $n$ threads.
 
 \begin{figure}[h!]
-\includegraphics[height = 10cm, angle=270]{plots/multithreadingPerformance}
+\includegraphics[height=15cm, width=10cm, angle=270]{plots/multithreadingPerformance}
 \caption{Execution time for a 2500x250 mesh according to the number of threads}
 \label{multithreadingPerformance}
 \end{figure}
 
 \begin{figure}[h!]
-\includegraphics[height = 10cm, angle=270]{plots/speedUp}
+\includegraphics[height=15cm, width=10cm, angle=270]{plots/speedUp}
 \caption{Speed up analysis according to the number of threads}
 \label{speedUp}
 \end{figure}
 
-
-
-
-
+\newpage
 \section{Results}
 \paragraph{}
 Without the zombies, the human population growth is slow and steady, about 1\% per year as seen in Fig.~\ref{withoutzombies}. But with zombies, the population dynamics vary considerably as can be seen in Fig.~\ref{zombiesstablezoomed}. One thing we noticed very early was that it is not easy to achieve a world where zombies and humans could coexist. If we made the zombies too ferocious (increased their movement, decreased their decomposition rate and increased the brain eating probability) they quickly wiped out much of the human population but were the wiped out themselves since there were not enough humans left to sustain a zombie population. This is shown in Fig.~\ref{zombieswipedout}.
@@ -143,30 +141,31 @@ Without the zombies, the human population growth is slow and steady, about 1\% p
 The best way to sustain a zombie population seems to be having a very small zombie population since even a small zombie population has a large impact on the human population as seen in Fig.~\ref{zombiesstable} and Fig.~\ref{zombiesstablezoomed}. If the zombie population is more aggressive (has higher brain eating probability or higher movement probability) the model generally becomes unstable and wipes out the zombies.
 
 \begin{figure}[h!]
-\includegraphics[height = 10cm]{plots/withoutzombies}
+\includegraphics[height = 8cm]{plots/withoutzombies}
 \caption{A graph over the the human population in a world without zombies.}
 \label{withoutzombies}
 \end{figure}
 \begin{figure}[h!]
-\includegraphics[height = 10cm]{plots/zombieswipedout}
+\includegraphics[height = 8cm]{plots/zombieswipedout}
 \caption{An example of when the zombie population brings it's own downfall. In this 150 year simulation the brain eating probability is high(0.5) and the zombie decomposition risk is low(0.005) but the zombies are quickly wiped out due to lack of food.}
 \label{zombieswipedout}
 \end{figure}
 \begin{figure}[h!]
-\includegraphics[width=350pt]{plots/zombiesstable}
+\includegraphics[height=8cm]{plots/zombiesstable}
 \caption{An example of the big fluctuations caused by a small relatively stable zombie population. A zoomed-in graph of the zombie population can be seen in Fig.~\ref{zombiesstablezoomed}. In this simulation the brain eating probability is low (0.2) and the zombies are quite agile (0.7) and have a low decay risk (0.01).}
 \label{zombiesstable}
 \end{figure}
 \begin{figure}[h!]
-\includegraphics[width=350pt]{plots/zombiesstablezoomed}
+\includegraphics[width=15cm]{plots/zombiesstablezoomed}
 \caption{The zombie population corresponding to the run in Fig.~\ref{zombiesstable}. Notice how the increase in zombies correspond to a sharp drop in humans.}
 \label{zombiesstablezoomed}
 \end{figure}
 
-
+\FloatBarrier
 
 \newpage
 \section{Conclusions}
+\paragraph{}
 In conclusion, we are pretty safe from the zombie apocalypse. Even aggressive zombies will eventually thin down the number of humans to very small levels and bring their own destruction. To achieve a stable population, the zombies need to be relatively non-aggressive (having a brain eating probability of 0.2, and a decomposition risk of 0.01) but probably quite agile (having a probability of moving one km\textsuperscript{2} of 0.7). In the unlikely event that the zombies of the zombie apocalypse show all the traits needed for a stable model, the authors suggest that we alter some of the zombies characteristics slightly to make the model unstable. We can, for example, speed up global warming to increase the decomposition rate of the zombies since our experiments show that almost all parameters are advantageous for humans and not for zombies.
 
 \begin{thebibliography}{99}
