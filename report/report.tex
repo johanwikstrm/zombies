@@ -22,6 +22,8 @@
 \maketitle
 \tableofcontents
 
+\newpage
+
 \section{Problem description}	
 
 \paragraph{}
@@ -69,9 +71,14 @@ The incubation time of the zombie virus is also largely unknown so this paramete
 
 \subsection{Parallelisation of the model}
 \subsubsection{MPI}
+<<<<<<< HEAD
 The model is divided into several small meshes that are on the order of 60000 cells big. Each of these small meshes are connected to four neighbors and the universe wraps around. Before each timestep, the outer cells of each mesh are exchanged with the neighboring meshes which allows for inhabitants to move between meshes. This can create collisions if two inhabitants from two different meshes move into the same cell but this is mostly resolved with a very simple mechanism. If a collision is detected, two other nearby cells are examined and if any of these is empty, one of the colliding parties are moved. This may still lead to collisions if the populations density is very high but in a small experiment, this simple solution reduced collisions with over 99\% which was deemed enough for this application, as shown in Tab.~\ref{collisions}.
+=======
+\paragraph{}
+The model is divided into several small meshes that are on the order of 60000 cells big. Each of these small meshes are connected to four neighbours and the universe wraps around. Before each timestep, the outer cells of each mesh are exchanged with the neighbouring meshes which allows for inhabitants to move between meshes. This can create collisions if two inhabitants from two different meshes move into the same cell but this is mostly resolved with a very simple mechanism. If a collision is detected, two other nearby cells are examined and if any of these is empty, one of the colliding parties are moved. This may still lead to collisions if the populations density is very high but in a small experiment, this simple solution reduced collisions with over 99\% which was deemed enough for this application (table~\ref{collisions}).
+>>>>>>> 0b7230c7a02995e7fbf5c178fe6eb243fa4815df
 
-\begin{table}
+\begin{table}[h!]
 \centering
 \begin{tabular}{|l|l|}
 \hline
@@ -86,6 +93,13 @@ After & 6\\
 \label{collisions}
 \end{table}
 
+\subsubsection{Multi-threading}
+
+\paragraph{}
+In order to do the computation on each small mesh we use multi-threading. Each thread do the computation for some columns of the mesh. As the computation requires the closest neighbours, when a thread works on the column $j$, the columns $j-1$ and $j+1$ cannot be used by other threads. In order to make sure there is no confict, we use \emph{locking}.
+
+\paragraph{}
+We had to deal with another confilt during the computation of the statistics. In order to save time, we update the statistics after each event (birth, death, getting infected, etc $\cdots$), instead of computing the statistics at the end of each iteration. However, with this method, two threads may update the statistics at the same time. In order to avoid this kind of conflict, a first solution was locking. However, there are so many events which require to upadte the statistics, that the locking is really too time consuming when the number of threads increase. The second solution, the one we are using, is each thread computes its local statistics and at the end of each iteration the main thread computes the global statistics thanks to the local ones.
 
 
 
@@ -114,7 +128,6 @@ Without the zombies, the human population growth is slow and steady, about 1\% p
 %%% per year (average) : number of infected
 
 \section{Discussion of results}
-
 \begin{thebibliography}{99}
 \bibitem{openmpi}
 Open MPI: Goals, Concept, and Design of a Next Generation MPI Implementation. Edgar Gabriel, Graham E. Fagg, George Bosilca, Thara Angskun, Jack J. Dongarra, Jeffrey M. Squyres, Vishal Sahay, Prabhanjan Kambadur, Brian Barrett, Andrew Lumsdaine, Ralph H. Castain, David J. Daniel, Richard L. Graham, and Timothy S. Woodall. In Proceedings, 11th European PVM/MPI Users' Group Meeting, Budapest, Hungary, September 2004
