@@ -23,6 +23,8 @@
 \maketitle
 \tableofcontents
 
+\newpage
+
 \section{Problem description}	
 
 \paragraph{}
@@ -74,9 +76,10 @@ The incubation time of the zombie virus is also largely unknown so this paramete
 
 \subsection{Parallelisation of the model}
 \subsubsection{MPI}
-The model is divided into several small meshes that are on the order of 60000 cells big. Each of these small meshes are connected to four neighbours and the universe wraps around. Before each timestep, the outer cells of each mesh are exchanged with the neighbouring meshes which allows for inhabitants to move between meshes. This can create collisions if two inhabitants from two different meshes move into the same cell but this is mostly resolved with a very simple mechanism. If a collision is detected, two other nearby cells are examined and if any of these is empty, one of the colliding parties are moved. This may still lead to collisions if the populations density is very high but in a small experiment, this simple solution reduced collisions with over 99\% which was deemed enough for this application\ref{collisions}
+\paragraph{}
+The model is divided into several small meshes that are on the order of 60000 cells big. Each of these small meshes are connected to four neighbours and the universe wraps around. Before each timestep, the outer cells of each mesh are exchanged with the neighbouring meshes which allows for inhabitants to move between meshes. This can create collisions if two inhabitants from two different meshes move into the same cell but this is mostly resolved with a very simple mechanism. If a collision is detected, two other nearby cells are examined and if any of these is empty, one of the colliding parties are moved. This may still lead to collisions if the populations density is very high but in a small experiment, this simple solution reduced collisions with over 99\% which was deemed enough for this application (table~\ref{collisions}).
 
-\begin{table}
+\begin{table}[h!]
 \centering
 \begin{tabular}{|l|l|}
 \hline
@@ -88,9 +91,14 @@ After & 6\\
 \hline
 \end{tabular}
 \caption{The number of collisions per 1000 timesteps on four 98x98 grids before and after collision handling}
-\label{collsions}
+\label{collisions}
 \end{table}
 
+\subsubsection{Multi-threading}
+\paragraph{}
+In order to do the computation on each small mesh we use multi-threading. Each thread do the computation for some columns of the mesh. As the computation requires the closest neighbours, when a thread works on the column $j$, the columns $j-1$ and $j+1$ cannot be used by other threads. In order to make sure there is no confict, we use \emph{locking}.
+\paragraph{}
+We had to deal with another confilt during the computation of the statistics. In order to save time, we update the statistics after each event (birth, death, getting infected, etc $\cdots$), instead of computing the statistics at the end of each iteration. However, with this method, two threads may update the statistics at the same time. In order to avoid this kind of conflict, a first solution was locking. However, there are so many events which require to upadte the statistics, that the locking is really too time consuming when the number of threads increase. The second solution, the one we are using, is each thread computes its local statistics and at the end of each iteration the main thread computes the global statistics thanks to the local ones.
 
 
 
