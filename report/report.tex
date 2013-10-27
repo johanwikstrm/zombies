@@ -37,7 +37,7 @@ In our model we have a number of variable factors, some relatively known and som
 \begin{itemize}
 \item \emph{Human death rate}: The average human death rate per person, per day
 \item \emph{Human birth rate}: The average birth rate per human per day
-\item \emph{Brain eating probability}: The probability that a human is infected by a zombie of the collide, i.e. occupy the same square.
+\item \emph{Brain eating probability}: The probability that a human is infected by a zombie if the collide, i.e. occupy the same square.
 \item \emph{Infected to zombie probability}: The probability that an infected human will turn into a zombie on any given day.
 \item \emph{Human move probability}: The probability that a human will move outside of a 1x1 km\textsuperscript{2} radius on any given day.
 \item \emph{Zombie move probability}: The probability that a zombie will move outside of a 1x1 km\textsuperscript{2} radius on any given day.
@@ -55,14 +55,11 @@ The initial population statistics of our humans were based on actual Australian 
         Death rate & 6.5 per year per 1000 persons \\
       \hline
 \end{tabular}
-\caption{Northern Territory demographic data}\label{AustralianData}
+\caption{Australian demographic data}\label{AustralianData}
 \end{table}
 
-\paragraph{}
-Most of the humans' daily moving are within a kilometer. In our simulation, the probability for a human to travel more than 1 kilometer in one day is 0.4. When a human encounters a zombie, it may become infected with the probability of 0.65.
-
 \subsection{Zombies}
-The life of the zombie is largely unknown. We do not know how fast they move, how long before they decompose or how long the zombie incubation time is. For this reason, several parameters in our model can be adjusted to fit different apocalyptic scenarios. One thing that we discovered is that in a sparsely populated land, if we started with just two zombies, the probabilities of these zombies to infect any body before they decomposed was quite low. Therefore, to get reasonable data we started with an extremely small zombie population of around 250 zombies to more easily run the simulations.
+The life of the zombie is largely unknown. We do not know how fast they move, how long before they decompose or how long the zombie incubation time is. For this reason, several parameters in our model can be adjusted to fit different apocalyptic scenarios. One thing that we discovered is that in a sparsely populated land, if we started with just two zombies, the probabilities of these zombies to infect anybody before they decomposed was quite low. Therefore, to get reasonable data we started with an extremely small zombie population of around 250 zombies to more easily run the simulations.
 
 \subsection{Infected humans}
 The incubation time of the zombie virus is also largely unknown so this parameter is variable in our model. During the incubation period an infected cannot infect other humans. However, the power of the zombie virus during the incubation time is so powerful that infected humans cannot die like humans, or decompose like zombies. Judging by our sources\cite{deadheads}, a person bitten by a zombie gets a radically lowered risk of dying, almost always surviving until the point of zombiefication. After that, point however, the risk of dying by headshot is radically increased.
@@ -141,7 +138,7 @@ The best way to sustain a zombie population seems to be having a very small zomb
 \end{figure}
 \begin{figure}
 \includegraphics[width=350pt]{plots/zombiesstable}
-\caption{An example of the big fluctuations caused by a small relatively stable zombie population. A zoomed-in graph of the zombie population can be seen in Fig.~\ref{zombiesstablezoomed}}
+\caption{An example of the big fluctuations caused by a small relatively stable zombie population. A zoomed-in graph of the zombie population can be seen in Fig.~\ref{zombiesstablezoomed}. In this simulation the brain eating probability is low (0.2) and the zombies are quite agile (0.7) and have a low decay risk (0.01).}
 \label{zombiesstable}
 \end{figure}
 \begin{figure}

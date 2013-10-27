@@ -60,9 +60,9 @@ int main(int argc, char *argv[])
     if (rank == ROOT_NODE){
         before = MPI_Wtime();
     }
-    Statistic** stats = m.moveAll_mpi(nbIterations);
+    //Statistic** stats = m.moveAll_mpi(nbIterations);
     
-    //Statistic** stats = m.moveAll_omp_mpi(nbIterations);
+    Statistic** stats = m.moveAll_multiThreading_mpi(nbIterations);
     
     if (rank == ROOT_NODE){
         double seconds = MPI_Wtime()-before;
