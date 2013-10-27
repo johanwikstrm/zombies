@@ -340,17 +340,17 @@ void* Model::moveParallel(void* context) {
     bool hasMoved = input->hasMoved;
     uint32_t** randomizedRowsNumbers = input->randomizedRows;
     bool mpi = input->mpi;
-
     uint32_t height = model->getHeight();
     uint32_t width = model->getWidth();
+    // With MPI we must take into account the ghost cells
     if (mpi) {
         height = height - 2; 
     }
-    // compute the number of the columns the thread
-    // has to deal with (from firstColumn to lastColumn)
-    uint32_t numColumns = height / NUM_THREADS;
-    uint32_t firstColumn = numThread*numColumns;
-    uint32_t lastColumn = (numThread+1)*numColumns;
+    // the thread has to deal with the columns between
+    // firstColumn and lastColumn
+    uint32_t firstColumn = 0; 
+    uint32_t lastColumn = 0;
+    computeColumnNumbers(height, numThread, &firstColumn, &lastColumn);
     if (mpi) {
         firstColumn ++;
         lastColumn ++;
@@ -532,4 +532,18 @@ void Model::randomized(uint32_t** randomized) {
         (*randomized)[row1] = (*randomized)[row2]; 
         (*randomized)[row2] = tmp;
     }
-} 
+}
+
+
+void Model::computeColumnNumbers(uint32_t height, uint32_t numThread, uint32_t* firstColumn, uint32_t* lastColumn) {
+    uint32_t numColumns = height / NUM_THREADS;
+    uint32_t k = height % NUM_THREADS;
+    if (numThread <= k-1) { 
+        (*firstColumn) = numThread*numColumns + numThread;
+        (*lastColumn) = (numThread+1)*numColumns + numThread + 1;
+    } else {
+        (*firstColumn) = numThread*numColumns + k;
+        (*lastColumn) = (numThread+1)*numColumns + k;
+    }
+}
+

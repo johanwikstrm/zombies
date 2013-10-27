@@ -57,6 +57,20 @@ class Model
 
         void initialiseRandomizedArray(uint32_t** randomized);
         void randomized(uint32_t** randomized);
+        
+        /**
+         * @brief Compute the numbers of the columns a thread has to deal with
+         *        If all the threads cannot deal with the exact same number 
+         *        of columns (i.e height % NUM_THREADS != 0), the first threads
+         *        will deal with an additional column
+         *
+         * @param   height
+         * @param   numThread
+         * @param   firstColumn (out parameter)
+         * @param   lastColumn (out parameter)
+         */
+        static void computeColumnNumbers(uint32_t height, uint32_t numThread,
+                                  uint32_t* firstColumn, uint32_t* lastColumn);
 
 
             
