@@ -352,8 +352,8 @@ void* Model::moveParallel(void* context) {
     uint32_t lastColumn = 0;
     computeColumnNumbers(height, numThread, &firstColumn, &lastColumn);
     if (mpi) {
-        firstColumn ++;
-        lastColumn ++;
+        firstColumn++;
+        lastColumn++;
     }
     uint32_t randomizedRow;
     // The thread executes the movements for its columns
@@ -538,12 +538,17 @@ void Model::randomized(uint32_t** randomized) {
 void Model::computeColumnNumbers(uint32_t height, uint32_t numThread, uint32_t* firstColumn, uint32_t* lastColumn) {
     uint32_t numColumns = height / NUM_THREADS;
     uint32_t k = height % NUM_THREADS;
-    if (numThread <= k-1) { 
-        (*firstColumn) = numThread*numColumns + numThread;
-        (*lastColumn) = (numThread+1)*numColumns + numThread + 1;
+    if (k == 0) {
+        (*firstColumn) = numThread*numColumns;
+        (*lastColumn) = (numThread+1)*numColumns;
     } else {
-        (*firstColumn) = numThread*numColumns + k;
-        (*lastColumn) = (numThread+1)*numColumns + k;
+        if (numThread <= k-1) { 
+            (*firstColumn) = numThread*numColumns + numThread;
+            (*lastColumn) = (numThread+1)*numColumns + numThread + 1;
+        } else {
+            (*firstColumn) = numThread*numColumns + k;
+            (*lastColumn) = (numThread+1)*numColumns + k;
+        }
     }
 }
 

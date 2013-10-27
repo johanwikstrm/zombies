@@ -19,7 +19,12 @@ class Matrix : public Array
         uint32_t height;            /**< matrix height */
         uint32_t width;             /**< matrix width */
         uint32_t* counts;           /**< the statistics : number of HUMAN, INFECTED, ZOMBIE and EMPTY */
-        int32_t** partialCounts; 
+        // partialCounts is necessary for efficientcy issues
+        // without this matrix, when a thread wants to update counts, we need to lock/unlock
+        // and it is very time-consumming
+        // It is less consumming to update counts at the end of each iteration thanks to the local
+        // statistics computed by each thread
+        int32_t** partialCounts;    /**< the local statistics computed by each thread */
         bool mpiEnabled;            /**< True iff the program is using MPI */
         uint32_t kind(Cell* ptr);   /**< return the kind of a cell */
 
@@ -72,6 +77,10 @@ class Matrix : public Array
          */
         uint32_t getCount(uint32_t kind) const;
 
+        /**
+         * @brief   Update the global statistics thanks to the partial
+         *          statistics computed by each thread locally
+         */
         void computeGlobalStatistics();
 
         /**
@@ -86,11 +95,15 @@ class Matrix : public Array
 
         /**
          *  @brief      Change the kind of the cell at the position (x, y)
+         *              and update the statistics
+         *              if numThread == NULL, then the global statistics are updated
+         *              otherwise, the local statistics of the thread (*numThread) are updated
          *
-         *  @param  x   the abscissa
-         *  @param  y   the ordinate
-         *  @param  k   the new kind of the cell at the position (x, y)
-         *  @param  sex the nex sex of the cell at the position (x, y)
+         *  @param  x           the abscissa
+         *  @param  y           the ordinate
+         *  @param  k           the new kind of the cell at the position (x, y)
+         *  @paam   *numThread  pointer to the number of the current thread
+         *  @param  sex         the nex sex of the cell at the position (x, y)
          */
         void set(uint32_t x, uint32_t y, uint32_t k, uint32_t* numThread, uint32_t sex = 0);
 
@@ -107,9 +120,13 @@ class Matrix : public Array
 
         /**
          * @brief       The person (HUMAN or INFECTED) get infected
+         *              If numThread != NULL the global statistics are updated
+         *              otherwise, the local statistics of the thread (*numThread)
+         *              are updated
          *
-         * @param       the abscissa of the person
-         * @param       the ordinate of the person
+         * @param  x            the abscissa of the person
+         * @param  y            the ordinate of the person
+         * @paam   *numThread   pointer to the number of the current thread
          */
         void getInfected(uint32_t x, uint32_t y, uint32_t* numThread);
 

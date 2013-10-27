@@ -14,8 +14,8 @@ int main(int argc, char *argv[]){
 
     int rank = 1;
    
-    uint32_t width = 20;
-    uint32_t height = 20;
+    uint32_t width = 250;
+    uint32_t height = 250;
    
     // Population density in Northern Territory
     double initialPopDensity = 0.17;
@@ -25,9 +25,6 @@ int main(int argc, char *argv[]){
     double naturalDeathRisk = 6.5/(1000*366);
     
     double brainEatingProb = 0.7;
-   
-    // Zombies die !!!
-
     double infectedToZombieProb = 1.0/20.0;
     double zombieDecompositionRisk = 1.0/50.0;
     double humanMoveProb = 0.4;
@@ -36,7 +33,7 @@ int main(int argc, char *argv[]){
     Model m = Model(width, height, rank, naturalBirthProb, naturalDeathRisk, 
                     initialPopDensity, brainEatingProb, infectedToZombieProb, 
                     zombieDecompositionRisk, humanMoveProb, zombieMoveProb, false);
-    m.moveAll_multiThreading(1);
+    m.moveAll_multiThreading(10);
 
     time_t end;
     time(&end);

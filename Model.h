@@ -13,16 +13,19 @@ class Model
                 , double brainEatingProb,double infectedToZombieProb,double zombieDecompositionRisk, double humanMoveProb
                 , double zombieMoveProb, bool mpiEnabled = false);
         ~Model();
+        
         Statistic** moveAll(uint32_t iterations=1);
         Statistic** moveAll_mpi(uint32_t iterations=1);
         void moveAll_multiThreading(uint32_t iterations=1);
-        void moveAll_multiThreading_2(uint32_t iterations=1);
-        Statistic** moveAll_multiThreading_mpi(uint32_t iterations);
+        Statistic** moveAll_multiThreading_mpi(uint32_t iterations=1);
+        
         void print();
         void printStats();
+        
         int getCount(int kind);
         uint32_t getWidth();
         uint32_t getHeight();
+        
         // Used for testing
         Cell* at(int x, int y);
 
@@ -33,11 +36,20 @@ class Model
         // the dimensions of the area
         uint32_t width, height;
         
-        ////// the model parameters
-        double naturalBirthProb, naturalDeathRisk, initialPopDensity, brainEatingProb, infectedToZombieProb;
-        double zombieDecompositionRisk,humanMoveProb,zombieMoveProb;
+        //////////////////////////////////
+        ////// the model parameters //////
+        //////////////////////////////////
+        // Birth rate and death rate
+        // in number of birth (or death) per year per 1000 humans
+        double naturalBirthProb, naturalDeathRisk;
+        // Initial population density in number of humans per km^2
+        double initialPopDensity;
+        double brainEatingProb, infectedToZombieProb;
+        double zombieDecompositionRisk, humanMoveProb, zombieMoveProb;
 
-        ////// MPI parameters
+        ////////////////////////////
+        ////// MPI parameters //////
+        ////////////////////////////
         // the neighbours of the current processor
         int * nbours;
         // the rank of the current processor
@@ -61,6 +73,7 @@ class Model
         bool timeToMoveHuman(uint32_t* numThread);
         bool timeToMoveZombie(uint32_t* numThread);
         bool timeToEatBrain(uint32_t* numThread);
+        
         void init();
         void init_mpi();
         void initMoveFlags();
@@ -94,9 +107,6 @@ class Model
          */
         static void computeColumnNumbers(uint32_t height, uint32_t numThread,
                                   uint32_t* firstColumn, uint32_t* lastColumn);
-
-
-            
 };
 
 #endif
